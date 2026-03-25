@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="service.subtitles.titulky-dualsub"
+       name="Titulky DualSub (OpenSubtitles + Titulky.com)"
+       version="1.0.0"
+       provider-name="community">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.chardet" version="2.3.0"/>
+        <import addon="script.module.pysubs2" version="1.3.1" optional="true"/>
+    </requires>
+    <extension point="xbmc.subtitle.module" library="service.py">
+        <provides>
+            <subtitle>
+                <language>af</language><language>sq</language><language>ar</language>
+                <language>hy</language><language>bs</language><language>bg</language>
+                <language>ca</language><language>zh</language><language>hr</language>
+                <language>cs</language><language>da</language><language>nl</language>
+                <language>en</language><language>eo</language><language>et</language>
+                <language>fi</language><language>fr</language><language>de</language>
+                <language>el</language><language>he</language><language>hi</language>
+                <language>hu</language><language>id</language><language>it</language>
+                <language>ja</language><language>ko</language><language>lv</language>
+                <language>lt</language><language>mk</language><language>ms</language>
+                <language>no</language><language>fa</language><language>pl</language>
+                <language>pt</language><language>ro</language><language>ru</language>
+                <language>sr</language><language>sk</language><language>sl</language>
+                <language>es</language><language>sv</language><language>ta</language>
+                <language>th</language><language>tr</language><language>uk</language>
+                <language>vi</language>
+            </subtitle>
+        </provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Search and download dual subtitles from OpenSubtitles.com and Titulky.com simultaneously</summary>
+        <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com a Titulky.com súčasne</summary>
+        <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com a Titulky.com současně</summary>
+        <description lang="en">
+            Combines OpenSubtitles.com and Titulky.com subtitle sources into a single dual-subtitle addon.
+            Search both sources in parallel, select two subtitles, and display them simultaneously —
+            one at the bottom and one at the top of the screen. Requires OpenSubtitles.com and/or
+            Titulky.com account credentials in addon settings.
+        </description>
+        <description lang="sk">
+            Kombinuje zdroje titulkov OpenSubtitles.com a Titulky.com do jedného duálneho addonu.
+            Vyhľadáva oba zdroje paralelne, umožňuje výber dvoch titulkov a zobrazí ich súčasne —
+            jeden dole a jeden hore na obrazovke.
+        </description>
+        <platform>all</platform>
+        <license>GPL-2.0-only</license>
+        <source>https://github.com/</source>
+    </extension>
+</addon>

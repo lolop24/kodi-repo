@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.csfd-rebricek"
+       name="ČSFD Rebríček"
+       version="12.0.1"
+       provider-name="CSFD-SC-Bridge">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="script.module.requests" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="sk">ČSFD Rebríčky so Stream Cinema integráciou</summary>
+        <summary lang="cs">ČSFD Žebříčky se Stream Cinema integrací</summary>
+        <description lang="sk">Najlepšie filmy a seriály z ČSFD rebríčkov s priamym prepojením na Stream Cinema.</description>
+        <platform>all</platform>
+    </extension>
+</addon>
