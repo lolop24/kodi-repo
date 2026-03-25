@@ -7,9 +7,9 @@
         <import addon="xbmc.addon" version="12.0.0"/>
     </requires>
     <extension point="xbmc.addon.repository" name="42po.lol Repository">
-        <info compressed="false">https://42po.lol/addons.xml</info>
-        <checksum>https://42po.lol/addons.xml.md5</checksum>
-        <datadir zip="true">https://42po.lol</datadir>
+        <info compressed="false">http://42po.lol/addons.xml</info>
+        <checksum>http://42po.lol/addons.xml.md5</checksum>
+        <datadir zip="true">http://42po.lol</datadir>
     </extension>
     <extension point="xbmc.addon.metadata">
         <summary lang="sk">CS Kodi repozitár</summary>
