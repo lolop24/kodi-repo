@@ -431,7 +431,7 @@
 	<!-- ČSFD widget list includes -->
 	<include name="CSFDMovieList">
 		<include content="SCWidgetListPoster">
-			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget&amp;mtype=film"/>
+			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_film"/>
 			<param name="widget_header" value="ČSFD Rebríček"/>
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="6010"/>
@@ -439,7 +439,7 @@
 	</include>
 	<include name="CSFDSeriesList">
 		<include content="SCWidgetListPoster">
-			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget&amp;mtype=serial"/>
+			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_serial"/>
 			<param name="widget_header" value="ČSFD Rebríček"/>
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="6011"/>
@@ -520,7 +520,7 @@
         </item>
         <item>
             <label>ČSFD Filmy (SC)</label>
-            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=ranking&amp;mtype=film&amp;page=1,return)</onclick>
+            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=widget_film,return)</onclick>
             <property name="menu_id">$NUMBER[25900]</property>
             <thumb>icons/sidemenu/movies.png</thumb>
             <property name="id">csfd-movies</property>
@@ -528,7 +528,7 @@
         </item>
         <item>
             <label>ČSFD Seriály (SC)</label>
-            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=ranking&amp;mtype=serial&amp;page=1,return)</onclick>
+            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=widget_serial,return)</onclick>
             <property name="menu_id">$NUMBER[25901]</property>
             <thumb>icons/sidemenu/tv.png</thumb>
             <property name="id">csfd-series</property>
