@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.csfd-rebricek"
        name="ČSFD Rebríček"
-       version="12.1.0"
+       version="12.2.0"
        provider-name="CSFD-SC-Bridge">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -13,9 +13,12 @@
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">ČSFD Rankings with Stream Cinema integration</summary>
         <summary lang="sk">ČSFD Rebríčky so Stream Cinema integráciou</summary>
         <summary lang="cs">ČSFD Žebříčky se Stream Cinema integrací</summary>
-        <description lang="sk">Najlepšie filmy a seriály z ČSFD rebríčkov s priamym prepojením na Stream Cinema.</description>
+        <description lang="en_gb">Best movies and TV series from ČSFD rankings with direct Stream Cinema integration. Green dot = available on SC.</description>
+        <description lang="sk">Najlepšie filmy a seriály z ČSFD rebríčkov s priamym prepojením na Stream Cinema. Zelená bodka = dostupné na SC.</description>
+        <description lang="cs">Nejlepší filmy a seriály z ČSFD žebříčků s přímým propojením na Stream Cinema. Zelená tečka = dostupné na SC.</description>
         <platform>all</platform>
     </extension>
 </addon>
