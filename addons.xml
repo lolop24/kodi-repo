@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.0.1" provider-name="CSFD-SC-Bridge">
+    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.1.0" provider-name="CSFD-SC-Bridge">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -22,9 +22,11 @@
             <import addon="xbmc.addon" version="12.0.0" />
         </requires>
         <extension point="xbmc.addon.repository" name="42po.lol Repository">
-            <info compressed="false">http://42po.lol/addons.xml</info>
-            <checksum>http://42po.lol/addons.xml.md5</checksum>
-            <datadir zip="true">http://42po.lol</datadir>
+            <dir>
+                <info compressed="false">http://42po.lol/addons.xml</info>
+                <checksum>http://42po.lol/addons.xml.md5</checksum>
+                <datadir zip="true">http://42po.lol/</datadir>
+            </dir>
         </extension>
         <extension point="xbmc.addon.metadata">
             <summary lang="sk">CS Kodi repozitár</summary>
