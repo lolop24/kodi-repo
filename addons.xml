@@ -41,7 +41,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-dualsub" name="Titulky DualSub (OpenSubtitles + Titulky.com)" version="1.0.0" provider-name="community">
+    <addon id="service.subtitles.titulky-dualsub" name="Titulky DualSub (OpenSubtitles + Titulky.com)" version="1.2.0" provider-name="community">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.9.1" />
@@ -101,9 +101,9 @@
             </provides>
         </extension>
         <extension point="xbmc.addon.metadata">
-            <summary lang="en">Search and download dual subtitles from OpenSubtitles.com and Titulky.com simultaneously</summary>
-            <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com a Titulky.com súčasne</summary>
-            <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com a Titulky.com současně</summary>
+            <summary lang="en">Search and download dual subtitles from OpenSubtitles.com, Titulky.com, and TVsubtitles.net simultaneously</summary>
+            <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com, Titulky.com a TVsubtitles.net súčasne</summary>
+            <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com, Titulky.com a TVsubtitles.net současně</summary>
             <description lang="en">
                 Combines OpenSubtitles.com and Titulky.com subtitle sources into a single dual-subtitle addon.
                 Search both sources in parallel, select two subtitles, and display them simultaneously —
@@ -118,6 +118,46 @@
             <platform>all</platform>
             <license>GPL-2.0-only</license>
             <source>https://github.com/</source>
+        </extension>
+    </addon>
+    <addon id="skin.lolop" version="1.0.0" name="Lolop Skin" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.gui" version="5.17.0" />
+        </requires>
+        <extension point="xbmc.gui.skin" debugging="false">
+            <res width="1920" height="1440" aspect="4:3" default="false" folder="xml" />
+            <res width="1920" height="1280" aspect="3:2" default="false" folder="xml" />
+            <res width="1920" height="1200" aspect="16:10" default="false" folder="xml" />
+            <res width="2040" height="1080" aspect="17:9" default="false" folder="xml" />
+            <res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+            <res width="2560" height="1080" aspect="21:9" default="false" folder="xml" />
+            <res width="2338" height="1080" aspect="19.5:9" default="false" folder="xml" />
+            <res width="2160" height="1080" aspect="18:9" default="false" folder="xml" />
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</summary>
+            <summary lang="cs_CZ">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</summary>
+            <summary lang="sk_SK">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</summary>
+            <description lang="en_GB">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</description>
+            <description lang="cs_CZ">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</description>
+            <description lang="sk_SK">Lolop's personal Kodi skin based on Estuary Stream Cinema MOD. Pre-configured with Stream Cinema and ČSFD rankings.</description>
+            <disclaimer lang="en_GB">This is a personal skin based on Estuary Stream Cinema MOD.</disclaimer>
+            <platform>all</platform>
+            <license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+            <forum>http://forum.kodi.tv/</forum>
+            <source>https://github.com/lolop24/kodi-repo/</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+                <screenshot>resources/screenshot-01.jpg</screenshot>
+                <screenshot>resources/screenshot-02.jpg</screenshot>
+                <screenshot>resources/screenshot-03.jpg</screenshot>
+                <screenshot>resources/screenshot-04.jpg</screenshot>
+                <screenshot>resources/screenshot-05.jpg</screenshot>
+                <screenshot>resources/screenshot-06.jpg</screenshot>
+                <screenshot>resources/screenshot-07.jpg</screenshot>
+                <screenshot>resources/screenshot-08.jpg</screenshot>
+            </assets>
         </extension>
     </addon>
 </addons>

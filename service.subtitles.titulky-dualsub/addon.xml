@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titulky-dualsub"
        name="Titulky DualSub (OpenSubtitles + Titulky.com)"
-       version="1.0.0"
+       version="1.2.0"
        provider-name="community">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -32,9 +32,9 @@
         </provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">Search and download dual subtitles from OpenSubtitles.com and Titulky.com simultaneously</summary>
-        <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com a Titulky.com súčasne</summary>
-        <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com a Titulky.com současně</summary>
+        <summary lang="en">Search and download dual subtitles from OpenSubtitles.com, Titulky.com, and TVsubtitles.net simultaneously</summary>
+        <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com, Titulky.com a TVsubtitles.net súčasne</summary>
+        <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com, Titulky.com a TVsubtitles.net současně</summary>
         <description lang="en">
             Combines OpenSubtitles.com and Titulky.com subtitle sources into a single dual-subtitle addon.
             Search both sources in parallel, select two subtitles, and display them simultaneously —
