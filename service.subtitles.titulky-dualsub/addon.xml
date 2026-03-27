@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titulky-dualsub"
        name="Titulky DualSub (OpenSubtitles + Titulky.com)"
-       version="1.2.0"
+       version="1.3.0"
        provider-name="community">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -36,15 +36,17 @@
         <summary lang="sk">Vyhľadávanie a sťahovanie duálnych titulkov z OpenSubtitles.com, Titulky.com a TVsubtitles.net súčasne</summary>
         <summary lang="cs">Hledání a stahování duálních titulků z OpenSubtitles.com, Titulky.com a TVsubtitles.net současně</summary>
         <description lang="en">
-            Combines OpenSubtitles.com and Titulky.com subtitle sources into a single dual-subtitle addon.
-            Search both sources in parallel, select two subtitles, and display them simultaneously —
-            one at the bottom and one at the top of the screen. Requires OpenSubtitles.com and/or
-            Titulky.com account credentials in addon settings.
+            Combines OpenSubtitles.com, Titulky.com and TVsubtitles.net into a single dual-subtitle addon.
+            Searches all sources in parallel. Select two subtitles — first selected appears at the TOP (white),
+            second at the BOTTOM (yellow). Supports Ukrainian, English, and 40+ languages.
+            TVsubtitles.net is searched automatically for TV shows (Ukrainian, English and others — not Czech/Slovak).
+            Requires OpenSubtitles.com and/or Titulky.com credentials in addon settings.
         </description>
         <description lang="sk">
-            Kombinuje zdroje titulkov OpenSubtitles.com a Titulky.com do jedného duálneho addonu.
-            Vyhľadáva oba zdroje paralelne, umožňuje výber dvoch titulkov a zobrazí ich súčasne —
-            jeden dole a jeden hore na obrazovke.
+            Kombinuje zdroje titulkov OpenSubtitles.com, Titulky.com a TVsubtitles.net do jedného duálneho addonu.
+            Vyhľadáva všetky zdroje paralelne. Vyber dva titulky — prvý vybraný ide HORE (biele),
+            druhý vybraný ide DOLE (žlté). TVsubtitles.net sa prehľadáva automaticky pre seriály
+            (ukrajinčina, angličtina a ďalšie — nie čeština/slovenčina).
         </description>
         <platform>all</platform>
         <license>GPL-2.0-only</license>
