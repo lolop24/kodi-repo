@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.csfd-rebricek"
        name="ČSFD Rebríček"
-       version="12.6.0"
+       version="12.7.0"
        provider-name="CSFD-SC-Bridge">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -13,12 +13,12 @@
         <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en_gb">ČSFD Rankings with Stream Cinema integration</summary>
-        <summary lang="sk">ČSFD Rebríčky so Stream Cinema integráciou</summary>
-        <summary lang="cs">ČSFD Žebříčky se Stream Cinema integrací</summary>
-        <description lang="en_gb">Top movies and series from ČSFD rankings with direct link to Stream Cinema.</description>
-        <description lang="sk">Najlepšie filmy a seriály z ČSFD rebríčkov s priamym prepojením na Stream Cinema.</description>
-        <description lang="cs">Nejlepší filmy a seriály z ČSFD žebříčků s přímým propojením na Stream Cinema.</description>
+        <summary lang="en_gb">Browse ČSFD top rankings and open in Stream Cinema</summary>
+        <summary lang="sk">Rebríčky filmov a seriálov z ČSFD s otvorením vo Stream Cinema</summary>
+        <summary lang="cs">Žebříčky filmů a seriálů z ČSFD s otevřením ve Stream Cinema</summary>
+        <description lang="en_gb">Browse top movies, series and seasons from ČSFD rankings filtered by year. Each item shows rating, plot and reviews. Click any title to instantly search it in Stream Cinema.</description>
+        <description lang="sk">Prehliadaj rebríčky filmov, seriálov a sérií z ČSFD s filtrom od roku. Každá položka zobrazuje hodnotenie, plot a recenzie. Kliknutím na titul sa otvorí vyhľadávanie priamo vo Stream Cinema.</description>
+        <description lang="cs">Procházej žebříčky filmů, seriálů a sérií z ČSFD s filtrem od roku. Každá položka zobrazuje hodnocení, popis a recenze. Kliknutím na titul se otevře vyhledávání přímo ve Stream Cinema.</description>
         <platform>all</platform>
     </extension>
 </addon>
