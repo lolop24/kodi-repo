@@ -41,7 +41,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-dualsub" name="Titulky DualSub (OpenSubtitles + Titulky.com)" version="1.4.0" provider-name="community">
+    <addon id="service.subtitles.titulky-dualsub" name="Titulky DualSub (OpenSubtitles + Titulky.com)" version="1.4.1" provider-name="community">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.9.1" />
