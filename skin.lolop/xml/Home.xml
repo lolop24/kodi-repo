@@ -2,6 +2,28 @@
 <window>
 	<defaultcontrol>9000</defaultcontrol>
 	<backgroundcolor>background</backgroundcolor>
+	<!-- Default menu: SC Filmy, SC Serialy, CSFD, Addony -->
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_movies)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_movies_new)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_movies_new_streams)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_movies_history)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_series)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_series_new)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_series_new_streams)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(sc_home_series_history)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(csfd_home)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoMovieButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoTVShowButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoMusicButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoMusicVideoButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoTVButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoRadioButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoFavButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoWeatherButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoPicturesButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoVideosButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(HomeMenuNoGamesButton)</onload>
+	<onload condition="!Skin.HasSetting(lolop_defaults_v1)">Skin.SetBool(lolop_defaults_v1)</onload>
 	<controls>
 		<control type="button" id="20000">
 			<include>HiddenObject</include>
@@ -849,6 +871,7 @@
 					</include>
 				</control>
 				<include>SCHomeRightMenuMovies</include>
+				<include>CSFDHomeRightMenu</include>
 			</control>
 			<control type="group">
 				<depth>DepthContentPanel</depth>

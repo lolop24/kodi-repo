@@ -220,36 +220,6 @@
                 <param name="scrollbar_id" value="5017"/>
             </include>
         </control>
-        <!-- ČSFD Filmy (na SC) -->
-        <control type="group" id="25900">
-            <visible>Skin.HasSetting(csfd_home_movies) + String.IsEqual(Container(9000).ListItem.Property(id),csfd-movies)</visible>
-            <include content="Visible_Right_Delayed">
-                <param name="id" value="csfd-movies"/>
-            </include>
-            <control type="grouplist" id="25910">
-                <include>WidgetGroupListCommon</include>
-                <pagecontrol>25920</pagecontrol>
-                <include condition="Skin.HasSetting(csfd_home_movies)">CSFDMovieList</include>
-            </control>
-            <include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
-                <param name="scrollbar_id" value="25920"/>
-            </include>
-        </control>
-        <!-- ČSFD Seriály (na SC) -->
-        <control type="group" id="25901">
-            <visible>Skin.HasSetting(csfd_home_series) + String.IsEqual(Container(9000).ListItem.Property(id),csfd-series)</visible>
-            <include content="Visible_Right_Delayed">
-                <param name="id" value="csfd-series"/>
-            </include>
-            <control type="grouplist" id="25911">
-                <include>WidgetGroupListCommon</include>
-                <pagecontrol>25921</pagecontrol>
-                <include condition="Skin.HasSetting(csfd_home_series)">CSFDSeriesList</include>
-            </control>
-            <include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
-                <param name="scrollbar_id" value="25921"/>
-            </include>
-        </control>
 	</include>
 
 	<!-- SC Home right widgets content -->
@@ -428,23 +398,8 @@
         </include>
     </include>
 
-	<!-- ČSFD widget list includes -->
-	<include name="CSFDMovieList">
-		<include content="SCWidgetListPoster">
-			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_film"/>
-			<param name="widget_header" value="ČSFD Rebríček"/>
-			<param name="widget_target" value="videos"/>
-			<param name="list_id" value="6010"/>
-		</include>
-	</include>
-	<include name="CSFDSeriesList">
-		<include content="SCWidgetListPoster">
-			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_serial"/>
-			<param name="widget_header" value="ČSFD Rebríček"/>
-			<param name="widget_target" value="videos"/>
-			<param name="list_id" value="6011"/>
-		</include>
-	</include>
+	<!-- ČSFD widget list -->
+	<!-- CSFDList removed — replaced by CSFDWidgetList in CSFDHomeRightMenu -->
 
 	<!-- SC Menu items -->
 	<include name="SCHomeMenu">
@@ -519,22 +474,54 @@
             <visible>Skin.HasSetting(sc_trakt_watchlist)</visible>
         </item>
         <item>
-            <label>ČSFD Filmy (SC)</label>
-            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=widget_film,return)</onclick>
-            <property name="menu_id">$NUMBER[25900]</property>
+            <label>ČSFD</label>
+            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/,return)</onclick>
+            <property name="menu_id">$NUMBER[26001]</property>
             <thumb>icons/sidemenu/movies.png</thumb>
-            <property name="id">csfd-movies</property>
-            <visible>Skin.HasSetting(csfd_home_movies)</visible>
-        </item>
-        <item>
-            <label>ČSFD Seriály (SC)</label>
-            <onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/?action=widget_serial,return)</onclick>
-            <property name="menu_id">$NUMBER[25901]</property>
-            <thumb>icons/sidemenu/tv.png</thumb>
-            <property name="id">csfd-series</property>
-            <visible>Skin.HasSetting(csfd_home_series)</visible>
+            <property name="id">csfd</property>
+            <visible>Skin.HasSetting(csfd_home)</visible>
         </item>
     </include>
+
+	<!-- ČSFD Widget Lists -->
+	<include name="CSFDWidgetList">
+		<include content="SCWidgetListPoster">
+			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_film"/>
+			<param name="widget_header" value="ČSFD Filmy"/>
+			<param name="widget_target" value="videos"/>
+			<param name="list_id" value="26010"/>
+		</include>
+		<include content="SCWidgetListPoster">
+			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_serial"/>
+			<param name="widget_header" value="ČSFD Seriály"/>
+			<param name="widget_target" value="videos"/>
+			<param name="list_id" value="26020"/>
+		</include>
+		<include content="SCWidgetListPoster">
+			<param name="content_path" value="plugin://plugin.video.csfd-rebricek/?action=widget_serie"/>
+			<param name="widget_header" value="ČSFD Série"/>
+			<param name="widget_target" value="videos"/>
+			<param name="list_id" value="26030"/>
+		</include>
+	</include>
+
+	<!-- ČSFD Home Right Menu -->
+	<include name="CSFDHomeRightMenu">
+		<control type="group" id="26000">
+			<visible>Skin.HasSetting(csfd_home) + String.IsEqual(Container(9000).ListItem.Property(id),csfd)</visible>
+			<include content="Visible_Right_Delayed">
+				<param name="id" value="csfd"/>
+			</include>
+			<control type="grouplist" id="26001">
+				<include>WidgetGroupListCommon</include>
+				<pagecontrol>5020</pagecontrol>
+				<include condition="Skin.HasSetting(csfd_home)">CSFDWidgetList</include>
+			</control>
+			<include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
+				<param name="scrollbar_id" value="5020"/>
+			</include>
+		</control>
+	</include>
 
 	<!-- SC Settings -->
 	<include name="SCGlobalSettings">
@@ -714,16 +701,10 @@
         </control>
         <!-- ČSFD Rebríček -->
         <control type="radiobutton" id="970">
-            <label>ČSFD Filmy (na Stream Cinema)</label>
+            <label>ČSFD Rebríček</label>
             <include>DefaultSettingButton</include>
-            <selected>Skin.HasSetting(csfd_home_movies)</selected>
-            <onclick>Skin.ToggleSetting(csfd_home_movies)</onclick>
-        </control>
-        <control type="radiobutton" id="971">
-            <label>ČSFD Seriály (na Stream Cinema)</label>
-            <include>DefaultSettingButton</include>
-            <selected>Skin.HasSetting(csfd_home_series)</selected>
-            <onclick>Skin.ToggleSetting(csfd_home_series)</onclick>
+            <selected>Skin.HasSetting(csfd_home)</selected>
+            <onclick>Skin.ToggleSetting(csfd_home)</onclick>
         </control>
     </include>
 
