@@ -8,9 +8,9 @@
     </requires>
     <extension point="xbmc.addon.repository" name="42po.lol Repository">
         <dir>
-            <info compressed="false">http://42po.lol/addons.xml</info>
-            <checksum algo="md5">http://42po.lol/addons.xml.md5</checksum>
-            <datadir zip="true">http://42po.lol/</datadir>
+            <info compressed="false">https://42po.lol/addons.xml</info>
+            <checksum algo="md5">https://42po.lol/addons.xml.md5</checksum>
+            <datadir zip="true">https://42po.lol/</datadir>
         </dir>
     </extension>
     <extension point="xbmc.addon.metadata">
