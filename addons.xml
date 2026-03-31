@@ -122,7 +122,7 @@
             <source>https://github.com/</source>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-dualsub-phoneticua" name="Titulky Phonetic UA" version="1.6.2" provider-name="community">
+    <addon id="service.subtitles.titulky-dualsub-phoneticua" name="Titulky Phonetic UA" version="1.6.3" provider-name="community">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="script.module.requests" version="2.9.1" />
@@ -148,7 +148,9 @@
             <platform>all</platform>
             <license>GPL-2.0-only</license>
             <source>https://github.com/</source>
-            <news>v1.6.2 (2026-03-31)
+            <news>v1.6.3 (2026-04-01)
+     - Swapped subtitle lanes so Czech or Slovak is shown on top and Ukrainian phonetic on bottom
+    v1.6.2 (2026-03-31)
      - Repackaged build after Raspberry Pi search-speed improvements
     v1.6.1 (2026-03-31)
      - Added fast search mode for slower devices such as Raspberry Pi
