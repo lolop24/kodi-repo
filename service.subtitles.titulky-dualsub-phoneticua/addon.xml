@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titulky-dualsub-phoneticua"
        name="Titulky Phonetic UA"
-       version="1.6.0"
+       version="1.6.2"
        provider-name="community">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -28,7 +28,13 @@
         <platform>all</platform>
         <license>GPL-2.0-only</license>
         <source>https://github.com/</source>
-        <news>v1.6.0 (2026-03-31)
+        <news>v1.6.2 (2026-03-31)
+ - Repackaged build after Raspberry Pi search-speed improvements
+v1.6.1 (2026-03-31)
+ - Added fast search mode for slower devices such as Raspberry Pi
+ - Added shorter network timeouts and stopped waiting on slow providers
+ - Reused cached file metadata and skipped remote movie hashing in fast mode
+v1.6.0 (2026-03-31)
  - Cleaned the standalone addon down to a single search-download-rewrite-merge flow
  - Removed legacy multi-select and TVSubtitles leftovers
  - One selected Czech or Slovak subtitle now downloads, generates phonetic Ukrainian, and merges automatically</news>
