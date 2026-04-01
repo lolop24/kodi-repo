@@ -166,7 +166,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.lolop" version="1.0.2" name="Lolop Skin" provider-name="phil65, Ichabod Fletchman, bbaron">
+    <addon id="skin.lolop" version="1.0.3" name="Lolop Skin" provider-name="phil65, Ichabod Fletchman, bbaron">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
         </requires>

@@ -232,7 +232,7 @@
 			<param name="list_id" value="5901"/>
 		</include>
 		<include content="SCWidgetListPoster" condition="Skin.HasSetting(sc_home_movies_history)">
-			<param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6c617374&amp;id=6c61737466&amp;title=646972&amp;widget=1"/>
+			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464d6f766965732f6c61737457617463686564&amp;widget=1"/>
 			<param name="widget_header" value="Posledne sledovane"/>
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="5902"/>
@@ -301,7 +301,7 @@
 			<param name="list_id" value="59105"/>
 		</include>
 		<include content="SCWidgetListPoster" condition="Skin.HasSetting(sc_home_series_history)">
-			<param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6c617374&amp;id=6c61737473&amp;title=646972&amp;widget=1"/>
+			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
 			<param name="widget_header" value="Posledne sledovane"/>
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="5911"/>
@@ -334,7 +334,7 @@
             <param name="list_id" value="5914"/>
         </include>
         <include content="SCWidgetListPoster">
-            <param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6c617374&amp;id=6c6173746b&amp;title=646972&amp;widget=1"/>
+            <param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464b6f6e636572742f6c61737457617463686564&amp;widget=1"/>
             <param name="additional_movie_items" value="true"/>
             <param name="widget_header" value="Posledne sledovane"/>
             <param name="widget_target" value="videos"/>
@@ -350,7 +350,7 @@
             <param name="list_id" value="5916"/>
         </include>
         <include content="SCWidgetListPoster">
-            <param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6c617374&amp;id=6c61737464&amp;title=646972&amp;widget=1"/>
+            <param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46446f63752f6c61737457617463686564&amp;widget=1"/>
             <param name="widget_header" value="Posledne sledovane"/>
             <param name="widget_target" value="videos"/>
             <param name="list_id" value="5917"/>
@@ -373,7 +373,7 @@
         </include>
         <include content="SCWidgetListPoster">
             <param name="content_path"
-                   value="plugin://plugin.video.stream-cinema/?action=6c617374&amp;id=6c61737464&amp;title=646972&amp;widget=1"/>
+                   value="plugin://plugin.video.stream-cinema/?url=2f46416e696d652f6c61737457617463686564&amp;widget=1"/>
             <param name="widget_header" value="Posledne sledovane"/>
             <param name="widget_target" value="videos"/>
             <param name="list_id" value="5920"/>
