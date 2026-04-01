@@ -113,6 +113,72 @@
 		</definition>
 	</include>
 
+	<!-- SC Home episodes -->
+	<include name="SCWidgetListEpisodes">
+		<param name="main_label">$INFO[ListItem.Title]</param>
+		<param name="sub_label">$INFO[ListItem.TVShowTitle]</param>
+		<param name="thumb_label">$INFO[ListItem.Season,,x]$INFO[ListItem.Episode]</param>
+		<param name="fallback_image">DefaultTVShows.png</param>
+		<param name="sortby"></param>
+		<param name="sortorder">ascending</param>
+		<param name="widget_limit">50</param>
+		<param name="browse_mode">auto</param>
+		<definition>
+			<include content="SCCategoryLabel">
+				<param name="label">$PARAM[widget_header]</param>
+				<param name="list_id" value="$PARAM[list_id]"/>
+			</include>
+			<include content="BusyListSpinner">
+				<param name="list_id" value="$PARAM[list_id]"/>
+				<param name="posy" value="200"/>
+			</include>
+			<control type="panel" id="$PARAM[list_id]">
+				<left>0</left>
+				<top>105</top>
+				<right>0</right>
+				<height>410</height>
+				<visible>Integer.IsGreater(Container($PARAM[list_id]).NumItems,0) | Container($PARAM[list_id]).IsUpdating</visible>
+				<include content="WidgetListCommon">
+					<param name="list_id" value="$PARAM[list_id]"/>
+				</include>
+				<itemlayout width="310" height="500">
+					<control type="group">
+						<left>70</left>
+						<top>5</top>
+						<include content="InfoWallEpisodeLayout">
+							<param name="main_label" value="$PARAM[main_label]" />
+							<param name="sub_label" value="$PARAM[sub_label]" />
+							<param name="thumb_label" value="$PARAM[thumb_label]" />
+							<param name="fallback_image" value="$PARAM[fallback_image]" />
+							<param name="focused" value="false" />
+						</include>
+					</control>
+				</itemlayout>
+				<focusedlayout width="310" height="500">
+					<control type="group">
+						<depth>DepthContentPopout</depth>
+						<left>70</left>
+						<top>5</top>
+						<animation type="Focus">
+							<effect type="zoom" start="100" end="112" time="200" tween="sine" easing="inout" center="230,120" />
+						</animation>
+						<animation type="Unfocus">
+							<effect type="zoom" start="112" end="100" time="200" tween="sine" easing="inout" center="230,120" />
+						</animation>
+						<include content="InfoWallEpisodeLayout">
+							<param name="main_label" value="$PARAM[main_label]" />
+							<param name="sub_label" value="$PARAM[sub_label]" />
+							<param name="thumb_label" value="$PARAM[thumb_label]" />
+							<param name="fallback_image" value="$PARAM[fallback_image]" />
+							<param name="focused" value="true" />
+						</include>
+					</control>
+				</focusedlayout>
+				<content sortby="$PARAM[sortby]" sortorder="$PARAM[sortorder]" target="$PARAM[widget_target]" limit="$PARAM[widget_limit]" browse="$PARAM[browse_mode]">$PARAM[content_path]</content>
+			</control>
+		</definition>
+	</include>
+
 	<!-- SC Home right widgets -->
 	<include name="SCHomeRightMenuMovies">
 		<!-- filmy -->
@@ -300,7 +366,7 @@
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="59105"/>
 		</include>
-		<include content="SCWidgetListPoster" condition="Skin.HasSetting(sc_home_series_history)">
+		<include content="SCWidgetListEpisodes" condition="Skin.HasSetting(sc_home_series_history)">
 			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
 			<param name="widget_header" value="Posledne sledovane"/>
 			<param name="widget_target" value="videos"/>
