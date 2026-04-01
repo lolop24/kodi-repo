@@ -130,13 +130,13 @@
 			</include>
 			<include content="BusyListSpinner">
 				<param name="list_id" value="$PARAM[list_id]"/>
-				<param name="posy" value="200"/>
+				<param name="posy" value="250"/>
 			</include>
 			<control type="panel" id="$PARAM[list_id]">
 				<left>0</left>
-				<top>105</top>
+				<top>115</top>
 				<right>0</right>
-				<height>410</height>
+				<height>518</height>
 				<visible>Integer.IsGreater(Container($PARAM[list_id]).NumItems,0) | Container($PARAM[list_id]).IsUpdating</visible>
 				<include content="WidgetListCommon">
 					<param name="list_id" value="$PARAM[list_id]"/>
@@ -348,6 +348,12 @@
     </include>
 	<!-- serialy -->
     <include name="SCSeriesList">
+		<include content="SCWidgetListEpisodes" condition="Skin.HasSetting(sc_home_series_history)">
+			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
+			<param name="widget_header" value="Posledne sledovane"/>
+			<param name="widget_target" value="videos"/>
+			<param name="list_id" value="5911"/>
+		</include>
 		<include content="WidgetListCategories" condition="Skin.HasSetting(sc_home_series_categories)">
 			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46536572696573"/>
 			<param name="widget_header" value="Kategorie"/>
@@ -365,12 +371,6 @@
 			<param name="widget_header" value="Najnovsie pridane"/>
 			<param name="widget_target" value="videos"/>
 			<param name="list_id" value="59105"/>
-		</include>
-		<include content="SCWidgetListEpisodes" condition="Skin.HasSetting(sc_home_series_history)">
-			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
-			<param name="widget_header" value="Posledne sledovane"/>
-			<param name="widget_target" value="videos"/>
-			<param name="list_id" value="5911"/>
 		</include>
 		<include content="SCWidgetListPoster" condition="Skin.HasSetting(sc_home_series_kids)">
 			<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6b696473&amp;widget=1"/>
