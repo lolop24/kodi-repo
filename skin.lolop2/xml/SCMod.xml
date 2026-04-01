@@ -833,7 +833,7 @@
 					<control type="label">
 						<left>0</left>
 						<top>0</top>
-						<width>422</width>
+						<width>442</width>
 						<height>28</height>
 						<label>[B]$PARAM[section_label][/B]</label>
 						<font>font12</font>
@@ -843,39 +843,39 @@
 					<control type="textbox">
 						<left>0</left>
 						<top>26</top>
-						<width>422</width>
-						<height>96</height>
+						<width>442</width>
+						<height>104</height>
 						<font>font32_title</font>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Label]</label>
 						<shadowcolor>text_shadow</shadowcolor>
 					</control>
 					<control type="image">
 						<left>0</left>
-						<top>138</top>
-						<width>170</width>
-						<height>248</height>
+						<top>144</top>
+						<width>142</width>
+						<height>210</height>
 						<texture colordiffuse="18FFFFFF">colors/white.png</texture>
 					</control>
 					<control type="image">
 						<left>8</left>
-						<top>146</top>
-						<width>154</width>
-						<height>232</height>
+						<top>152</top>
+						<width>126</width>
+						<height>194</height>
 						<aspectratio align="center" aligny="center">scale</aspectratio>
 						<texture fallback="special://skin/extras/backgrounds/pattern2.jpg">$INFO[Container($PARAM[list_id]).ListItem.Art(thumb)]</texture>
 					</control>
 					<control type="image">
-						<left>188</left>
-						<top>138</top>
-						<width>234</width>
-						<height>248</height>
+						<left>158</left>
+						<top>144</top>
+						<width>284</width>
+						<height>210</height>
 						<texture colordiffuse="18FFFFFF">colors/white.png</texture>
 					</control>
 					<control type="label">
-						<left>206</left>
-						<top>158</top>
-						<width>198</width>
-						<height>52</height>
+						<left>178</left>
+						<top>162</top>
+						<width>244</width>
+						<height>56</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Rating, , / 10]</label>
 						<font>font32_title</font>
 						<textcolor>button_focus</textcolor>
@@ -883,9 +883,9 @@
 						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Rating)</visible>
 					</control>
 					<control type="label">
-						<left>206</left>
-						<top>206</top>
-						<width>198</width>
+						<left>178</left>
+						<top>220</top>
+						<width>244</width>
 						<height>26</height>
 						<label>Rok: $INFO[Container($PARAM[list_id]).ListItem.Year]</label>
 						<font>font14</font>
@@ -893,20 +893,20 @@
 						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Year)</visible>
 					</control>
 					<control type="textbox">
-						<left>206</left>
-						<top>236</top>
-						<width>198</width>
-						<height>72</height>
+						<left>178</left>
+						<top>252</top>
+						<width>244</width>
+						<height>70</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Genre]</label>
 						<font>font14</font>
 						<shadowcolor>text_shadow</shadowcolor>
 						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Genre)</visible>
 					</control>
 					<control type="textbox">
-						<left>206</left>
-						<top>314</top>
-						<width>198</width>
-						<height>44</height>
+						<left>178</left>
+						<top>326</top>
+						<width>244</width>
+						<height>28</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Country]</label>
 						<font>font14</font>
 						<textcolor>grey2</textcolor>
@@ -914,9 +914,9 @@
 						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Country)</visible>
 					</control>
 					<control type="label">
-						<left>206</left>
-						<top>360</top>
-						<width>198</width>
+						<left>178</left>
+						<top>356</top>
+						<width>244</width>
 						<height>22</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , hlasov]</label>
 						<font>font12</font>
@@ -926,16 +926,16 @@
 					</control>
 					<control type="image">
 						<left>0</left>
-						<top>406</top>
-						<width>422</width>
-						<height>278</height>
+						<top>386</top>
+						<width>442</width>
+						<height>298</height>
 						<texture colordiffuse="14FFFFFF">colors/white.png</texture>
 					</control>
 					<control type="textbox">
 						<left>18</left>
-						<top>426</top>
-						<width>386</width>
-						<height>220</height>
+						<top>404</top>
+						<width>406</width>
+						<height>242</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.PlotOutline]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -944,9 +944,9 @@
 					</control>
 					<control type="textbox">
 						<left>18</left>
-						<top>426</top>
-						<width>386</width>
-						<height>220</height>
+						<top>404</top>
+						<width>406</width>
+						<height>242</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Plot]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -955,8 +955,8 @@
 					</control>
 					<control type="label">
 						<left>18</left>
-						<top>654</top>
-						<width>386</width>
+						<top>658</top>
+						<width>406</width>
 						<height>24</height>
 						<label>[COLOR button_focus]Enter[/COLOR] otvori hladanie v Stream Cinema</label>
 						<font>font12</font>
