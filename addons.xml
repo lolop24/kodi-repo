@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.9.0" provider-name="CSFD-SC-Bridge">
+    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.10.0" provider-name="CSFD-SC-Bridge">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -344,7 +344,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.lolop2" version="2.0.0" name="Lolop2 Skin" provider-name="phil65, Ichabod Fletchman, bbaron">
+    <addon id="skin.lolop2" version="2.0.1" name="Lolop2 Skin" provider-name="phil65, Ichabod Fletchman, bbaron">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
         </requires>
