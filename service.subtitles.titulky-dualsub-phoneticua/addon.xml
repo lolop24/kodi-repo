@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titulky-dualsub-phoneticua"
        name="Titulky Phonetic UA"
-       version="1.6.3"
+       version="1.6.6"
        provider-name="community">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -28,7 +28,16 @@
         <platform>all</platform>
         <license>GPL-2.0-only</license>
         <source>https://github.com/</source>
-        <news>v1.6.3 (2026-04-01)
+        <news>v1.6.6 (2026-04-03)
+ - Added a separate Slovak style switch: Simple (recommended) or Precise
+ - Simple Slovak mode now favors faster reading in Cyrillic over narrower phonetic detail
+v1.6.5 (2026-04-03)
+ - Split phonetic rewriting into clearer Czech and Slovak profiles
+ - Auto mode now locks one profile for the whole subtitle instead of mixing by word
+v1.6.4 (2026-04-03)
+ - Improved Czech and Slovak phonetic rewrite rules using updated practical-transcription research
+ - Better handling for Czech ě, Slovak ia/ie/iu, soft consonants, and Ji- forms
+v1.6.3 (2026-04-01)
  - Swapped subtitle lanes so Czech or Slovak is shown on top and Ukrainian phonetic on bottom
 v1.6.2 (2026-03-31)
  - Repackaged build after Raspberry Pi search-speed improvements
