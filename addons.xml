@@ -61,9 +61,9 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-deepl" name="Titulky DeepL" version="0.2.6" provider-name="Codex">
+    <addon id="service.subtitles.titulky-deepl" name="Titulky DeepL" version="0.2.9" provider-name="Codex">
         <requires>
-            <import addon="xbmc.python" version="3.0.1" />
+            <import addon="xbmc.python" version="3.0.0" />
         </requires>
         <extension point="xbmc.subtitle.module" library="default.py">
             <provides>
