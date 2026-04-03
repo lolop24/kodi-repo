@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.10.0" provider-name="CSFD-SC-Bridge">
+    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.9.0" provider-name="CSFD-SC-Bridge">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -17,6 +17,26 @@
             <description lang="en_gb">Browse top movies, series and seasons from ČSFD rankings filtered by year. Each item shows rating, plot and reviews. Click any title to instantly search it in Stream Cinema.</description>
             <description lang="sk">Prehliadaj rebríčky filmov, seriálov a sérií z ČSFD s filtrom od roku. Každá položka zobrazuje hodnotenie, plot a recenzie. Kliknutím na titul sa otvorí vyhľadávanie priamo vo Stream Cinema.</description>
             <description lang="cs">Procházej žebříčky filmů, seriálů a sérií z ČSFD s filtrem od roku. Každá položka zobrazuje hodnocení, popis a recenze. Kliknutím na titul se otevře vyhledávání přímo ve Stream Cinema.</description>
+            <platform>all</platform>
+        </extension>
+    </addon>
+    <addon id="plugin.video.kolop" name="Kolop" version="1.0.0" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="xbmc.addon" version="21.0.0" />
+            <import addon="script.module.beautifulsoup4" version="4.9.3" />
+            <import addon="script.module.requests" version="2.25.0" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="default.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_gb">Stream Cinema recently added movies sorted by CSFD rating</summary>
+            <summary lang="sk">Filmy zo Stream Cinema zoradene podla CSFD</summary>
+            <summary lang="cs">Filmy ze Stream Cinema serazene podle CSFD</summary>
+            <description lang="en_gb">Loads recently added Stream Cinema movies, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order.</description>
+            <description lang="sk">Nacita nove filmy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD menu.</description>
+            <description lang="cs">Nacte nove filmy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD menu.</description>
             <platform>all</platform>
         </extension>
     </addon>

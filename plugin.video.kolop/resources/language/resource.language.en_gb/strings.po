@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.kolop\n"
+"Language: en_GB\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#30001"
+msgid "Kolop"
+msgstr "Kolop"
+
+msgctxt "#30002"
+msgid "Recently Added by CSFD"
+msgstr "Recently Added by CSFD"
+
+msgctxt "#30003"
+msgid "New Releases by CSFD"
+msgstr "New Releases by CSFD"
+
+msgctxt "#30004"
+msgid "Reviews (%d)"
+msgstr "Reviews (%d)"
+
+msgctxt "#30005"
+msgid "No reviews available"
+msgstr "No reviews available"
+
+msgctxt "#30006"
+msgid "No items were returned from Stream Cinema."
+msgstr "No items were returned from Stream Cinema."
+
+msgctxt "#30007"
+msgid "Loading Stream Cinema items..."
+msgstr "Loading Stream Cinema items..."
+
+msgctxt "#30008"
+msgid "Loading CSFD metadata... (%d/%d)"
+msgstr "Loading CSFD metadata... (%d/%d)"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Reviews: %s (%d)"
+
+msgctxt "#30010"
+msgid "Item limit"
+msgstr "Item limit"

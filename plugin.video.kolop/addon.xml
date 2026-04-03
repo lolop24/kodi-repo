@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.kolop"
+       name="Kolop"
+       version="1.0.0"
+       provider-name="lolop24">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="script.module.requests" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">Stream Cinema recently added movies sorted by CSFD rating</summary>
+        <summary lang="sk">Filmy zo Stream Cinema zoradene podla CSFD</summary>
+        <summary lang="cs">Filmy ze Stream Cinema serazene podle CSFD</summary>
+        <description lang="en_gb">Loads recently added Stream Cinema movies, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order.</description>
+        <description lang="sk">Nacita nove filmy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD menu.</description>
+        <description lang="cs">Nacte nove filmy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD menu.</description>
+        <platform>all</platform>
+    </extension>
+</addon>

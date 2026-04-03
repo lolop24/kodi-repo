@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.kolop\n"
+"Language: sk_SK\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#30001"
+msgid "Kolop"
+msgstr "Kolop"
+
+msgctxt "#30002"
+msgid "Recently Added by CSFD"
+msgstr "Najnovsie pridane podla CSFD"
+
+msgctxt "#30003"
+msgid "New Releases by CSFD"
+msgstr "Novinky podla CSFD"
+
+msgctxt "#30004"
+msgid "Reviews (%d)"
+msgstr "Recenzie (%d)"
+
+msgctxt "#30005"
+msgid "No reviews available"
+msgstr "Bez recenzii"
+
+msgctxt "#30006"
+msgid "No items were returned from Stream Cinema."
+msgstr "Stream Cinema nevratilo ziadne polozky."
+
+msgctxt "#30007"
+msgid "Loading Stream Cinema items..."
+msgstr "Nacitavam polozky zo Stream Cinema..."
+
+msgctxt "#30008"
+msgid "Loading CSFD metadata... (%d/%d)"
+msgstr "Doplnam CSFD metadata... (%d/%d)"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Recenzie: %s (%d)"
+
+msgctxt "#30010"
+msgid "Item limit"
+msgstr "Limit poloziek"
