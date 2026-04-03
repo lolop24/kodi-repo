@@ -61,14 +61,22 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-deepl" name="Titulky DeepL" version="0.2.5" provider-name="Codex">
+    <addon id="service.subtitles.titulky-deepl" name="Titulky DeepL" version="0.2.6" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.1" />
         </requires>
-        <extension point="xbmc.subtitle.module" library="default.py" />
+        <extension point="xbmc.subtitle.module" library="default.py">
+            <provides>
+                <subtitle>
+                    <language>cs</language>
+                    <language>sk</language>
+                    <language>uk</language>
+                </subtitle>
+            </provides>
+        </extension>
         <extension point="xbmc.addon.metadata">
-            <summary lang="en_GB">Create Czech/Slovak plus Ukrainian bilingual subtitles with DeepL</summary>
-            <description lang="en_GB">Finds nearby or currently loaded subtitle files, sends their subtitle text to the DeepL API, writes a bilingual subtitle file that keeps the original lines and adds Ukrainian translations underneath, then returns it through Kodi's subtitle search flow.</description>
+            <summary lang="en_gb">Create Czech/Slovak plus Ukrainian bilingual subtitles with DeepL</summary>
+            <description lang="en_gb">Finds nearby or currently loaded subtitle files, sends their subtitle text to the DeepL API, writes a bilingual subtitle file that keeps the original lines and adds Ukrainian translations underneath, then returns it through Kodi's subtitle search flow.</description>
             <platform>all</platform>
             <license>MIT</license>
             <assets>
