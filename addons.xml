@@ -85,6 +85,28 @@
             </assets>
         </extension>
     </addon>
+    <addon id="service.subtitles.titulky-deepl-sub" name="Titulky DeepL Sub" version="0.1.0" provider-name="Codex">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.subtitle.module" library="default.py">
+            <provides>
+                <subtitle>
+                    <language>uk</language>
+                </subtitle>
+            </provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_gb">Translate CZ/SK subtitles to Ukrainian with DeepL and upload to OpenSubtitles</summary>
+            <description lang="en_gb">Finds nearby subtitle files, translates them to Ukrainian using DeepL API, produces bilingual ASS subtitles (original top + Ukrainian bottom), and optionally uploads the Ukrainian translation to OpenSubtitles.org via browser automation.</description>
+            <platform>all</platform>
+            <license>MIT</license>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
     <addon id="service.subtitles.titulky-dualsub" name="Titulky DualSub (OpenSubtitles + Titulky.com)" version="1.5.1" provider-name="community">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
