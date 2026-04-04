@@ -85,7 +85,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="service.subtitles.titulky-deepl-sub" name="Titulky DeepL Sub" version="0.1.0" provider-name="Codex">
+    <addon id="service.subtitles.titulky-deepl-sub" name="Titulky DeepL Sub" version="0.2.0" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
