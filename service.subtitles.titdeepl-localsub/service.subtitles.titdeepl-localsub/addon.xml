@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titdeepl-localsub"
        name="TitDeepL LocalSub"
-       version="0.1.2"
+       version="0.1.3"
        provider-name="Codex">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -15,13 +15,15 @@
     </provides>
   </extension>
 
+  <extension point="xbmc.service" library="resources/lib/settings_migrator.py" />
+
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
     <description lang="en_GB">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-    <news>v0.1.2
-- Fix Kodi settings migration for existing LibreELEC installs
-- Convert source language selector to the documented integer-based Matrix+ format
-- Keep cached helper lookup and remote upload helper integration</news>
+    <news>v0.1.3
+- Restore the classic Kodi add-on settings format for LibreELEC compatibility
+- Keep existing stored add-on settings readable without migration
+- Preserve cached helper lookup and remote upload helper configuration</news>
     <platform>all</platform>
     <license>MIT</license>
     <assets>
