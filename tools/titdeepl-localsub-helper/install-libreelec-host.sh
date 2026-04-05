@@ -11,11 +11,14 @@ if [ ! -f .env ]; then
   echo "Created .env from .env.example. Update HELPER_TOKEN before using the helper."
 fi
 
-python3 -m ensurepip --upgrade
 python3 -m venv .venv
+if ! ./.venv/bin/python -m pip --version >/dev/null 2>&1; then
+  curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+  ./.venv/bin/python /tmp/get-pip.py
+fi
 . .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 python -m playwright install chromium
 
 mkdir -p /storage/.config/system.d
