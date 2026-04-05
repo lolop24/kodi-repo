@@ -258,12 +258,13 @@ def normalize_imdb_id(value: str) -> str:
 def launch_browser_context(playwright, options: UploadOptions) -> BrowserContext:
     attempts = build_browser_attempts(options)
     last_error = None
+    launch_args = browser_launch_args()
     for attempt in attempts:
         kwargs = {
             "user_data_dir": str(options.user_data_dir),
             "headless": options.headless,
             "viewport": {"width": 1600, "height": 1200},
-            "args": ["--disable-blink-features=AutomationControlled"],
+            "args": launch_args,
         }
         if attempt.get("channel"):
             kwargs["channel"] = attempt["channel"]
@@ -278,6 +279,18 @@ def launch_browser_context(playwright, options: UploadOptions) -> BrowserContext
             print(f"Launch failed for {attempt['label']}: {exc}", file=sys.stderr)
 
     raise RuntimeError(f"Could not launch a supported browser. Last error: {last_error}")
+
+
+def browser_launch_args() -> list[str]:
+    args = ["--disable-blink-features=AutomationControlled"]
+    geteuid = getattr(os, "geteuid", None)
+    if callable(geteuid):
+        try:
+            if geteuid() == 0:
+                args.append("--no-sandbox")
+        except Exception:
+            pass
+    return args
 
 
 def build_browser_attempts(options: UploadOptions) -> list[dict[str, str]]:
