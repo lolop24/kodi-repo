@@ -1,0 +1,15 @@
+[Unit]
+Description=TitDeepL LocalSub Helper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/storage/titdeepl-localsub-helper
+EnvironmentFile=/storage/titdeepl-localsub-helper/.env
+ExecStart=/storage/titdeepl-localsub-helper/.venv/bin/python /storage/titdeepl-localsub-helper/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

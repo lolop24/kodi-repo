@@ -46,6 +46,25 @@ docker run -d \
   titdeepl-localsub-helper
 ```
 
+## Host fallback for LibreELEC without Docker
+
+The Raspberry in this setup may have no `docker` command installed. In that case you can run the helper directly on LibreELEC with the system Python:
+
+```sh
+cp .env.example .env
+nano .env
+chmod +x install-libreelec-host.sh
+./install-libreelec-host.sh
+```
+
+This path creates `.venv`, installs Python packages, downloads Playwright Chromium, installs the bundled `titdeepl-localsub-helper.service` systemd unit, and starts it automatically.
+
+Important:
+
+- This host fallback forces `HELPER_HEADLESS=1` and `HELPER_USE_XVFB=0` in `.env`.
+- On stock LibreELEC this is the most realistic non-Docker setup, but OpenSubtitles may still reject some headless browser sessions.
+- Even if the upload fails, the received subtitles remain archived in `data/saved-subtitles/`.
+
 ## Kodi add-on settings
 
 Set these in the `TitDeepL LocalSub` add-on:
