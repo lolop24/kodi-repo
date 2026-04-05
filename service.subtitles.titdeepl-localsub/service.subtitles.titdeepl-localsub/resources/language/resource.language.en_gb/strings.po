@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: service.subtitles.titdeepl-localsub\n"
+"Language: en_GB\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#32000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#32003"
+msgid "DeepL API key"
+msgstr "DeepL API key"
+
+msgctxt "#32005"
+msgid "DeepL API base URL (empty=auto)"
+msgstr "DeepL API base URL (empty=auto)"
+
+msgctxt "#32007"
+msgid "Preferred source language"
+msgstr "Preferred source language"
+
+msgctxt "#32010"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#32011"
+msgid "Czech"
+msgstr "Czech"
+
+msgctxt "#32012"
+msgid "Slovak"
+msgstr "Slovak"
+
+msgctxt "#32030"
+msgid "Could not translate subtitle file."
+msgstr "Could not translate subtitle file."
+
+msgctxt "#32031"
+msgid "No matching subtitle sources were found."
+msgstr "No matching subtitle sources were found."
+
+msgctxt "#32033"
+msgid "Set your DeepL API key in the add-on settings before translating subtitles."
+msgstr "Set your DeepL API key in the add-on settings before translating subtitles."
+
+msgctxt "#32035"
+msgid "Translating subtitles with DeepL..."
+msgstr "Translating subtitles with DeepL..."
+
+msgctxt "#32040"
+msgid "Queue remote upload"
+msgstr "Queue remote upload"
+
+msgctxt "#32041"
+msgid "Queueing remote upload..."
+msgstr "Queueing remote upload..."
+
+msgctxt "#32042"
+msgid "Remote upload queued on helper."
+msgstr "Remote upload queued on helper."
+
+msgctxt "#32043"
+msgid "Remote upload failed"
+msgstr "Remote upload failed"
+
+msgctxt "#32044"
+msgid "Remote helper accepted the upload job."
+msgstr "Remote helper accepted the upload job."
+
+msgctxt "#32045"
+msgid "Remote helper URL is not set."
+msgstr "Remote helper URL is not set."
+
+msgctxt "#32046"
+msgid "Could not contact the remote helper."
+msgstr "Could not contact the remote helper."
+
+msgctxt "#32050"
+msgid "--- Remote Upload Helper ---"
+msgstr "--- Remote Upload Helper ---"
+
+msgctxt "#32051"
+msgid "OpenSubtitles username"
+msgstr "OpenSubtitles username"
+
+msgctxt "#32052"
+msgid "OpenSubtitles password"
+msgstr "OpenSubtitles password"
+
+msgctxt "#32053"
+msgid "Auto-upload after translation"
+msgstr "Auto-upload after translation"
+
+msgctxt "#32054"
+msgid "Auto-submit upload on helper"
+msgstr "Auto-submit upload on helper"
+
+msgctxt "#32055"
+msgid "Remote helper URL"
+msgstr "Remote helper URL"
+
+msgctxt "#32056"
+msgid "Mark as machine translated"
+msgstr "Mark as machine translated"
+
+msgctxt "#32057"
+msgid "Remote helper token"
+msgstr "Remote helper token"

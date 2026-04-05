@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 import uuid
+from string import hexdigits
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -69,6 +70,115 @@ def build_backup_subtitle_path(job_id: str, imdb_id: str, release_name: str, sub
     imdb_slug = slugify(imdb_id)
     backup_name = "%s_%s_%s%s" % (imdb_slug, release_slug, job_id[:8], ext or ".srt")
     return BACKUP_SUBTITLES_DIR / backup_name
+
+
+def strip_subtitle_suffixes(value: str) -> str:
+    stem = Path(sanitize_filename(value)).stem
+    suffixes = (".upload", ".deepl", ".uk", ".ua", ".cs", ".cz", ".sk")
+    changed = True
+    while changed and stem:
+        changed = False
+        lowered = stem.lower()
+        for suffix in suffixes:
+            if lowered.endswith(suffix):
+                stem = stem[: -len(suffix)].rstrip("._- ")
+                changed = True
+                break
+    return stem
+
+
+def build_lookup_candidates(release_name: str, source_filename: str) -> list[str]:
+    candidates: list[str] = []
+    for value in (
+        release_name,
+        strip_subtitle_suffixes(release_name),
+        source_filename,
+        strip_subtitle_suffixes(source_filename),
+    ):
+        slug = slugify(value)[:80]
+        if slug and slug not in candidates:
+            candidates.append(slug)
+    return candidates
+
+
+def extract_job_prefix_from_backup(path: Path) -> str:
+    suffix = path.stem.rsplit("_", 1)[-1].lower()
+    if len(suffix) == 8 and all(char in hexdigits for char in suffix):
+        return suffix
+    return ""
+
+
+def find_job_by_prefix(job_prefix: str) -> dict[str, object] | None:
+    if not job_prefix:
+        return None
+    for candidate in JOBS_DIR.iterdir():
+        if candidate.is_dir() and candidate.name.startswith(job_prefix):
+            return read_job(candidate.name)
+    return None
+
+
+def job_status_priority(job: dict[str, object] | None) -> int:
+    status = str((job or {}).get("status") or "").strip().lower()
+    if status == "finished":
+        return 2
+    if status in {"queued", "running"}:
+        return 1
+    return 0
+
+
+def match_saved_subtitle(imdb_id: str, release_name: str, source_filename: str, language: str = "uk") -> dict[str, object] | None:
+    imdb_slug = slugify(imdb_id)
+    if not imdb_slug:
+        return None
+
+    candidates = build_lookup_candidates(release_name, source_filename)
+    best: dict[str, object] | None = None
+
+    for path in BACKUP_SUBTITLES_DIR.glob(f"{imdb_slug}_*.srt"):
+        stem = path.stem
+        score = 0
+        matched_by = ""
+        matched_value = ""
+
+        for index, candidate in enumerate(candidates):
+            exact_prefix = f"{imdb_slug}_{candidate}_"
+            if stem.startswith(exact_prefix):
+                score = 300 - index
+                matched_by = "release_exact"
+                matched_value = candidate
+                break
+
+        if not score:
+            for index, candidate in enumerate(candidates):
+                if candidate and candidate in stem:
+                    score = 200 - index
+                    matched_by = "release_contains"
+                    matched_value = candidate
+                    break
+
+        if not score:
+            continue
+
+        stat = path.stat()
+        job = find_job_by_prefix(extract_job_prefix_from_backup(path))
+        priority = job_status_priority(job)
+        if best is None or (score, priority, stat.st_mtime) > (
+            int(best["score"]),
+            int(best["job_priority"]),
+            float(best["mtime"]),
+        ):
+            best = {
+                "path": path,
+                "score": score,
+                "mtime": stat.st_mtime,
+                "job_priority": priority,
+                "job": job,
+                "matched_by": matched_by,
+                "matched_value": matched_value,
+                "language": language,
+            }
+
+    return best
 
 
 def job_dir(job_id: str) -> Path:
@@ -264,6 +374,41 @@ def healthz():
             "browser": os.getenv("HELPER_BROWSER", "auto"),
         }
     )
+
+
+@app.get("/api/stored-subtitles/lookup")
+def lookup_stored_subtitle():
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    imdb_id = str(request.args.get("imdb_id") or "").strip()
+    release_name = str(request.args.get("release_name") or "").strip()
+    source_filename = str(request.args.get("source_filename") or "").strip()
+    language = str(request.args.get("language") or "uk").strip() or "uk"
+    if not imdb_id:
+        return jsonify({"error": "imdb_id is required."}), 400
+
+    match = match_saved_subtitle(imdb_id, release_name, source_filename, language=language)
+    if match is None:
+        return jsonify({"found": False})
+
+    subtitle_path = Path(match["path"])
+    subtitle_content_b64 = base64.b64encode(subtitle_path.read_bytes()).decode("ascii")
+    job = match.get("job")
+
+    response = {
+        "found": True,
+        "subtitle_filename": subtitle_path.name,
+        "stored_subtitle_path": str(subtitle_path),
+        "subtitle_content_b64": subtitle_content_b64,
+        "matched_by": match.get("matched_by", ""),
+        "matched_value": match.get("matched_value", ""),
+        "job_id": job.get("job_id", "") if job else "",
+        "job_status": job.get("status", "") if job else "",
+        "job_returncode": job.get("returncode", "") if job else "",
+    }
+    return jsonify(response)
 
 
 @app.post("/api/upload-jobs")

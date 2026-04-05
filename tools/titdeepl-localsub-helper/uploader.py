@@ -404,9 +404,7 @@ def ensure_logged_in(page: Page, options: UploadOptions) -> None:
         return
 
     print("Logging in on the legacy upload page...")
-    login_form = page.locator("form[action*='/login/']").first
-    if login_form.count() == 0:
-        raise RuntimeError("Could not find the login form on the upload page.")
+    login_form = prepare_login_form(page)
 
     login_form.locator("input[name='user']").fill(options.username or "")
     login_form.locator("input[name='password']").fill(options.password or "")
@@ -422,6 +420,35 @@ def ensure_logged_in(page: Page, options: UploadOptions) -> None:
 
     login_form.locator("input[type='submit'][value='Login']").click()
     wait_for_login_result(page, options.timeout_ms)
+
+
+def prepare_login_form(page: Page):
+    inline_form = page.locator("form#loginform")
+    if inline_form.count() > 0:
+        user_input = inline_form.locator("input[name='user']").first
+        if user_input.is_visible():
+            return inline_form
+
+    for selector in (
+        "#logindetail a[onclick*='Login(']",
+        "#logindetail a[href*='/login/redirect-']",
+        "a.disable_ad[href*='/login/redirect-']",
+    ):
+        trigger = page.locator(selector).first
+        if trigger.count() == 0:
+            continue
+        try:
+            if trigger.is_visible():
+                trigger.click()
+                inline_form.wait_for(state="visible", timeout=5_000)
+                return inline_form
+        except (Error, TimeoutError):
+            continue
+
+    fallback_form = page.locator("form[action*='/login/']").first
+    if fallback_form.count() == 0:
+        raise RuntimeError("Could not find the login form on the upload page.")
+    return fallback_form
 
 
 def wait_for_login_result(page: Page, timeout_ms: int) -> None:
@@ -470,10 +497,33 @@ def fill_upload_form(page: Page, options: UploadOptions) -> None:
     set_checkbox(page, "input[name='ForeignPartsOnly']", options.foreign_parts_only)
 
     page.locator("input[name='subs[]']").set_input_files([str(path) for path in options.subtitle_files])
+    enable_submit_button(page)
     print(
         "Prepared upload: "
         f"{language_label}, IMDb {options.imdb_id}, FPS {options.fps}, "
         f"{len(options.subtitle_files)} file(s)."
+    )
+
+
+def enable_submit_button(page: Page) -> None:
+    submit = page.locator("input#submit")
+    if submit.is_enabled():
+        return
+
+    page.evaluate(
+        """
+        () => {
+            const fileInput = document.querySelector("input[name='subs[]']");
+            if (fileInput) {
+                fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            const submitButton = document.querySelector("input#submit");
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+        """
     )
 
 
