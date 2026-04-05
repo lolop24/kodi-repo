@@ -61,6 +61,28 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.0" provider-name="Codex">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+        </requires>
+        <extension point="xbmc.subtitle.module" library="default.py">
+            <provides>
+                <subtitle>
+                    <language>uk</language>
+                </subtitle>
+            </provides>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_gb">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
+            <description lang="en_gb">Finds nearby subtitle files, translates them to Ukrainian using DeepL API, produces bilingual ASS subtitles (original top plus Ukrainian bottom), and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
+            <platform>all</platform>
+            <license>MIT</license>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
     <addon id="service.subtitles.titulky-deepl" name="Titulky DeepL" version="0.5.1" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />

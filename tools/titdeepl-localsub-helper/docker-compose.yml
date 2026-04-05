@@ -1,0 +1,16 @@
+services:
+  titdeepl-localsub-helper:
+    build:
+      context: .
+    container_name: titdeepl-localsub-helper
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      HELPER_HOST: 0.0.0.0
+      HELPER_PORT: 8097
+      HELPER_DATA_DIR: /data
+    ports:
+      - "8097:8097"
+    volumes:
+      - ./data:/data
