@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends xvfb \
+    && apt-get install -y --no-install-recommends xvfb xauth \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
