@@ -57,7 +57,7 @@ chmod +x install-libreelec-host.sh
 ./install-libreelec-host.sh
 ```
 
-This path creates `.venv`, bootstraps `pip` if LibreELEC did not include it in the venv, installs Python packages, downloads Playwright Chromium, installs the bundled `titdeepl-localsub-helper.service` systemd unit, and starts it automatically.
+This path creates `.venv` with `--without-pip`, bootstraps `pip` manually, installs Python packages, downloads Playwright Chromium, installs the bundled `titdeepl-localsub-helper.service` systemd unit, and starts it automatically.
 
 Important:
 

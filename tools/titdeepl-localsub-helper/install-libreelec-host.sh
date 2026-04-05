@@ -11,11 +11,9 @@ if [ ! -f .env ]; then
   echo "Created .env from .env.example. Update HELPER_TOKEN before using the helper."
 fi
 
-python3 -m venv .venv
-if ! ./.venv/bin/python -m pip --version >/dev/null 2>&1; then
-  curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-  ./.venv/bin/python /tmp/get-pip.py
-fi
+python3 -m venv --without-pip .venv
+curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
+./.venv/bin/python /tmp/get-pip.py
 . .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
