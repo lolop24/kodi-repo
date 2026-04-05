@@ -13,10 +13,10 @@ fi
 
 python3 -m venv --without-pip .venv
 curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py
-./.venv/bin/python /tmp/get-pip.py
+./.venv/bin/python /tmp/get-pip.py --no-compile
 . .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install --no-compile --upgrade pip
+python -m pip install --no-compile -r requirements.txt
 python -m playwright install chromium
 
 mkdir -p /storage/.config/system.d
