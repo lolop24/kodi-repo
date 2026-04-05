@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="service.subtitles.titdeepl-localsub"
        name="TitDeepL LocalSub"
-       version="0.1.1"
+       version="0.1.2"
        provider-name="Codex">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -18,10 +18,10 @@
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
     <description lang="en_GB">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-    <news>v0.1.1
-- Reuse cached LibreELEC helper translations before calling DeepL
-- Bundle LICENSE.txt in the addon package
-- Keep remote upload helper integration and packaging aligned with Kodi Matrix+ recommendations</news>
+    <news>v0.1.2
+- Fix Kodi settings migration for existing LibreELEC installs
+- Convert source language selector to the documented integer-based Matrix+ format
+- Keep cached helper lookup and remote upload helper integration</news>
     <platform>all</platform>
     <license>MIT</license>
     <assets>
