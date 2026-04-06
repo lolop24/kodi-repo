@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import threading
 import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,7 +24,7 @@ CSFD_BASE = 'https://www.csfd.cz'
 SC_ADDON_ID = 'plugin.video.stream-cinema'
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Kodi Kolop)',
+    'User-Agent': 'curl/8.0',
     'Accept-Language': 'cs,sk;q=0.9,en;q=0.5',
 }
 
@@ -41,7 +42,10 @@ SOURCE_CONFIG = {
 DETAIL_CACHE_TTL = 3 * 24 * 60 * 60
 SEARCH_CACHE_TTL = 30 * 24 * 60 * 60
 MAX_WORKERS = 6
-SESSION = None
+DETAIL_CACHE_NAME = 'detail_cache.json'
+SEARCH_CACHE_NAME = 'search_cache.json'
+DETAIL_CACHE_LOCK = threading.Lock()
+SEARCH_CACHE_LOCK = threading.Lock()
 
 
 def log(message, level=xbmc.LOGINFO):
@@ -170,12 +174,10 @@ def _normalize_rating(value):
     return (text, number)
 
 
-def _get_session():
-    global SESSION
-    if SESSION is None:
-        SESSION = requests.Session()
-        SESSION.headers.update(HEADERS)
-    return SESSION
+def _build_session():
+    session = requests.Session()
+    session.headers.update(HEADERS)
+    return session
 
 
 def _is_robot_page(response):
@@ -185,7 +187,7 @@ def _is_robot_page(response):
     return 'Uji' in text and 'nejste robot' in text
 
 
-def _solve_anubis(response, redir_url):
+def _solve_anubis(session, response, redir_url):
     started = time.time()
     soup = BeautifulSoup(response.text, 'html.parser')
     challenge_node = soup.select_one('#anubis_challenge')
@@ -233,7 +235,7 @@ def _solve_anubis(response, redir_url):
     )
 
     try:
-        _get_session().get(pass_url, allow_redirects=False, timeout=15)
+        session.get(pass_url, allow_redirects=False, timeout=15)
         return True
     except requests.RequestException as exc:
         log('Anubis pass request failed: %s' % exc, xbmc.LOGWARNING)
@@ -241,12 +243,15 @@ def _solve_anubis(response, redir_url):
 
 
 def _session_get(url, timeout=15):
-    session = _get_session()
-    response = session.get(url, timeout=timeout)
-    if _is_robot_page(response) and _solve_anubis(response, url):
+    session = _build_session()
+    try:
         response = session.get(url, timeout=timeout)
-    response.raise_for_status()
-    return response
+        if _is_robot_page(response) and _solve_anubis(session, response, url):
+            response = session.get(url, timeout=timeout)
+        response.raise_for_status()
+        return response
+    finally:
+        session.close()
 
 
 def _extract_json_ld(soup):
@@ -423,10 +428,11 @@ def _fetch_detail_from_url(csfd_url):
     if not csfd_url:
         return {}
 
-    cache = _load_json('detail_cache.json')
     cache_key = _md5(csfd_url)
     now = time.time()
-    entry = cache.get(cache_key)
+    with DETAIL_CACHE_LOCK:
+        cache = _load_json(DETAIL_CACHE_NAME)
+        entry = cache.get(cache_key)
     if entry and (now - entry.get('ts', 0)) < DETAIL_CACHE_TTL:
         return entry
 
@@ -434,8 +440,10 @@ def _fetch_detail_from_url(csfd_url):
         response = _session_get(csfd_url, timeout=15)
         detail = _parse_detail(response.text, response.url)
         detail['ts'] = now
-        cache[cache_key] = detail
-        _save_json('detail_cache.json', cache)
+        with DETAIL_CACHE_LOCK:
+            cache = _load_json(DETAIL_CACHE_NAME)
+            cache[cache_key] = detail
+            _save_json(DETAIL_CACHE_NAME, cache)
         return detail
     except requests.RequestException as exc:
         log('CSFD detail fetch failed for %s: %s' % (csfd_url, exc), xbmc.LOGWARNING)
@@ -478,10 +486,11 @@ def _search_score(query, candidate_title, query_year, candidate_year):
 
 
 def _search_csfd(query, year=''):
-    cache = _load_json('search_cache.json')
     cache_key = _md5('%s|%s' % (_normalize_text(query), year))
     now = time.time()
-    entry = cache.get(cache_key)
+    with SEARCH_CACHE_LOCK:
+        cache = _load_json(SEARCH_CACHE_NAME)
+        entry = cache.get(cache_key)
     if entry and (now - entry.get('ts', 0)) < SEARCH_CACHE_TTL:
         return entry.get('result')
 
@@ -514,8 +523,10 @@ def _search_csfd(query, year=''):
     except requests.RequestException as exc:
         log('CSFD search failed for %s: %s' % (query, exc), xbmc.LOGWARNING)
 
-    cache[cache_key] = {'result': result, 'ts': now}
-    _save_json('search_cache.json', cache)
+    with SEARCH_CACHE_LOCK:
+        cache = _load_json(SEARCH_CACHE_NAME)
+        cache[cache_key] = {'result': result, 'ts': now}
+        _save_json(SEARCH_CACHE_NAME, cache)
     return result
 
 

@@ -20,7 +20,7 @@
             <platform>all</platform>
         </extension>
     </addon>
-    <addon id="plugin.video.kolop" name="Kolop" version="1.0.0" provider-name="lolop24">
+    <addon id="plugin.video.kolop" name="Kolop" version="1.0.1" provider-name="lolop24">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -37,6 +37,12 @@
             <description lang="en_gb">Loads recently added Stream Cinema movies, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order.</description>
             <description lang="sk">Nacita nove filmy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD menu.</description>
             <description lang="cs">Nacte nove filmy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD menu.</description>
+            <source>https://github.com/lolop24/kodi-repo</source>
+            <news>v1.0.1 (2026-04-06)
+ - Switched ČSFD requests to a safer header strategy that avoids the current anti-bot challenge in normal flow
+ - Removed shared HTTP session usage across worker threads
+ - Serialized cache updates for parallel ČSFD search/detail enrichment
+        </news>
             <platform>all</platform>
         </extension>
     </addon>
