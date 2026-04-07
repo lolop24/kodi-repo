@@ -1116,14 +1116,14 @@
 						<left>0</left>
 						<top>386</top>
 						<width>442</width>
-						<height>298</height>
+						<height>436</height>
 						<texture colordiffuse="14FFFFFF">colors/white.png</texture>
 					</control>
 					<control type="textbox">
 						<left>18</left>
 						<top>404</top>
 						<width>406</width>
-						<height>242</height>
+						<height>380</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.PlotOutline]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1134,7 +1134,7 @@
 						<left>18</left>
 						<top>404</top>
 						<width>406</width>
-						<height>242</height>
+						<height>380</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Plot]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1419,14 +1419,14 @@
 						<left>0</left>
 						<top>386</top>
 						<width>442</width>
-						<height>298</height>
+						<height>436</height>
 						<texture colordiffuse="14FFFFFF">colors/white.png</texture>
 					</control>
 					<control type="textbox">
 						<left>18</left>
 						<top>404</top>
 						<width>406</width>
-						<height>242</height>
+						<height>380</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.PlotOutline]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1437,7 +1437,7 @@
 						<left>18</left>
 						<top>404</top>
 						<width>406</width>
-						<height>242</height>
+						<height>380</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Plot]</label>
 						<font>font16</font>
 						<shadowcolor>text_shadow</shadowcolor>

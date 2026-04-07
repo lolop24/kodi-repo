@@ -3,5 +3,9 @@
 	<onload>ReplaceWindow($INFO[System.StartupWindow])</onload>
 	<onload condition="!Skin.HasSetting(kolop_initialized)">Skin.SetBool(show_hp_infowidget)</onload>
 	<onload condition="!Skin.HasSetting(kolop_initialized)">Skin.SetBool(kolop_initialized)</onload>
+	<onload condition="!Skin.HasSetting(kolop_rating_default_v1)">Skin.Reset(circle_userrating)</onload>
+	<onload condition="!Skin.HasSetting(kolop_rating_default_v1)">Skin.Reset(circle_none)</onload>
+	<onload condition="!Skin.HasSetting(kolop_rating_default_v1)">Skin.SetBool(circle_rating)</onload>
+	<onload condition="!Skin.HasSetting(kolop_rating_default_v1)">Skin.SetBool(kolop_rating_default_v1)</onload>
 	<controls />
 </window>
