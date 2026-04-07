@@ -22,12 +22,15 @@ LIB_PATH = os.path.join(
 if LIB_PATH not in sys.path:
     sys.path.insert(0, LIB_PATH)
 
-from sc_bridge import build_sc_search_url  # noqa: E402
+from sc_bridge import build_sc_search_url, get_search_title  # noqa: E402
 from sc_csfd import (  # noqa: E402
+    MAIN_MENU_SOURCES,
     SOURCE_CONFIG,
     build_source_items,
     fetch_single_reviews,
+    get_source_content,
     get_source_label,
+    resolve_source_key,
 )
 
 STAR_FULL = '\u2605'
@@ -55,10 +58,13 @@ def main_menu():
     xbmcplugin.setPluginCategory(ADDON_HANDLE, L(30001))
     xbmcplugin.setContent(ADDON_HANDLE, 'videos')
 
-    for source_key in ('newstream', 'latest'):
+    for source_key in MAIN_MENU_SOURCES:
+        content = get_source_content(source_key)
+        mediatype = 'tvshow' if content == 'tvshows' else 'movie'
+        default_thumb = 'DefaultTVShows.png' if mediatype == 'tvshow' else 'DefaultMovies.png'
         li = xbmcgui.ListItem(label=get_source_label(source_key))
-        li.setInfo('video', {'title': get_source_label(source_key), 'mediatype': 'movie'})
-        li.setArt({'icon': 'DefaultMovies.png', 'thumb': 'DefaultMovies.png'})
+        li.setInfo('video', {'title': get_source_label(source_key), 'mediatype': mediatype})
+        li.setArt({'icon': default_thumb, 'thumb': default_thumb})
         xbmcplugin.addDirectoryItem(
             ADDON_HANDLE,
             build_url(action='source', source=source_key),
@@ -86,7 +92,7 @@ def _format_label(item):
 def _build_info(item):
     info = {
         'title': item.get('title', ''),
-        'mediatype': 'movie',
+        'mediatype': item.get('mediatype', 'movie'),
     }
 
     if item.get('year'):
@@ -118,6 +124,12 @@ def _build_info(item):
         info['plot'] = plot
         info['plotoutline'] = plot[:240]
 
+    if item.get('original_title'):
+        info['originaltitle'] = item['original_title']
+
+    if item.get('tvshowtitle'):
+        info['tvshowtitle'] = item['tvshowtitle']
+
     return info
 
 
@@ -138,17 +150,19 @@ def _build_target_url(item):
     sc_url = item.get('sc_url', '')
     if sc_url:
         return sc_url
-    search_title = item.get('original_title') or item.get('title', '')
-    return build_sc_search_url(search_title, 'F')
+    is_series = item.get('search_media') == 'S'
+    search_title = get_search_title(item, is_serie=is_series) or item.get('original_title') or item.get('title', '')
+    return build_sc_search_url(search_title, item.get('search_media', 'F'))
 
 
-def show_source(source_key, silent=False):
-    if source_key not in SOURCE_CONFIG:
+def show_source(source_key, silent=False, item_limit=None):
+    resolved_source = resolve_source_key(source_key)
+    if resolved_source not in SOURCE_CONFIG:
         xbmcplugin.endOfDirectory(ADDON_HANDLE, succeeded=False, cacheToDisc=False)
         return
 
-    xbmcplugin.setPluginCategory(ADDON_HANDLE, get_source_label(source_key))
-    xbmcplugin.setContent(ADDON_HANDLE, 'movies')
+    xbmcplugin.setPluginCategory(ADDON_HANDLE, get_source_label(resolved_source))
+    xbmcplugin.setContent(ADDON_HANDLE, get_source_content(resolved_source))
 
     progress = None
     if not silent:
@@ -165,7 +179,11 @@ def show_source(source_key, silent=False):
         return progress.iscanceled()
 
     try:
-        items = build_source_items(source_key, progress_cb=None if silent else progress_cb)
+        items = build_source_items(
+            resolved_source,
+            progress_cb=None if silent else progress_cb,
+            item_limit=item_limit
+        )
     finally:
         if progress:
             progress.close()
@@ -223,11 +241,12 @@ def router():
     params = parse_qs(ADDON_ARGS)
     args = {key: values[0] if values else '' for key, values in params.items()}
     action = args.get('action', '')
+    limit = args.get('limit', '')
 
     if action == 'source':
-        show_source(args.get('source', 'newstream'))
+        show_source(args.get('source', 'newstream'), item_limit=limit)
     elif action == 'widget':
-        show_source(args.get('source', 'newstream'), silent=True)
+        show_source(args.get('source', 'newstream'), silent=True, item_limit=limit)
     elif action == 'reviews':
         show_reviews(args.get('csfd_url', ''), args.get('title', ''))
     else:

@@ -10,12 +10,20 @@ msgid "Kolop"
 msgstr "Kolop"
 
 msgctxt "#30002"
-msgid "Recently Added by CSFD"
-msgstr "Nejnoveji pridane podle CSFD"
+msgid "Movies Recently Added by CSFD"
+msgstr "Filmy - nejnoveji pridane podle CSFD"
 
 msgctxt "#30003"
-msgid "New Releases by CSFD"
-msgstr "Novinky podle CSFD"
+msgid "Movies New Releases by CSFD"
+msgstr "Filmy - novinky podle CSFD"
+
+msgctxt "#30011"
+msgid "Series Recently Added by CSFD"
+msgstr "Serialy - nejnoveji pridane podle CSFD"
+
+msgctxt "#30012"
+msgid "Series New Releases by CSFD"
+msgstr "Serialy - novinky podle CSFD"
 
 msgctxt "#30004"
 msgid "Reviews (%d)"

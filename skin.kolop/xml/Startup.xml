@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<onload>ReplaceWindow($INFO[System.StartupWindow])</onload>
+	<onload condition="!Skin.HasSetting(kolop_initialized)">Skin.SetBool(show_hp_infowidget)</onload>
+	<onload condition="!Skin.HasSetting(kolop_initialized)">Skin.SetBool(kolop_initialized)</onload>
+	<controls />
+</window>

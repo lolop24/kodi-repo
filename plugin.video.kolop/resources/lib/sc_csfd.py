@@ -18,6 +18,8 @@ import xbmcaddon
 import xbmcvfs
 from bs4 import BeautifulSoup
 
+from sc_bridge import get_search_title
+
 ADDON = xbmcaddon.Addon()
 
 CSFD_BASE = 'https://www.csfd.cz'
@@ -28,19 +30,53 @@ HEADERS = {
     'Accept-Language': 'cs,sk;q=0.9,en;q=0.5',
 }
 
+MAIN_MENU_SOURCES = (
+    'movies_new',
+    'movies_recent',
+    'series_new',
+    'series_recent',
+)
+
+SOURCE_ALIASES = {
+    'latest': 'movies_new',
+    'newstream': 'movies_recent',
+}
+
 SOURCE_CONFIG = {
-    'newstream': {
-        'label_id': 30002,
-        'path': '/FMovies/newstream',
-    },
-    'latest': {
+    'movies_new': {
         'label_id': 30003,
         'path_template': '/FMovies/latestd?limit={limit}',
+        'content': 'movies',
+        'mediatype': 'movie',
+        'search_media': 'F',
+    },
+    'movies_recent': {
+        'label_id': 30002,
+        'path': '/FMovies/newstream',
+        'content': 'movies',
+        'mediatype': 'movie',
+        'search_media': 'F',
+    },
+    'series_new': {
+        'label_id': 30012,
+        'path': '/FSeries/latestt',
+        'content': 'tvshows',
+        'mediatype': 'tvshow',
+        'search_media': 'S',
+    },
+    'series_recent': {
+        'label_id': 30011,
+        'path': '/FSeries/latest',
+        'content': 'tvshows',
+        'mediatype': 'tvshow',
+        'search_media': 'S',
     },
 }
 
 DETAIL_CACHE_TTL = 3 * 24 * 60 * 60
 SEARCH_CACHE_TTL = 30 * 24 * 60 * 60
+SOURCE_CACHE_TTL = 12 * 60 * 60
+SOURCE_WIDGET_FALLBACK_TTL = 3 * 24 * 60 * 60
 MAX_WORKERS = 6
 DETAIL_CACHE_NAME = 'detail_cache.json'
 SEARCH_CACHE_NAME = 'search_cache.json'
@@ -52,8 +88,20 @@ def log(message, level=xbmc.LOGINFO):
     xbmc.log('[Kolop] %s' % message, level)
 
 
+def resolve_source_key(source_key):
+    return SOURCE_ALIASES.get(source_key, source_key)
+
+
+def get_source_config(source_key):
+    return SOURCE_CONFIG[resolve_source_key(source_key)]
+
+
 def get_source_label(source_key):
-    return ADDON.getLocalizedString(SOURCE_CONFIG[source_key]['label_id'])
+    return ADDON.getLocalizedString(get_source_config(source_key)['label_id'])
+
+
+def get_source_content(source_key):
+    return get_source_config(source_key).get('content', 'videos')
 
 
 def _cache_dir():
@@ -90,6 +138,34 @@ def _save_json(name, data):
 
 def _md5(value):
     return hashlib.md5(value.encode('utf-8')).hexdigest()
+
+
+def _source_cache_name(source_key, item_limit):
+    return 'source_cache_%s_%s.json' % (resolve_source_key(source_key), _resolve_limit(item_limit))
+
+
+def _load_source_cache(source_key, item_limit, max_age=None):
+    payload = _load_json(_source_cache_name(source_key, item_limit))
+    if not isinstance(payload, dict):
+        return []
+
+    items = payload.get('items')
+    if not isinstance(items, list) or not items:
+        return []
+
+    if max_age is not None:
+        age = time.time() - float(payload.get('ts', 0) or 0)
+        if age > max_age:
+            return []
+
+    return items
+
+
+def _save_source_cache(source_key, item_limit, items):
+    _save_json(_source_cache_name(source_key, item_limit), {
+        'ts': time.time(),
+        'items': items,
+    })
 
 
 def _hexlify(value):
@@ -457,7 +533,14 @@ def fetch_single_reviews(csfd_url):
 
 def _build_search_candidates(item):
     candidates = []
-    for value in (item.get('title', ''), item.get('original_title', ''), item.get('sc_original_title', '')):
+    series_search = item.get('search_media') == 'S'
+    for value in (
+        get_search_title(item, is_serie=series_search),
+        item.get('tvshowtitle', ''),
+        item.get('title', ''),
+        item.get('original_title', ''),
+        item.get('sc_original_title', ''),
+    ):
         value = value.strip()
         if value and value not in candidates:
             candidates.append(value)
@@ -572,24 +655,40 @@ def _get_limit():
     return max(10, min(60, value))
 
 
-def _get_source_path(source_key):
-    config = SOURCE_CONFIG[source_key]
+def _resolve_limit(item_limit=None):
+    if item_limit not in (None, ''):
+        try:
+            value = int(item_limit)
+        except (TypeError, ValueError):
+            value = _get_limit()
+    else:
+        value = _get_limit()
+    return max(1, min(60, value))
+
+
+def _get_source_path(source_key, item_limit=None):
+    config = get_source_config(source_key)
     if 'path' in config:
         return config['path']
-    return config['path_template'].format(limit=_get_limit())
+    return config['path_template'].format(limit=_resolve_limit(item_limit))
 
 
-def _build_sc_directory_url(source_key):
-    return 'plugin://%s/?url=%s&widget=1' % (SC_ADDON_ID, _hexlify(_get_source_path(source_key)))
+def _build_sc_directory_url(source_key, item_limit=None):
+    return 'plugin://%s/?url=%s&widget=1' % (
+        SC_ADDON_ID,
+        _hexlify(_get_source_path(source_key, item_limit))
+    )
 
 
-def _normalize_item(raw_item):
+def _normalize_item(raw_item, source_key):
+    config = get_source_config(source_key)
     unique_ids = raw_item.get('uniqueid') or {}
     art = raw_item.get('art') or {}
     return {
         'title': (raw_item.get('title') or raw_item.get('label') or '').strip(),
         'original_title': (raw_item.get('originaltitle') or '').strip(),
         'sc_original_title': (raw_item.get('originaltitle') or '').strip(),
+        'tvshowtitle': (raw_item.get('showtitle') or raw_item.get('tvshowtitle') or '').strip(),
         'year': str(raw_item.get('year') or '').strip(),
         'sc_url': raw_item.get('file', ''),
         'is_folder': raw_item.get('filetype', 'directory') != 'file',
@@ -615,16 +714,22 @@ def _normalize_item(raw_item):
         'fanart': '',
         'csfd_url': '',
         'position': '',
+        'mediatype': config.get('mediatype', 'movie'),
+        'search_media': config.get('search_media', 'F'),
+        'source_key': source_key,
     }
 
 
-def fetch_sc_items(source_key):
+def fetch_sc_items(source_key, item_limit=None):
+    resolved_key = resolve_source_key(source_key)
+    limit = _resolve_limit(item_limit)
     response = _jsonrpc('Files.GetDirectory', {
-        'directory': _build_sc_directory_url(source_key),
+        'directory': _build_sc_directory_url(resolved_key, limit),
         'media': 'video',
         'properties': [
             'title',
             'originaltitle',
+            'showtitle',
             'year',
             'rating',
             'votes',
@@ -640,8 +745,8 @@ def fetch_sc_items(source_key):
     if 'error' in response:
         log('Files.GetDirectory failed: %s' % response['error'], xbmc.LOGERROR)
         return []
-    items = [_normalize_item(item) for item in response.get('result', {}).get('files', [])]
-    return items[:_get_limit()]
+    items = [_normalize_item(item, resolved_key) for item in response.get('result', {}).get('files', [])]
+    return items[:limit]
 
 
 def _merge_item(item, detail):
@@ -680,9 +785,35 @@ def _sort_key(item):
     )
 
 
-def build_source_items(source_key, progress_cb=None):
-    source_items = fetch_sc_items(source_key)
+def _with_positions(items):
+    prepared = []
+    for index, item in enumerate(items, start=1):
+        clone = dict(item)
+        clone['position'] = str(index)
+        prepared.append(clone)
+    return prepared
+
+
+def build_source_items(source_key, progress_cb=None, item_limit=None):
+    resolved_key = resolve_source_key(source_key)
+    limit = _resolve_limit(item_limit)
+
+    cached = _load_source_cache(resolved_key, limit, SOURCE_CACHE_TTL)
+    if cached:
+        return _with_positions(cached)
+
+    if progress_cb is None:
+        cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
+        if cached:
+            log('Using cached widget items for %s (limit=%s)' % (resolved_key, limit))
+            return _with_positions(cached)
+
+    source_items = fetch_sc_items(resolved_key, item_limit=limit)
     if not source_items:
+        cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
+        if cached:
+            log('Falling back to cached items for %s (limit=%s)' % (resolved_key, limit), xbmc.LOGWARNING)
+            return _with_positions(cached)
         return []
 
     enriched = list(source_items)
@@ -707,6 +838,5 @@ def build_source_items(source_key, progress_cb=None):
                 future.cancel()
 
     enriched.sort(key=_sort_key)
-    for index, item in enumerate(enriched, start=1):
-        item['position'] = str(index)
-    return enriched
+    _save_source_cache(resolved_key, limit, enriched)
+    return _with_positions(enriched)

@@ -1,64 +1,53 @@
 # -*- coding: utf-8 -*-
 """
-Stream Cinema bridge v15 – SC search URL builder only.
-
-No automatic SC API calls. Click on item → opens SC search.
-Série items: strip "- Série X" suffix and search as seriál.
+Helpers for building Stream Cinema search URLs and deriving stable search titles.
 """
 
 import re
+import unicodedata
 from urllib.parse import urlencode
 
 SC_ADDON_ID = 'plugin.video.stream-cinema'
 
-CZ_SK = {'česko', 'slovensko', 'československo', 'čssr'}
-
-# Matches " - Série 6", " - Season 2", " - Séria 1", " - Series 3" etc.
-_SERIE_SUFFIX = re.compile(r'\s*[-–]\s*(?:Séri[ea]|Season|Series)\s+\d+\s*$', re.IGNORECASE)
+CZ_SK = {'cesko', 'slovensko', 'ceskoslovensko', 'cssr'}
+SERIE_SUFFIX = re.compile(r'\s*[-–]\s*(?:S[eé]ri[ea]|Season|Series)\s+\d+\s*$', re.IGNORECASE)
 
 
 def _hexlify(value):
     return str(value).encode('utf-8').hex()
 
 
+def _normalize_text(value):
+    normalized = unicodedata.normalize('NFKD', str(value or ''))
+    normalized = ''.join(ch for ch in normalized if not unicodedata.combining(ch))
+    return normalized.lower().strip()
+
+
 def _strip_serie_suffix(title):
-    """Remove série/season suffix to get the base serial name."""
-    return _SERIE_SUFFIX.sub('', title)
+    return SERIE_SUFFIX.sub('', str(title or '')).strip()
 
 
 def build_sc_search_url(title, media_type='F'):
-    """Build Kodi plugin URL that opens SC search for given title.
-
-    media_type: 'F' = film (search-movies), 'S' = seriál/série (search-series)
-    """
     search_id = 'search-series' if media_type == 'S' else 'search-movies'
     params = {
         'action': _hexlify('search_from_history'),
         'id': _hexlify(search_id),
         'search': _hexlify(title),
     }
-    sorted_params = sorted(params.items(), key=lambda x: x[0])
+    sorted_params = sorted(params.items(), key=lambda item: item[0])
     return 'plugin://%s/?%s' % (SC_ADDON_ID, urlencode(sorted_params))
 
 
 def get_search_title(item, is_serie=False):
-    """Best search title for SC.
-
-    For série: strips "- Série X" suffix so SC finds the base serial.
-    English title for foreign, Czech title for CZ/SK.
-    Priority: english_title > original_title > title
-    """
-    country = item.get('country', '').lower().strip()
-    is_czsk = any(c in country for c in CZ_SK)
+    country = _normalize_text(item.get('country', ''))
+    is_czsk = any(name in country for name in CZ_SK)
 
     if is_czsk:
-        title = item['title']
+        title = item.get('title', '')
     else:
-        eng = item.get('english_title', '')
-        orig = item.get('original_title', '')
-        title = eng or orig or item['title']
+        title = item.get('english_title') or item.get('original_title') or item.get('title', '')
 
     if is_serie:
         title = _strip_serie_suffix(title)
 
-    return title
+    return title.strip()

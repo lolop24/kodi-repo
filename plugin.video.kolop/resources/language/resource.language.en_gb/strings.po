@@ -10,12 +10,20 @@ msgid "Kolop"
 msgstr "Kolop"
 
 msgctxt "#30002"
-msgid "Recently Added by CSFD"
-msgstr "Recently Added by CSFD"
+msgid "Movies Recently Added by CSFD"
+msgstr "Movies Recently Added by CSFD"
 
 msgctxt "#30003"
-msgid "New Releases by CSFD"
-msgstr "New Releases by CSFD"
+msgid "Movies New Releases by CSFD"
+msgstr "Movies New Releases by CSFD"
+
+msgctxt "#30011"
+msgid "Series Recently Added by CSFD"
+msgstr "Series Recently Added by CSFD"
+
+msgctxt "#30012"
+msgid "Series New Releases by CSFD"
+msgstr "Series New Releases by CSFD"
 
 msgctxt "#30004"
 msgid "Reviews (%d)"
