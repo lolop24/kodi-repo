@@ -672,6 +672,74 @@ msgid "Default select action for movie sets on the home screen"
 msgstr "Predvolená akcia pre filmy na hlavnej obrazovke"
 
 # empty strings from id 31170 to 31599
+msgctxt "#31500"
+msgid "Tips of the day"
+msgstr "Tipy na dnes"
+
+msgctxt "#31501"
+msgid "Last watched"
+msgstr "Posledne sledovane"
+
+msgctxt "#31502"
+msgid "New releases"
+msgstr "Novinky"
+
+msgctxt "#31503"
+msgid "Recently added"
+msgstr "Najnovsie pridane"
+
+msgctxt "#31504"
+msgid "SC Movies"
+msgstr "SC Filmy"
+
+msgctxt "#31505"
+msgid "SC Series"
+msgstr "SC Serialy"
+
+msgctxt "#31506"
+msgid "Random picks"
+msgstr "Nahodne"
+
+msgctxt "#31507"
+msgid "Kids"
+msgstr "Detske"
+
+msgctxt "#31508"
+msgid "Unfinished"
+msgstr "Nedopozerane"
+
+msgctxt "#31509"
+msgid "Add-ons"
+msgstr "Doplnky"
+
+msgctxt "#31510"
+msgid "CSFD"
+msgstr "CSFD"
+
+msgctxt "#31511"
+msgid "votes"
+msgstr "hlasov"
+
+msgctxt "#31512"
+msgid "Press Enter to search in Stream Cinema"
+msgstr "Enter otvori hladanie v Stream Cinema"
+
+msgctxt "#31513"
+msgid "Movies"
+msgstr "Filmy"
+
+msgctxt "#31514"
+msgid "Series"
+msgstr "Serialy"
+
+msgctxt "#31515"
+msgid "Serie"
+msgstr "Serie"
+
+msgctxt "#31516"
+msgid "Categories"
+msgstr "Kategorie"
+
 #. Label to show the video codec name
 msgctxt "#31600"
 msgid "Video codec"

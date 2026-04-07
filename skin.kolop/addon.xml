@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.kolop" version="1.0.3" name="Kolop Skin" provider-name="lolop24">
+<addon id="skin.kolop" version="1.1.0" name="Kolop Skin" provider-name="lolop24">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
-		<import addon="plugin.video.kolop" version="1.1.1"/>
+		<import addon="plugin.video.kolop" version="1.2.0"/>
 	</requires>
 	<extension point="xbmc.gui.skin" debugging="false">
 		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
@@ -14,7 +14,11 @@
 		<description lang="en_GB">A dedicated Kodi skin for Kolop focused on fast startup, lazy home widgets, and CSFD-sorted movies and series.</description>
 		<description lang="sk">Samostatny Kodi skin pre Kolop zamerany na rychly start, lazy home widgety a filmy so serialmi zoradenymi podla CSFD.</description>
 		<description lang="cs_CZ">Samostatny Kodi skin pro Kolop zamereny na rychly start, lazy home widgety a filmy se serialy serazenymi podle CSFD.</description>
-		<news>v1.0.3 (2026-04-07)
+		<news>v1.1.0 (2026-04-07)
+ - Restored a wider Estuary Mod style home widget stack for SC movies and series
+ - Added localized Kolop home labels and Czech-ready strings for the custom skin sections
+ - Wired the new Kolop Tips of the Day widgets into home and info panels
+v1.0.3 (2026-04-07)
  - Read CSFD ratings explicitly via ListItem.Rating(csfd) and ListItem.Votes(csfd) in the home info widget
  - Show rating source as csfd.cz in the CSFD home info panel
 v1.0.2 (2026-04-07)

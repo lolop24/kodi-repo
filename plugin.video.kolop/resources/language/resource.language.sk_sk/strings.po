@@ -25,6 +25,14 @@ msgctxt "#30012"
 msgid "Series New Releases by CSFD"
 msgstr "Serialy - novinky podla CSFD"
 
+msgctxt "#30013"
+msgid "Movies Tips of the Day by CSFD"
+msgstr "Filmy - tipy na dnes podla CSFD"
+
+msgctxt "#30014"
+msgid "Series Tips of the Day by CSFD"
+msgstr "Serialy - tipy na dnes podla CSFD"
+
 msgctxt "#30004"
 msgid "Reviews (%d)"
 msgstr "Recenzie (%d)"

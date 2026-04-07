@@ -850,6 +850,91 @@ msgstr ""
 
 #empty strings from id 31177 to 31599
 
+#: /xml/Home.xml
+msgctxt "#31500"
+msgid "Tips of the day"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31501"
+msgid "Last watched"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31502"
+msgid "New releases"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31503"
+msgid "Recently added"
+msgstr ""
+
+#: /xml/Home.xml
+msgctxt "#31504"
+msgid "SC Movies"
+msgstr ""
+
+#: /xml/Home.xml
+msgctxt "#31505"
+msgid "SC Series"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31506"
+msgid "Random picks"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31507"
+msgid "Kids"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31508"
+msgid "Unfinished"
+msgstr ""
+
+#: /xml/Home.xml
+msgctxt "#31509"
+msgid "Add-ons"
+msgstr ""
+
+#: /xml/Home.xml
+msgctxt "#31510"
+msgid "CSFD"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31511"
+msgid "votes"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31512"
+msgid "Press Enter to search in Stream Cinema"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31513"
+msgid "Movies"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31514"
+msgid "Series"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31515"
+msgid "Serie"
+msgstr ""
+
+#: /xml/SCMod.xml
+msgctxt "#31516"
+msgid "Categories"
+msgstr ""
+
 #: /xml/DialogPlayerProcessInfo.xml
 #. Label to show the video codec name
 msgctxt "#31600"

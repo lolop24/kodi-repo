@@ -32,8 +32,10 @@ HEADERS = {
 }
 
 MAIN_MENU_SOURCES = (
+    'movies_tips',
     'movies_new',
     'movies_recent',
+    'series_tips',
     'series_new',
     'series_recent',
 )
@@ -44,6 +46,13 @@ SOURCE_ALIASES = {
 }
 
 SOURCE_CONFIG = {
+    'movies_tips': {
+        'label_id': 30013,
+        'content': 'movies',
+        'mediatype': 'movie',
+        'search_media': 'F',
+        'virtual_children': ('movies_new', 'movies_recent'),
+    },
     'movies_new': {
         'label_id': 30003,
         'path_template': '/FMovies/latestd?limit={limit}',
@@ -57,6 +66,13 @@ SOURCE_CONFIG = {
         'content': 'movies',
         'mediatype': 'movie',
         'search_media': 'F',
+    },
+    'series_tips': {
+        'label_id': 30014,
+        'content': 'tvshows',
+        'mediatype': 'tvshow',
+        'search_media': 'S',
+        'virtual_children': ('series_new', 'series_recent'),
     },
     'series_new': {
         'label_id': 30012,
@@ -79,6 +95,14 @@ SEARCH_CACHE_TTL = 30 * 24 * 60 * 60
 SOURCE_CACHE_TTL = 12 * 60 * 60
 SOURCE_WIDGET_FALLBACK_TTL = 20 * 60 * 60
 MAX_WORKERS = 6
+PREWARM_WIDGET_LIMIT = 25
+PREWARM_SOURCES = (
+    'movies_new',
+    'movies_recent',
+    'series_new',
+    'series_recent',
+)
+ANDROID_WIDGET_RETRY_DELAYS = (2, 4)
 DETAIL_CACHE_NAME = 'detail_cache.json'
 SEARCH_CACHE_NAME = 'search_cache.json'
 DETAIL_CACHE_LOCK = threading.Lock()
@@ -178,6 +202,10 @@ def _save_source_cache(source_key, item_limit, items):
         'ts': time.time(),
         'items': items,
     })
+
+
+def _is_android():
+    return xbmc.getCondVisibility('System.Platform.Android')
 
 
 def _hexlify(value):
@@ -748,7 +776,7 @@ def _normalize_item(raw_item, source_key):
     }
 
 
-def fetch_sc_items(source_key, item_limit=None):
+def _fetch_sc_items_once(source_key, item_limit=None):
     resolved_key = resolve_source_key(source_key)
     limit = _resolve_limit(item_limit)
     response = _jsonrpc('Files.GetDirectory', {
@@ -775,6 +803,32 @@ def fetch_sc_items(source_key, item_limit=None):
         return []
     items = [_normalize_item(item, resolved_key) for item in response.get('result', {}).get('files', [])]
     return items[:limit]
+
+
+def fetch_sc_items(source_key, item_limit=None, retry_delays=None):
+    retry_delays = tuple(retry_delays or ())
+    resolved_key = resolve_source_key(source_key)
+    limit = _resolve_limit(item_limit)
+    monitor = xbmc.Monitor()
+
+    items = _fetch_sc_items_once(resolved_key, limit)
+    if items or not retry_delays:
+        return items
+
+    for attempt, delay in enumerate(retry_delays, start=1):
+        log(
+            'No Stream Cinema items for %s (limit=%s), retry %s in %ss'
+            % (resolved_key, limit, attempt, delay),
+            xbmc.LOGWARNING,
+        )
+        if monitor.waitForAbort(delay):
+            return []
+        items = _fetch_sc_items_once(resolved_key, limit)
+        if items:
+            log('Recovered %s startup widget after retry %s' % (resolved_key, attempt))
+            return items
+
+    return []
 
 
 def _merge_item(item, detail):
@@ -822,26 +876,102 @@ def _with_positions(items):
     return prepared
 
 
-def build_source_items(source_key, progress_cb=None, item_limit=None):
+def _source_identity(item):
+    unique_ids = item.get('unique_ids') or {}
+    if unique_ids.get('csfd'):
+        return 'csfd:%s' % unique_ids['csfd']
+    if item.get('csfd_url'):
+        return 'url:%s' % item['csfd_url']
+    if item.get('sc_url'):
+        return 'sc:%s' % item['sc_url']
+    return 'title:%s:%s:%s' % (
+        _normalize_text(item.get('tvshowtitle') or item.get('title', '')),
+        _normalize_text(item.get('title', '')),
+        item.get('year', ''),
+    )
+
+
+def _merge_virtual_items(source_key, progress_cb=None, item_limit=None, prefer_widget_fallback=True):
     resolved_key = resolve_source_key(source_key)
     limit = _resolve_limit(item_limit)
+    config = get_source_config(resolved_key)
 
     cached = _load_source_cache(resolved_key, limit, SOURCE_CACHE_TTL)
     if cached:
-        return _with_positions(cached)
+        return cached
 
-    if progress_cb is None:
+    if progress_cb is None and prefer_widget_fallback:
         cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
         if cached:
             log('Using cached widget items for %s (limit=%s)' % (resolved_key, limit))
-            return _with_positions(cached)
+            return cached
 
-    source_items = fetch_sc_items(resolved_key, item_limit=limit)
+    merged = []
+    child_limit = limit
+    for child_key in config.get('virtual_children') or ():
+        merged.extend(
+            _build_source_items(
+                child_key,
+                progress_cb=progress_cb,
+                item_limit=child_limit,
+                prefer_widget_fallback=prefer_widget_fallback,
+            )
+        )
+
+    if not merged:
+        cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
+        if cached:
+            log('Falling back to cached items for %s (limit=%s)' % (resolved_key, limit), xbmc.LOGWARNING)
+            return cached
+        return []
+
+    deduped = []
+    seen = set()
+    for item in merged:
+        clone = dict(item)
+        clone.pop('position', None)
+        identity = _source_identity(clone)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        deduped.append(clone)
+
+    deduped.sort(key=_sort_key)
+    deduped = deduped[:limit]
+    _save_source_cache(resolved_key, limit, deduped)
+    return deduped
+
+
+def _build_source_items(source_key, progress_cb=None, item_limit=None, prefer_widget_fallback=True):
+    resolved_key = resolve_source_key(source_key)
+    limit = _resolve_limit(item_limit)
+    config = get_source_config(resolved_key)
+
+    if config.get('virtual_children'):
+        return _merge_virtual_items(
+            resolved_key,
+            progress_cb=progress_cb,
+            item_limit=limit,
+            prefer_widget_fallback=prefer_widget_fallback,
+        )
+
+    cached = _load_source_cache(resolved_key, limit, SOURCE_CACHE_TTL)
+    if cached:
+        return cached
+
+    if progress_cb is None and prefer_widget_fallback:
+        cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
+        if cached:
+            log('Using cached widget items for %s (limit=%s)' % (resolved_key, limit))
+            return cached
+
+    retry_delays = ANDROID_WIDGET_RETRY_DELAYS if progress_cb is None and _is_android() else ()
+    source_items = fetch_sc_items(resolved_key, item_limit=limit, retry_delays=retry_delays)
     if not source_items:
         cached = _load_source_cache(resolved_key, limit, SOURCE_WIDGET_FALLBACK_TTL)
         if cached:
             log('Falling back to cached items for %s (limit=%s)' % (resolved_key, limit), xbmc.LOGWARNING)
-            return _with_positions(cached)
+            return cached
         return []
 
     enriched = list(source_items)
@@ -867,4 +997,31 @@ def build_source_items(source_key, progress_cb=None, item_limit=None):
 
     enriched.sort(key=_sort_key)
     _save_source_cache(resolved_key, limit, enriched)
-    return _with_positions(enriched)
+    return enriched
+
+
+def build_source_items(source_key, progress_cb=None, item_limit=None, prefer_widget_fallback=True):
+    return _with_positions(
+        _build_source_items(
+            source_key,
+            progress_cb=progress_cb,
+            item_limit=item_limit,
+            prefer_widget_fallback=prefer_widget_fallback,
+        )
+    )
+
+
+def prewarm_sources(item_limit=PREWARM_WIDGET_LIMIT, source_keys=None, monitor=None):
+    monitor = monitor or xbmc.Monitor()
+    for source_key in source_keys or PREWARM_SOURCES:
+        if monitor.abortRequested():
+            break
+        try:
+            items = _build_source_items(
+                source_key,
+                item_limit=item_limit,
+                prefer_widget_fallback=False,
+            )
+            log('Prewarmed %s (%s items)' % (resolve_source_key(source_key), len(items)))
+        except Exception as exc:
+            log('Prewarm failed for %s: %s' % (source_key, exc), xbmc.LOGWARNING)

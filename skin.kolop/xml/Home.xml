@@ -940,14 +940,14 @@
 					<content>
 						<include>KolopHomeMenu</include>
 						<item>
-							<label>Doplnky</label>
+							<label>$LOCALIZE[31509]</label>
 							<property name="menu_id">$NUMBER[8000]</property>
 							<onclick>ActivateWindow(1100)</onclick>
 							<thumb>icons/sidemenu/addons.png</thumb>
 							<property name="id">addons</property>
 						</item>
 						<item>
-							<label>CSFD</label>
+							<label>$LOCALIZE[31510]</label>
 							<onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/,return)</onclick>
 							<property name="menu_id">$NUMBER[26001]</property>
 							<thumb>icons/sidemenu/movies.png</thumb>

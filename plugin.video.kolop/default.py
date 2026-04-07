@@ -30,6 +30,7 @@ from sc_csfd import (  # noqa: E402
     fetch_single_reviews,
     get_source_content,
     get_source_label,
+    prewarm_sources,
     resolve_source_key,
 )
 
@@ -247,6 +248,8 @@ def router():
         show_source(args.get('source', 'newstream'), item_limit=limit)
     elif action == 'widget':
         show_source(args.get('source', 'newstream'), silent=True, item_limit=limit)
+    elif action == 'prewarm':
+        prewarm_sources(item_limit=limit or 25)
     elif action == 'reviews':
         show_reviews(args.get('csfd_url', ''), args.get('title', ''))
     else:

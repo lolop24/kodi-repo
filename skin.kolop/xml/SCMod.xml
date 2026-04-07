@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <includes>
 	<!-- SC MPAA rating -->
 	<include name="SCMPAArating">
@@ -849,22 +849,22 @@
 
 	<include name="KolopHPSearch">
 		<item>
-			<label>[B]SC Filmy[/B] podľa ČSFD</label>
+			<label>[B]$LOCALIZE[31504][/B] podla CSFD</label>
 			<onclick>Dialog.Close(all)</onclick>
 			<onclick>ActivateWindow(videos,"plugin://plugin.video.kolop/?action=source&amp;source=movies_new&amp;limit=25",return)</onclick>
 		</item>
 		<item>
-			<label>[B]SC Seriály[/B] podľa ČSFD</label>
+			<label>[B]$LOCALIZE[31505][/B] podla CSFD</label>
 			<onclick>Dialog.Close(all)</onclick>
 			<onclick>ActivateWindow(videos,"plugin://plugin.video.kolop/?action=source&amp;source=series_new&amp;limit=25",return)</onclick>
 		</item>
 		<item>
-			<label>[B]SC Filmy[/B] najnovšie pridané</label>
+			<label>[B]$LOCALIZE[31504][/B] $LOCALIZE[31503]</label>
 			<onclick>Dialog.Close(all)</onclick>
 			<onclick>ActivateWindow(videos,"plugin://plugin.video.kolop/?action=source&amp;source=movies_recent&amp;limit=25",return)</onclick>
 		</item>
 		<item>
-			<label>[B]SC Seriály[/B] najnovšie pridané</label>
+			<label>[B]$LOCALIZE[31505][/B] $LOCALIZE[31503]</label>
 			<onclick>Dialog.Close(all)</onclick>
 			<onclick>ActivateWindow(videos,"plugin://plugin.video.kolop/?action=source&amp;source=series_recent&amp;limit=25",return)</onclick>
 		</item>
@@ -1095,7 +1095,7 @@
 						<top>350</top>
 						<width>244</width>
 						<height>22</height>
-						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes(csfd), , hlasov]</label>
+						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes(csfd), , $LOCALIZE[31511]]</label>
 						<font>font12</font>
 						<textcolor>grey2</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1106,7 +1106,7 @@
 						<top>350</top>
 						<width>244</width>
 						<height>22</height>
-						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , hlasov]</label>
+						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , $LOCALIZE[31511]]</label>
 						<font>font12</font>
 						<textcolor>grey2</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1146,7 +1146,7 @@
 						<top>658</top>
 						<width>406</width>
 						<height>24</height>
-						<label>[COLOR button_focus]Enter[/COLOR] otvori hladanie v Stream Cinema</label>
+						<label>[COLOR button_focus]Enter[/COLOR] $LOCALIZE[31512]</label>
 						<font>font12</font>
 						<shadowcolor>text_shadow</shadowcolor>
 					</control>
@@ -1164,26 +1164,75 @@
 			<control type="grouplist" id="27001">
 				<include>WidgetGroupListCommon</include>
 				<pagecontrol>5270</pagecontrol>
+				<include content="WidgetListCategories">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464d6f76696573"/>
+					<param name="widget_header" value="$LOCALIZE[31516]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="item_limit" value="25"/>
+					<param name="list_id" value="27002"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_tips&amp;limit=25"/>
+					<param name="widget_header" value="$LOCALIZE[31500]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27003"/>
+				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464d6f766965732f6c61737457617463686564&amp;widget=1"/>
-					<param name="widget_header" value="Posledne sledovane"/>
+					<param name="widget_header" value="$LOCALIZE[31501]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="27005"/>
 				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_new&amp;limit=25"/>
-					<param name="widget_header" value="Novinky"/>
+					<param name="widget_header" value="$LOCALIZE[31502]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="27010"/>
 				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_recent&amp;limit=25"/>
-					<param name="widget_header" value="Najnovsie pridane"/>
+					<param name="widget_header" value="$LOCALIZE[31503]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="27020"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d312670673d30266475623d3126723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31266d3d36&amp;widget=1"/>
+					<param name="widget_header" value="$LOCALIZE[31507]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27030"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f5365617263682f6765744c6973742f3836&amp;widget=1"/>
+					<param name="widget_header" value="Disney"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27040"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464844522f6c61746573743f6c696d69743d32302670673d30&amp;widget=1"/>
+					<param name="widget_header" value="HDR"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27050"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f5365617263682f6765744c6973742f39393f6c696d69743d3330266f663d6d696e64617465266f643d64657363&amp;widget=1"/>
+					<param name="widget_header" value="Netflix"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27060"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d312670673d3026723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31&amp;widget=1"/>
+					<param name="widget_header" value="$LOCALIZE[31506]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27070"/>
 				</include>
 			</control>
 			<include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
@@ -1201,26 +1250,61 @@
 			<control type="grouplist" id="28001">
 				<include>WidgetGroupListCommon</include>
 				<pagecontrol>5280</pagecontrol>
+				<include content="WidgetListCategories">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46536572696573"/>
+					<param name="widget_header" value="$LOCALIZE[31516]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="item_limit" value="25"/>
+					<param name="list_id" value="28002"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=series_tips&amp;limit=25"/>
+					<param name="widget_header" value="$LOCALIZE[31500]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="28003"/>
+				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
-					<param name="widget_header" value="Posledne sledovane"/>
+					<param name="widget_header" value="$LOCALIZE[31501]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="28005"/>
 				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=series_new&amp;limit=25"/>
-					<param name="widget_header" value="Novinky"/>
+					<param name="widget_header" value="$LOCALIZE[31502]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="28010"/>
 				</include>
 				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=series_recent&amp;limit=25"/>
-					<param name="widget_header" value="Najnovsie pridane"/>
+					<param name="widget_header" value="$LOCALIZE[31503]"/>
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="28020"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6b696473&amp;widget=1"/>
+					<param name="widget_header" value="$LOCALIZE[31507]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="28030"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d322670673d30266475623d3126723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31&amp;widget=1"/>
+					<param name="widget_header" value="$LOCALIZE[31506]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="28040"/>
+				</include>
+				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6e6578746570&amp;id=6e6578746570&amp;widget=1"/>
+					<param name="widget_header" value="$LOCALIZE[31508]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="28050"/>
 				</include>
 			</control>
 			<include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
@@ -1231,14 +1315,14 @@
 
 	<include name="KolopHomeMenu">
 		<item>
-			<label>SC Filmy</label>
+			<label>$LOCALIZE[31504]</label>
 			<onclick>ActivateWindow(Videos,plugin://plugin.video.stream-cinema/?url=2f464d6f76696573,return)</onclick>
 			<property name="menu_id">$NUMBER[27000]</property>
 			<thumb>icons/sidemenu/movies.png</thumb>
 			<property name="id">sc-movies</property>
 		</item>
 		<item>
-			<label>SC Serialy</label>
+			<label>$LOCALIZE[31505]</label>
 			<onclick>ActivateWindow(Videos,plugin://plugin.video.stream-cinema/?url=2f46536572696573,return)</onclick>
 			<property name="menu_id">$NUMBER[28000]</property>
 			<thumb>icons/sidemenu/tv.png</thumb>
@@ -1249,45 +1333,95 @@
 	<include name="KolopHomeInfoWidgets">
 		<include content="CSFDInfoWidget" condition="Skin.HasSetting(csfd_home)">
 			<param name="list_id" value="26010"/>
-			<param name="section_label" value="Filmy"/>
+			<param name="section_label" value="$LOCALIZE[31513]"/>
 		</include>
 		<include content="CSFDInfoWidget" condition="Skin.HasSetting(csfd_home)">
 			<param name="list_id" value="26020"/>
-			<param name="section_label" value="Serialy"/>
+			<param name="section_label" value="$LOCALIZE[31514]"/>
 		</include>
 		<include content="CSFDInfoWidget" condition="Skin.HasSetting(csfd_home)">
 			<param name="list_id" value="26030"/>
-			<param name="section_label" value="Serie"/>
+			<param name="section_label" value="$LOCALIZE[31515]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27003"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31500]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27005"/>
-			<param name="section_label" value="SC Filmy - posledne sledovane"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31501]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27010"/>
-			<param name="section_label" value="SC Filmy - novinky podla CSFD"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31502]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27020"/>
-			<param name="section_label" value="SC Filmy - najnovsie pridane podla CSFD"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31503]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27030"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31507]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27040"/>
+			<param name="section_label" value="$LOCALIZE[31504] - Disney"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27050"/>
+			<param name="section_label" value="$LOCALIZE[31504] - HDR"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27060"/>
+			<param name="section_label" value="$LOCALIZE[31504] - Netflix"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27070"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31506]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-series"/>
+			<param name="list_id" value="28003"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31500]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-series"/>
 			<param name="list_id" value="28005"/>
-			<param name="section_label" value="SC Serialy - posledne sledovane"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31501]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-series"/>
 			<param name="list_id" value="28010"/>
-			<param name="section_label" value="SC Serialy - novinky podla CSFD"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31502]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-series"/>
 			<param name="list_id" value="28020"/>
-			<param name="section_label" value="SC Serialy - najnovsie pridane podla CSFD"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31503]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-series"/>
+			<param name="list_id" value="28030"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31507]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-series"/>
+			<param name="list_id" value="28040"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31506]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-series"/>
+			<param name="list_id" value="28050"/>
+			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31508]"/>
 		</include>
 	</include>
 
@@ -1395,7 +1529,7 @@
 						<top>328</top>
 						<width>244</width>
 						<height>22</height>
-						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , hlasov]</label>
+						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , $LOCALIZE[31511]]</label>
 						<font>font12</font>
 						<textcolor>grey2</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1463,3 +1597,5 @@
 		</control>
 	</include>
 </includes>
+
+

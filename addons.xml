@@ -20,7 +20,7 @@
             <platform>all</platform>
         </extension>
     </addon>
-    <addon id="plugin.video.kolop" name="Kolop" version="1.1.2" provider-name="lolop24">
+    <addon id="plugin.video.kolop" name="Kolop" version="1.2.0" provider-name="lolop24">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -30,6 +30,7 @@
         <extension point="xbmc.python.pluginsource" library="default.py">
             <provides>video</provides>
         </extension>
+        <extension point="xbmc.service" library="service.py" />
         <extension point="xbmc.addon.metadata">
             <summary lang="en_gb">Stream Cinema movies and series sorted by CSFD rating</summary>
             <summary lang="sk">Filmy a serialy zo Stream Cinema zoradene podla CSFD</summary>
@@ -37,7 +38,11 @@
             <description lang="en_gb">Loads new and recently added Stream Cinema movies and series, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order with cached widget results for faster home loading.</description>
             <description lang="sk">Nacita novinky a najnovsie pridane filmy a serialy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD. Pre home widgety pouziva vyslednu disk cache, aby sa nacitali rychlejsie.</description>
             <description lang="cs">Nacte novinky a nejnoveji pridane filmy a serialy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD. Pro home widgety pouziva vyslednou disk cache, aby se nacitaly rychleji.</description>
-            <news>v1.1.2 (2026-04-07)
+            <news>v1.2.0 (2026-04-07)
+     - Added Android-friendly startup prewarm and retry handling so Kolop widgets recover on cold Kodi boots
+     - Added CSFD-based Tips of the Day sources for movies and series
+     - Kept widget caches warm in the background through a Kodi service entry point
+    v1.1.2 (2026-04-07)
      - Reduced Kolop widget fallback and detail cache retention from 3 days to 20 hours
      - Kept CSFD-driven home ordering while shortening stale widget lifetime
     v1.1.1 (2026-04-07)
@@ -290,10 +295,10 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop" version="1.0.3" name="Kolop Skin" provider-name="lolop24">
+    <addon id="skin.kolop" version="1.1.0" name="Kolop Skin" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
-            <import addon="plugin.video.kolop" version="1.1.1" />
+            <import addon="plugin.video.kolop" version="1.2.0" />
         </requires>
         <extension point="xbmc.gui.skin" debugging="false">
             <res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
@@ -305,7 +310,11 @@
             <description lang="en_GB">A dedicated Kodi skin for Kolop focused on fast startup, lazy home widgets, and CSFD-sorted movies and series.</description>
             <description lang="sk">Samostatny Kodi skin pre Kolop zamerany na rychly start, lazy home widgety a filmy so serialmi zoradenymi podla CSFD.</description>
             <description lang="cs_CZ">Samostatny Kodi skin pro Kolop zamereny na rychly start, lazy home widgety a filmy se serialy serazenymi podle CSFD.</description>
-            <news>v1.0.3 (2026-04-07)
+            <news>v1.1.0 (2026-04-07)
+     - Restored a wider Estuary Mod style home widget stack for SC movies and series
+     - Added localized Kolop home labels and Czech-ready strings for the custom skin sections
+     - Wired the new Kolop Tips of the Day widgets into home and info panels
+    v1.0.3 (2026-04-07)
      - Read CSFD ratings explicitly via ListItem.Rating(csfd) and ListItem.Votes(csfd) in the home info widget
      - Show rating source as csfd.cz in the CSFD home info panel
     v1.0.2 (2026-04-07)
