@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.kolop" version="1.0.0" name="Kolop Skin" provider-name="lolop24">
+<addon id="skin.kolop" version="1.0.1" name="Kolop Skin" provider-name="lolop24">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
-		<import addon="plugin.video.kolop" version="1.1.0"/>
+		<import addon="plugin.video.kolop" version="1.1.1"/>
 	</requires>
 	<extension point="xbmc.gui.skin" debugging="false">
 		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
@@ -14,6 +14,11 @@
 		<description lang="en_GB">A dedicated Kodi skin for Kolop focused on fast startup, lazy home widgets, and CSFD-sorted movies and series.</description>
 		<description lang="sk">Samostatny Kodi skin pre Kolop zamerany na rychly start, lazy home widgety a filmy so serialmi zoradenymi podla CSFD.</description>
 		<description lang="cs_CZ">Samostatny Kodi skin pro Kolop zamereny na rychly start, lazy home widgety a filmy se serialy serazenymi podle CSFD.</description>
+		<news>v1.0.1 (2026-04-07)
+ - Restored home sections to CSFD, SC Filmy, SC Serialy and kept Doplnky visible by default
+ - Added back last watched widgets for SC movies and series
+ - Increased Kolop home widget limits to 25 items and kept CSFD integration on home/search
+		</news>
 		<platform>all</platform>
 		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
 		<source>https://github.com/lolop24/kodi-repo</source>

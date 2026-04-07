@@ -5,6 +5,8 @@
 	<!-- Default menu: ČSFD, SC Filmy, SC Seriály, Doplnky -->
 	<onload condition="!Skin.HasSetting(kolop_home_defaults_v1)">Skin.SetBool(show_hp_infowidget)</onload>
 	<onload condition="!Skin.HasSetting(kolop_home_defaults_v1)">Skin.SetBool(kolop_home_defaults_v1)</onload>
+	<onload condition="!Skin.HasSetting(kolop_home_defaults_v2)">Skin.SetBool(csfd_home)</onload>
+	<onload condition="!Skin.HasSetting(kolop_home_defaults_v2)">Skin.SetBool(kolop_home_defaults_v2)</onload>
 	<controls>
 		<control type="button" id="20000">
 			<include>HiddenObject</include>
@@ -848,6 +850,7 @@
 						<param name="visible_3" value="System.HasMediaAudioCD"/>
 					</include>
 				</control>
+				<include>CSFDHomeRightMenu</include>
 				<include>KolopHomeRightMenuMovies</include>
 				<include>KolopHomeRightMenuSeries</include>
 			</control>
@@ -936,6 +939,13 @@
 					</itemlayout>
 					<content>
 						<include>KolopHomeMenu</include>
+						<item>
+							<label>Doplnky</label>
+							<property name="menu_id">$NUMBER[8000]</property>
+							<onclick>ActivateWindow(1100)</onclick>
+							<thumb>icons/sidemenu/addons.png</thumb>
+							<property name="id">addons</property>
+						</item>
 					</content>
 				</control>
 				<control type="grouplist" id="700">

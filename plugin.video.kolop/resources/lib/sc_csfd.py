@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import tempfile
 import threading
 import time
 import unicodedata
@@ -129,10 +130,21 @@ def _load_json(name):
 
 def _save_json(name, data):
     path = _cache_path(name)
+    directory = os.path.dirname(path) or _cache_dir()
+    tmp_path = None
     try:
-        with open(path, 'w', encoding='utf-8') as handle:
+        fd, tmp_path = tempfile.mkstemp(prefix='%s.' % name, suffix='.tmp', dir=directory)
+        with os.fdopen(fd, 'w', encoding='utf-8') as handle:
             json.dump(data, handle, ensure_ascii=False, indent=1)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp_path, path)
     except Exception as exc:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
         log('Cache save failed for %s: %s' % (name, exc), xbmc.LOGWARNING)
 
 
@@ -213,11 +225,27 @@ def _join_value(value, separator):
 def _parse_date(value):
     if not value:
         return 0
-    for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d'):
-        try:
-            return int(datetime.strptime(value, fmt).timestamp())
-        except ValueError:
-            continue
+    cleaned = str(value).strip().replace('T', ' ')
+    match = re.match(
+        r'^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?$',
+        cleaned,
+    )
+    if not match:
+        return 0
+    year, month, day, hour, minute, second = match.groups()
+    try:
+        return int(
+            datetime(
+                int(year),
+                int(month),
+                int(day),
+                int(hour or 0),
+                int(minute or 0),
+                int(second or 0),
+            ).timestamp()
+        )
+    except ValueError:
+        return 0
     return 0
 
 
