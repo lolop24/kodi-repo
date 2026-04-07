@@ -55,7 +55,14 @@ SOURCE_CONFIG = {
     },
     'movies_new': {
         'label_id': 30003,
-        'path_template': '/FMovies/latestd?limit={limit}',
+        'path': '/FMovies/latest',
+        'content': 'movies',
+        'mediatype': 'movie',
+        'search_media': 'F',
+    },
+    'movies_new_dubbed': {
+        'label_id': 30015,
+        'path': '/FMovies/latestd',
         'content': 'movies',
         'mediatype': 'movie',
         'search_media': 'F',
@@ -98,6 +105,7 @@ MAX_WORKERS = 6
 PREWARM_WIDGET_LIMIT = 25
 PREWARM_SOURCES = (
     'movies_new',
+    'movies_new_dubbed',
     'movies_recent',
     'series_new',
     'series_recent',

@@ -935,6 +935,11 @@ msgctxt "#31516"
 msgid "Categories"
 msgstr ""
 
+#: /xml/SCMod.xml
+msgctxt "#31517"
+msgid "Dubbed new releases"
+msgstr ""
+
 #: /xml/DialogPlayerProcessInfo.xml
 #. Label to show the video codec name
 msgctxt "#31600"

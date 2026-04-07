@@ -33,6 +33,10 @@ msgctxt "#30014"
 msgid "Series Tips of the Day by CSFD"
 msgstr "Series Tips of the Day by CSFD"
 
+msgctxt "#30015"
+msgid "Movies Dubbed New Releases by CSFD"
+msgstr "Movies Dubbed New Releases by CSFD"
+
 msgctxt "#30004"
 msgid "Reviews (%d)"
 msgstr "Reviews (%d)"

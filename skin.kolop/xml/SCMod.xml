@@ -1179,6 +1179,13 @@
 					<param name="list_id" value="27005"/>
 				</include>
 				<include content="SCWidgetListPoster">
+					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_new_dubbed&amp;limit=25"/>
+					<param name="widget_header" value="$LOCALIZE[31517]"/>
+					<param name="widget_target" value="videos"/>
+					<param name="widget_limit" value="25"/>
+					<param name="list_id" value="27015"/>
+				</include>
+				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_new&amp;limit=25"/>
 					<param name="widget_header" value="$LOCALIZE[31502]"/>
 					<param name="widget_target" value="videos"/>
@@ -1277,6 +1284,11 @@
 			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27005"/>
 			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31501]"/>
+		</include>
+		<include content="KolopInfoWidget">
+			<param name="menu_id" value="sc-movies"/>
+			<param name="list_id" value="27015"/>
+			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31517]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-movies"/>

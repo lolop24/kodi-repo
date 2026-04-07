@@ -740,6 +740,10 @@ msgctxt "#31516"
 msgid "Categories"
 msgstr "Kategorie"
 
+msgctxt "#31517"
+msgid "Dubbed new releases"
+msgstr "Novinky dabovane"
+
 #. Label to show the video codec name
 msgctxt "#31600"
 msgid "Video codec"
