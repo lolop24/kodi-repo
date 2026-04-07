@@ -1020,11 +1020,33 @@
 						<top>162</top>
 						<width>244</width>
 						<height>56</height>
+						<label>$INFO[Container($PARAM[list_id]).ListItem.Rating(csfd), , / 10]</label>
+						<font>font32_title</font>
+						<textcolor>button_focus</textcolor>
+						<shadowcolor>text_shadow</shadowcolor>
+						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Rating(csfd))</visible>
+					</control>
+					<control type="label">
+						<left>178</left>
+						<top>162</top>
+						<width>244</width>
+						<height>56</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Rating, , / 10]</label>
 						<font>font32_title</font>
 						<textcolor>button_focus</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
-						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Rating)</visible>
+						<visible>String.IsEmpty(Container($PARAM[list_id]).ListItem.Rating(csfd)) + !String.IsEmpty(Container($PARAM[list_id]).ListItem.Rating)</visible>
+					</control>
+					<control type="label">
+						<left>178</left>
+						<top>220</top>
+						<width>244</width>
+						<height>22</height>
+						<label>Zdroj hodnotenia: $INFO[Container($PARAM[list_id]).ListItem.Property(rating_origin)]</label>
+						<font>font12</font>
+						<textcolor>grey2</textcolor>
+						<shadowcolor>text_shadow</shadowcolor>
+						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Property(rating_origin))</visible>
 					</control>
 					<control type="label">
 						<left>178</left>
@@ -1035,7 +1057,7 @@
 						<font>font12</font>
 						<textcolor>grey2</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
-						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Property(rating_type_label))</visible>
+						<visible>String.IsEmpty(Container($PARAM[list_id]).ListItem.Property(rating_origin)) + !String.IsEmpty(Container($PARAM[list_id]).ListItem.Property(rating_type_label))</visible>
 					</control>
 					<control type="label">
 						<left>178</left>
@@ -1073,11 +1095,22 @@
 						<top>350</top>
 						<width>244</width>
 						<height>22</height>
+						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes(csfd), , hlasov]</label>
+						<font>font12</font>
+						<textcolor>grey2</textcolor>
+						<shadowcolor>text_shadow</shadowcolor>
+						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Votes(csfd))</visible>
+					</control>
+					<control type="label">
+						<left>178</left>
+						<top>350</top>
+						<width>244</width>
+						<height>22</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , hlasov]</label>
 						<font>font12</font>
 						<textcolor>grey2</textcolor>
 						<shadowcolor>text_shadow</shadowcolor>
-						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Votes)</visible>
+						<visible>String.IsEmpty(Container($PARAM[list_id]).ListItem.Votes(csfd)) + !String.IsEmpty(Container($PARAM[list_id]).ListItem.Votes)</visible>
 					</control>
 					<control type="image">
 						<left>0</left>

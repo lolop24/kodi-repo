@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.kolop"
        name="Kolop"
-       version="1.1.1"
+       version="1.1.2"
        provider-name="lolop24">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -19,7 +19,10 @@
         <description lang="en_gb">Loads new and recently added Stream Cinema movies and series, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order with cached widget results for faster home loading.</description>
         <description lang="sk">Nacita novinky a najnovsie pridane filmy a serialy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD. Pre home widgety pouziva vyslednu disk cache, aby sa nacitali rychlejsie.</description>
         <description lang="cs">Nacte novinky a nejnoveji pridane filmy a serialy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD. Pro home widgety pouziva vyslednou disk cache, aby se nacitaly rychleji.</description>
-        <news>v1.1.1 (2026-04-07)
+        <news>v1.1.2 (2026-04-07)
+ - Reduced Kolop widget fallback and detail cache retention from 3 days to 20 hours
+ - Kept CSFD-driven home ordering while shortening stale widget lifetime
+v1.1.1 (2026-04-07)
  - Home widgets in skin.kolop now expose 25 items and keep last watched sections for SC movies and series
  - Switched JSON cache writes to an atomic temp-file replace flow to avoid corrupted detail/search cache files
  - Replaced fragile strptime date parsing so the recent-series widget works reliably on Kodi runtime
