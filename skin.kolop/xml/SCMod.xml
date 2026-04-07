@@ -1172,13 +1172,6 @@
 					<param name="list_id" value="27002"/>
 				</include>
 				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=movies_tips&amp;limit=25"/>
-					<param name="widget_header" value="$LOCALIZE[31500]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27003"/>
-				</include>
-				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464d6f766965732f6c61737457617463686564&amp;widget=1"/>
 					<param name="widget_header" value="$LOCALIZE[31501]"/>
 					<param name="widget_target" value="videos"/>
@@ -1198,41 +1191,6 @@
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="27020"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d312670673d30266475623d3126723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31266d3d36&amp;widget=1"/>
-					<param name="widget_header" value="$LOCALIZE[31507]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27030"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f5365617263682f6765744c6973742f3836&amp;widget=1"/>
-					<param name="widget_header" value="Disney"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27040"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f464844522f6c61746573743f6c696d69743d32302670673d30&amp;widget=1"/>
-					<param name="widget_header" value="HDR"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27050"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f5365617263682f6765744c6973742f39393f6c696d69743d3330266f663d6d696e64617465266f643d64657363&amp;widget=1"/>
-					<param name="widget_header" value="Netflix"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27060"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d312670673d3026723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31&amp;widget=1"/>
-					<param name="widget_header" value="$LOCALIZE[31506]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="27070"/>
 				</include>
 			</control>
 			<include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
@@ -1258,13 +1216,6 @@
 					<param name="list_id" value="28002"/>
 				</include>
 				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.kolop/?action=widget&amp;source=series_tips&amp;limit=25"/>
-					<param name="widget_header" value="$LOCALIZE[31500]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="28003"/>
-				</include>
-				<include content="SCWidgetListPoster">
 					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6c61737457617463686564&amp;widget=1"/>
 					<param name="widget_header" value="$LOCALIZE[31501]"/>
 					<param name="widget_target" value="videos"/>
@@ -1284,27 +1235,6 @@
 					<param name="widget_target" value="videos"/>
 					<param name="widget_limit" value="25"/>
 					<param name="list_id" value="28020"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f465365726965732f6b696473&amp;widget=1"/>
-					<param name="widget_header" value="$LOCALIZE[31507]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="28030"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?url=2f46696c7465722f3f7479703d322670673d30266475623d3126723d3e363026793d3e32303130266f663d72616e646f6d266f643d64657363266c696d69743d323026706167653d31&amp;widget=1"/>
-					<param name="widget_header" value="$LOCALIZE[31506]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="28040"/>
-				</include>
-				<include content="SCWidgetListPoster">
-					<param name="content_path" value="plugin://plugin.video.stream-cinema/?action=6e6578746570&amp;id=6e6578746570&amp;widget=1"/>
-					<param name="widget_header" value="$LOCALIZE[31508]"/>
-					<param name="widget_target" value="videos"/>
-					<param name="widget_limit" value="25"/>
-					<param name="list_id" value="28050"/>
 				</include>
 			</control>
 			<include content="WidgetScrollbar" condition="Skin.HasSetting(touchmode)">
@@ -1345,11 +1275,6 @@
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27003"/>
-			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31500]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27005"/>
 			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31501]"/>
 		</include>
@@ -1362,36 +1287,6 @@
 			<param name="menu_id" value="sc-movies"/>
 			<param name="list_id" value="27020"/>
 			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31503]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27030"/>
-			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31507]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27040"/>
-			<param name="section_label" value="$LOCALIZE[31504] - Disney"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27050"/>
-			<param name="section_label" value="$LOCALIZE[31504] - HDR"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27060"/>
-			<param name="section_label" value="$LOCALIZE[31504] - Netflix"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-movies"/>
-			<param name="list_id" value="27070"/>
-			<param name="section_label" value="$LOCALIZE[31504] - $LOCALIZE[31506]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-series"/>
-			<param name="list_id" value="28003"/>
-			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31500]"/>
 		</include>
 		<include content="KolopInfoWidget">
 			<param name="menu_id" value="sc-series"/>
@@ -1407,21 +1302,6 @@
 			<param name="menu_id" value="sc-series"/>
 			<param name="list_id" value="28020"/>
 			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31503]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-series"/>
-			<param name="list_id" value="28030"/>
-			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31507]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-series"/>
-			<param name="list_id" value="28040"/>
-			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31506]"/>
-		</include>
-		<include content="KolopInfoWidget">
-			<param name="menu_id" value="sc-series"/>
-			<param name="list_id" value="28050"/>
-			<param name="section_label" value="$LOCALIZE[31505] - $LOCALIZE[31508]"/>
 		</include>
 	</include>
 
