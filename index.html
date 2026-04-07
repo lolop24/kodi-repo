@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>42po.lol â€“ Kodi RepozitÃ¡r</title>
+<title>42po.lol &ndash; Kodi Repozitar</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0f0f0f; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; padding: 40px 20px; }
@@ -21,10 +21,10 @@
   .addons { display: flex; flex-direction: column; gap: 16px; }
   .addons h2 { font-size: 1rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
   .addon-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 22px 26px; }
-  .addon-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .addon-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; }
   .addon-name { font-size: 1.1rem; font-weight: 600; color: #fff; }
-  .addon-version { font-size: 0.8rem; color: #555; background: #222; padding: 3px 10px; border-radius: 20px; }
-  .addon-id { font-size: 0.78rem; color: #444; margin-bottom: 10px; font-family: monospace; }
+  .addon-version { font-size: 0.8rem; color: #555; background: #222; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+  .addon-id { font-size: 0.78rem; color: #666; margin-bottom: 10px; font-family: Consolas, monospace; }
   .addon-desc { color: #999; font-size: 0.92rem; line-height: 1.6; }
   footer { text-align: center; margin-top: 60px; color: #333; font-size: 0.82rem; }
   footer a { color: #555; text-decoration: none; }
@@ -35,98 +35,101 @@
 <div class="container">
   <header>
     <h1>42po.lol</h1>
-    <p>Kodi repozitÃ¡r Â· autor <strong style="color:#fff">lolop</strong></p>
+    <p>Kodi repozitar &middot; autor <strong style="color:#fff">lolop</strong></p>
   </header>
 
   <div class="install-box">
-    <h2>InÅ¡talÃ¡cia repozitÃ¡ra</h2>
+    <h2>Instalacia repozitara</h2>
     <ol class="install-steps">
-      <li>Stiahni zip repozitÃ¡ra niÅ¾Å¡ie</li>
-      <li>V Kodi: <strong>Doplnky â†’ InÅ¡talovaÅ¥ zo ZIP sÃºboru</strong></li>
-      <li>Vyber stiahnutÃ½ sÃºbor <code>repository.42polol-1.0.0.zip</code></li>
-      <li>Po inÅ¡talÃ¡cii nÃ¡jdeÅ¡ doplnky cez <strong>InÅ¡talovaÅ¥ z repozitÃ¡ra â†’ 42po.lol</strong></li>
+      <li>Stiahni ZIP repozitara nizsie.</li>
+      <li>V Kodi otvor <strong>Doplnky &#8594; Instalovat zo ZIP suboru</strong>.</li>
+      <li>Vyber stiahnuty subor <code>repository.42polol-1.0.0.zip</code>.</li>
+      <li>Po instalacii najdes doplnky cez <strong>Instalovat z repozitara &#8594; 42po.lol</strong>.</li>
     </ol>
-    <a class="dl-btn" href="repository.42polol-1.0.0.zip">â¬‡ StiahnuÅ¥ repozitÃ¡r (ZIP)</a>
+    <a class="dl-btn" href="repository.42polol-1.0.0.zip">&#8681; Stiahnut repozitar (ZIP)</a>
     <p style="margin-top:14px; color:#555; font-size:0.82rem;">
       Alebo pridaj zdroj v Kodi File Manager: <code style="color:#777">https://42po.lol</code>
     </p>
   </div>
 
-  <!-- Kodi-readable file listing -->
   <div style="display:none">
     <a href="repository.42polol-1.0.0.zip">repository.42polol-1.0.0.zip</a>
   </div>
 
   <div class="addons">
-    <h2>DostupnÃ© doplnky</h2>
+    <h2>Dostupne doplnky</h2>
 
     <div class="addon-card">
       <div class="addon-header">
         <span class="addon-name">Kolop</span>
-        <span class="addon-version">v1.0.0</span>
+        <span class="addon-version">v1.2.2</span>
       </div>
       <div class="addon-id">plugin.video.kolop</div>
       <div class="addon-desc">
-        NaÄÃ­ta novÃ© filmy zo Stream Cinema, spÃ¡ruje ich s ÄŒSFD, doplnÃ­ hodnotenie, hlasy, obsah a recenzie a potom ich zoradÃ­ v Å¡tÃ½le ÄŒSFD menu.
+        Nacita novinky a najnovsie pridane filmy a serialy zo Stream Cinema, doplni im hodnotenie z CSFD
+        a zoradi ich tak, aby home widgety aj zoznamy davali rychlo zmysel.
       </div>
     </div>
 
     <div class="addon-card">
       <div class="addon-header">
-        <span class="addon-name">ÄŒSFD RebrÃ­Äek</span>
-        <span class="addon-version">v12.6.0</span>
+        <span class="addon-name">CSFD Rebricek</span>
+        <span class="addon-version">v12.10.2</span>
       </div>
       <div class="addon-id">plugin.video.csfd-rebricek</div>
       <div class="addon-desc">
-        Prehliadaj rebrÃ­Äky filmov, seriÃ¡lov a sÃ©riÃ­ z ÄŒSFD s filtrom od roku.
-        KaÅ¾dÃ¡ poloÅ¾ka zobrazuje hodnotenie hviezdiÄkami, plot a recenzie.
-        KliknutÃ­m na titul sa otvorÃ­ vyhÄ¾adÃ¡vanie priamo vo Stream Cinema.
+        Prehlad rebrickov filmov, serialov a serii z CSFD s rychlym otvorenim vyhladavania
+        priamo vo Stream Cinema.
+      </div>
+    </div>
+
+    <div class="addon-card">
+      <div class="addon-header">
+        <span class="addon-name">Kolop Skin</span>
+        <span class="addon-version">v1.1.4</span>
+      </div>
+      <div class="addon-id">skin.kolop</div>
+      <div class="addon-desc">
+        Hlavny skin tohto repozitara s Kolop home sekciami, CSFD integraciou a Stream Cinema widgetmi.
       </div>
     </div>
 
     <div class="addon-card">
       <div class="addon-header">
         <span class="addon-name">Titulky DeepL</span>
-        <span class="addon-version">v0.2.2</span>
+        <span class="addon-version">v0.5.1</span>
       </div>
       <div class="addon-id">service.subtitles.titulky-deepl</div>
       <div class="addon-desc">
-        NÃ¡jde naÄÃ­tanÃ© alebo blÃ­zke sÃºbory titulkov, poÅ¡le ich text cez DeepL API a vrÃ¡ti
-        dvojjazyÄnÃ½ sÃºbor â€” originÃ¡l (ÄeÅ¡tina/slovenÄina) + preklad do ukrajinskej
-        spodnom riadku.
+        Najde titulky, prelozi ich cez DeepL API a pripravi dvojjazycny vystup pre jednoduchsie sledovanie.
       </div>
     </div>
 
     <div class="addon-card">
       <div class="addon-header">
         <span class="addon-name">Titulky DualSub</span>
-        <span class="addon-version">v1.4.0</span>
+        <span class="addon-version">v1.5.1</span>
       </div>
       <div class="addon-id">service.subtitles.titulky-dualsub</div>
       <div class="addon-desc">
-        Doplnok na titulky ktorÃ½ paralelne prehÄ¾adÃ¡va OpenSubtitles.com, Titulky.com a TVsubtitles.net.
-        UmoÅ¾Åˆuje vybraÅ¥ dva titulky naraz â€” prvÃ½ sa zobrazÃ­ <strong style="color:#fff">hore (bielo)</strong>,
-        druhÃ½ <strong style="color:#ff0">dole (Å¾lto)</strong>. Podporuje 40+ jazykov.
-        TVsubtitles.net sa automaticky prehÄ¾adÃ¡va pre seriÃ¡ly (ukrajinskÃ­, angliÄtina a ÄalÅ¡ie).
+        Paralelne prehladava viac subtitle zdrojov a vie zobrazit dva titulky naraz.
       </div>
     </div>
 
     <div class="addon-card">
       <div class="addon-header">
         <span class="addon-name">Titulky Phonetic UA</span>
-        <span class="addon-version">v1.6.0</span>
+        <span class="addon-version">v1.6.6</span>
       </div>
       <div class="addon-id">service.subtitles.titulky-dualsub-phoneticua</div>
       <div class="addon-desc">
-        Stiahne ÄeskÃ© alebo slovenskÃ© titulky z OpenSubtitles.com alebo Titulky.com
-        a automaticky vygeneruje ukrajinskÃº fonetickÃº verziu. Obe zlÃºÄi do jednÃ©ho duÃ¡lneho
-        sÃºboru â€” originÃ¡l hore, fonetickÃ¡ ukrajinÄina dole.
+        Zo slovenskych alebo ceskych titulkov vytvori aj foneticku ukrajinsku verziu a spoji ich do jedneho suboru.
       </div>
     </div>
   </div>
 
   <footer>
-    <a href="https://github.com/lolop24/kodi-repo">GitHub</a> Â· 42po.lol
+    <a href="https://github.com/lolop24/kodi-repo">GitHub</a> &middot; 42po.lol
   </footer>
 </div>
 </body>
