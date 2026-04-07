@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addons>
-    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.10.0" provider-name="CSFD-SC-Bridge">
+    <addon id="plugin.video.csfd-rebricek" name="ČSFD Rebríček" version="12.10.1" provider-name="CSFD-SC-Bridge">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
@@ -287,7 +287,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop" version="1.0.1" name="Kolop Skin" provider-name="lolop24">
+    <addon id="skin.kolop" version="1.0.2" name="Kolop Skin" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="plugin.video.kolop" version="1.1.1" />
@@ -302,7 +302,10 @@
             <description lang="en_GB">A dedicated Kodi skin for Kolop focused on fast startup, lazy home widgets, and CSFD-sorted movies and series.</description>
             <description lang="sk">Samostatny Kodi skin pre Kolop zamerany na rychly start, lazy home widgety a filmy so serialmi zoradenymi podla CSFD.</description>
             <description lang="cs_CZ">Samostatny Kodi skin pro Kolop zamereny na rychly start, lazy home widgety a filmy se serialy serazenymi podle CSFD.</description>
-            <news>v1.0.1 (2026-04-07)
+            <news>v1.0.2 (2026-04-07)
+     - Moved the CSFD section to the end of the home menu
+     - Added rating type display to the CSFD home info panel
+    v1.0.1 (2026-04-07)
      - Restored home sections to CSFD, SC Filmy, SC Serialy and kept Doplnky visible by default
      - Added back last watched widgets for SC movies and series
      - Increased Kolop home widget limits to 25 items and kept CSFD integration on home/search

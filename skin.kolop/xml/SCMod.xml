@@ -1030,7 +1030,18 @@
 						<left>178</left>
 						<top>220</top>
 						<width>244</width>
-						<height>26</height>
+						<height>22</height>
+						<label>Typ hodnotenia: $INFO[Container($PARAM[list_id]).ListItem.Property(rating_type_label)]</label>
+						<font>font12</font>
+						<textcolor>grey2</textcolor>
+						<shadowcolor>text_shadow</shadowcolor>
+						<visible>!String.IsEmpty(Container($PARAM[list_id]).ListItem.Property(rating_type_label))</visible>
+					</control>
+					<control type="label">
+						<left>178</left>
+						<top>246</top>
+						<width>244</width>
+						<height>22</height>
 						<label>Rok: $INFO[Container($PARAM[list_id]).ListItem.Year]</label>
 						<font>font14</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1038,9 +1049,9 @@
 					</control>
 					<control type="textbox">
 						<left>178</left>
-						<top>252</top>
+						<top>272</top>
 						<width>244</width>
-						<height>70</height>
+						<height>42</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Genre]</label>
 						<font>font14</font>
 						<shadowcolor>text_shadow</shadowcolor>
@@ -1048,7 +1059,7 @@
 					</control>
 					<control type="textbox">
 						<left>178</left>
-						<top>326</top>
+						<top>320</top>
 						<width>244</width>
 						<height>28</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Country]</label>
@@ -1059,7 +1070,7 @@
 					</control>
 					<control type="label">
 						<left>178</left>
-						<top>356</top>
+						<top>350</top>
 						<width>244</width>
 						<height>22</height>
 						<label>$INFO[Container($PARAM[list_id]).ListItem.Votes, , hlasov]</label>
@@ -1186,13 +1197,6 @@
 	</include>
 
 	<include name="KolopHomeMenu">
-		<item>
-			<label>CSFD</label>
-			<onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/,return)</onclick>
-			<property name="menu_id">$NUMBER[26001]</property>
-			<thumb>icons/sidemenu/movies.png</thumb>
-			<property name="id">csfd</property>
-		</item>
 		<item>
 			<label>SC Filmy</label>
 			<onclick>ActivateWindow(Videos,plugin://plugin.video.stream-cinema/?url=2f464d6f76696573,return)</onclick>

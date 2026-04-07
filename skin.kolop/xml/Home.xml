@@ -946,6 +946,14 @@
 							<thumb>icons/sidemenu/addons.png</thumb>
 							<property name="id">addons</property>
 						</item>
+						<item>
+							<label>CSFD</label>
+							<onclick>ActivateWindow(Videos,plugin://plugin.video.csfd-rebricek/,return)</onclick>
+							<property name="menu_id">$NUMBER[26001]</property>
+							<thumb>icons/sidemenu/movies.png</thumb>
+							<property name="id">csfd</property>
+							<visible>Skin.HasSetting(csfd_home)</visible>
+						</item>
 					</content>
 				</control>
 				<control type="grouplist" id="700">
