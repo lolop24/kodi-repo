@@ -53,6 +53,10 @@ __scriptname__ = __addon__.getAddonInfo("name")
 __profile__ = translatePath(__addon__.getAddonInfo("profile"))
 __workdir__ = os.path.join(__profile__, "generated")
 __dialog__ = xbmcgui.Dialog()
+try:
+    __settings__ = __addon__.getSettings()
+except AttributeError:
+    __settings__ = None
 KNOWN_SUBTITLE_ADDON_TEMP_DIRS = (
     ("TitulkyDualSub", "special://temp/tds/"),
     ("TitulkyDualSub", "special://profile/addon_data/service.subtitles.titulky-dualsub/temp"),
@@ -68,22 +72,49 @@ def log(message, level=xbmc.LOGINFO):
 
 
 def get_setting(name, default=""):
+    if __settings__ is not None:
+        try:
+            value = __settings__.getString(name)
+            return value if value != "" else default
+        except Exception:
+            pass
     try:
         value = __addon__.getSettingString(name)
-    except AttributeError:
+    except Exception:
         value = __addon__.getSetting(name)
     return value if value != "" else default
 
 
+def get_setting_int(name, default=0):
+    if __settings__ is not None:
+        try:
+            return int(__settings__.getInt(name))
+        except Exception:
+            pass
+    try:
+        return int(__addon__.getSettingInt(name))
+    except Exception:
+        value = __addon__.getSetting(name)
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return default
+
+
 def get_source_language():
-    raw = get_setting("source_language", "0")
+    raw = str(get_setting_int("source_language", 0))
     return _SOURCE_LANG_MAP.get(raw, raw)
 
 
 def get_setting_bool(name, default=False):
+    if __settings__ is not None:
+        try:
+            return bool(__settings__.getBool(name))
+        except Exception:
+            pass
     try:
         return __addon__.getSettingBool(name)
-    except AttributeError:
+    except Exception:
         value = __addon__.getSetting(name)
         if value == "":
             return default

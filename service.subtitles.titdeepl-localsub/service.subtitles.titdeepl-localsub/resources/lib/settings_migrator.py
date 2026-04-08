@@ -58,8 +58,8 @@ def migrate_settings():
         return
 
     changed = False
-    if root.get("version") != "2":
-        root.set("version", "2")
+    if root.get("version") is not None:
+        root.attrib.pop("version", None)
         changed = True
 
     for setting in root.findall("setting"):
