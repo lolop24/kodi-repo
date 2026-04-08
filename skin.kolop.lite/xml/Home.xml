@@ -5,6 +5,7 @@
 	<!-- Default menu: ČSFD, SC Filmy, SC Seriály, Doplnky -->
 	<onload condition="!Skin.HasSetting(kolop_home_defaults_v1)">Skin.SetBool(show_hp_infowidget)</onload>
 	<onload condition="!Skin.HasSetting(kolop_home_defaults_v1)">Skin.SetBool(kolop_home_defaults_v1)</onload>
+	<onload condition="!Skin.HasSetting(kolop_home_defaults_v2)">Skin.SetBool(csfd_home)</onload>
 	<onload condition="!Skin.HasSetting(kolop_home_defaults_v2)">Skin.SetBool(kolop_home_defaults_v2)</onload>
 	<controls>
 		<control type="button" id="20000">
