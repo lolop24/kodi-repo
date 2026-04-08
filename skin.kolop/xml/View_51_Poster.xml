@@ -102,7 +102,7 @@
 						<top>480</top>
 						<height>250</height>
 						<right>115</right>
-						<autoscroll time="3000" delay="7000" repeat="5000">!System.HasActiveModalDialog + Skin.HasSetting(AutoScroll)</autoscroll>
+						<autoscroll time="3000" delay="7000" repeat="5000">!System.HasActiveModalDialog + Skin.HasSetting(autoscroll)</autoscroll>
 						<label>$VAR[PlotTextBoxVar]</label>
 						<shadowcolor>text_shadow</shadowcolor>
 						<visible>![ListItem.IsCollection + String.IsEmpty(ListItem.PlotOutline) + String.IsEmpty(ListItem.Plot)]</visible>

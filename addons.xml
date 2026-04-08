@@ -361,7 +361,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop" version="1.1.4" name="Kolop Skin" provider-name="lolop24">
+    <addon id="skin.kolop" version="1.1.5" name="Kolop Skin" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="plugin.video.kolop" version="1.2.2" />
@@ -376,7 +376,10 @@
             <description lang="en_GB">A dedicated Kodi skin for Kolop focused on fast startup, lazy home widgets, and CSFD-sorted movies and series.</description>
             <description lang="sk">Samostatny Kodi skin pre Kolop zamerany na rychly start, lazy home widgety a filmy so serialmi zoradenymi podla CSFD.</description>
             <description lang="cs_CZ">Samostatny Kodi skin pro Kolop zamereny na rychly start, lazy home widgety a filmy se serialy serazenymi podle CSFD.</description>
-            <news>v1.1.4 (2026-04-07)
+            <news>v1.1.5 (2026-04-08)
+     - Reworked Skin Settings so the visible Kolop and Stream Cinema options now map to the active home sections instead of the legacy Estuary home toggles
+     - Unified the autoscroll setting key across the skin so the Auto Scroll toggle affects the related list, poster, fanart and PVR views consistently
+    v1.1.4 (2026-04-07)
      - SC Filmy now keeps Novinky dabovane directly under Posledne sledovane and reads them from the original Stream Cinema category source
      - Removed the extra dubbed shortcut from the Kolop search dialog and kept the home rows aligned with the original SC sections
     v1.1.3 (2026-04-07)
@@ -416,7 +419,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop.lite" version="1.0.1" name="Kolop Skin Lite" provider-name="lolop24">
+    <addon id="skin.kolop.lite" version="1.0.2" name="Kolop Skin Lite" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="plugin.video.kolop.lite" version="1.0.0" />
@@ -432,7 +435,10 @@
             <description lang="en_GB">A lite Kodi skin for Kolop focused on faster startup, smaller home rows, and CSFD-sorted movies and series through the lite addons.</description>
             <description lang="sk">Odlahceny Kodi skin pre Kolop zamerany na rychlejsi start, mensie home riadky a filmy so serialmi zoradenymi podla CSFD cez lite addony.</description>
             <description lang="cs_CZ">Odlehceny Kodi skin pro Kolop zamereny na rychlejsi start, mensi home radky a filmy se serialy serazenymi podle CSFD pres lite addony.</description>
-            <news>v1.0.1 (2026-04-08)
+            <news>v1.0.2 (2026-04-08)
+     - Reworked Skin Settings so the visible Kolop and Stream Cinema options match the active Lite home sections
+     - Unified the autoscroll setting key across the Lite skin so the Auto Scroll toggle affects the related list, poster, fanart and PVR views consistently
+    v1.0.1 (2026-04-08)
      - Enabled the CSFD section by default on first start in the Lite skin
     v1.0.0 (2026-04-08)
      - Added a Lite skin variant that keeps the core Kolop sections but trims the active home rows

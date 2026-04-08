@@ -640,12 +640,6 @@
 
 	<!-- SC Settings -->
 	<include name="SCGlobalSettings">
-		<control type="radiobutton" id="9005">
-            <label>Stream Cinema Info widget na HP</label>
-            <include>DefaultSettingButton</include>
-            <selected>Skin.HasSetting(show_hp_infowidget)</selected>
-            <onclick>Skin.ToggleSetting(show_hp_infowidget)</onclick>
-        </control>
 		<control type="radiobutton" id="9006">
             <label>Stream Cinema zobrazit MPAA hodnotenie v zozname</label>
             <include>DefaultSettingButton</include>
@@ -1466,12 +1460,6 @@
 			<label>Kolop zdroje a limit poloziek</label>
 			<include>DefaultSettingButton</include>
 			<onclick>Addon.OpenSettings(plugin.video.kolop.lite)</onclick>
-		</control>
-		<control type="radiobutton" id="9911">
-			<label>Skin info widget na home</label>
-			<include>DefaultSettingButton</include>
-			<selected>Skin.HasSetting(show_hp_infowidget)</selected>
-			<onclick>Skin.ToggleSetting(show_hp_infowidget)</onclick>
 		</control>
 	</include>
 </includes>
