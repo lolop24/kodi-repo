@@ -21,6 +21,7 @@ from sc_csfd import PREWARM_WIDGET_LIMIT, SC_ADDON_ID, log, prewarm_sources  # n
 
 ANDROID_STARTUP_DELAY = 8
 DEFAULT_STARTUP_DELAY = 3
+TARGET_SKIN_ID = 'skin.kolop'
 
 
 def _startup_delay():
@@ -33,6 +34,9 @@ if __name__ == '__main__':
     monitor = xbmc.Monitor()
     if not xbmc.getCondVisibility('System.HasAddon(%s)' % SC_ADDON_ID):
         log('Skipping startup prewarm because %s is missing' % SC_ADDON_ID, xbmc.LOGWARNING)
+        raise SystemExit(0)
+    if xbmc.getSkinDir() != TARGET_SKIN_ID:
+        log('Skipping startup prewarm because active skin is %s' % xbmc.getSkinDir())
         raise SystemExit(0)
 
     delay = _startup_delay()

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.kolop.lite" version="1.0.0" name="Kolop Skin Lite" provider-name="lolop24">
+	<requires>
+		<import addon="xbmc.gui" version="5.17.0"/>
+		<import addon="plugin.video.kolop.lite" version="1.0.0"/>
+		<import addon="plugin.video.csfd-rebricek.lite" version="1.0.0"/>
+	</requires>
+	<extension point="xbmc.gui.skin" debugging="false">
+		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en_GB">Lightweight Kolop skin with smaller home rows</summary>
+		<summary lang="sk">Odlahceny Kolop skin s mensimi home riadkami</summary>
+		<summary lang="cs_CZ">Odlehceny Kolop skin s mensimi home radky</summary>
+		<description lang="en_GB">A lite Kodi skin for Kolop focused on faster startup, smaller home rows, and CSFD-sorted movies and series through the lite addons.</description>
+		<description lang="sk">Odlahceny Kodi skin pre Kolop zamerany na rychlejsi start, mensie home riadky a filmy so serialmi zoradenymi podla CSFD cez lite addony.</description>
+		<description lang="cs_CZ">Odlehceny Kodi skin pro Kolop zamereny na rychlejsi start, mensi home radky a filmy se serialy serazenymi podle CSFD pres lite addony.</description>
+		<news>v1.0.0 (2026-04-08)
+ - Added a Lite skin variant that keeps the core Kolop sections but trims the active home rows
+ - Reduced home row limits to 15 items and removed the newest-added rows from the default home flow
+ - Switched the skin integration to the dedicated Kolop Lite and CSFD Lite addons
+		</news>
+		<platform>all</platform>
+		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+		<source>https://github.com/lolop24/kodi-repo</source>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+			<screenshot>resources/screenshot-02.jpg</screenshot>
+			<screenshot>resources/screenshot-03.jpg</screenshot>
+			<screenshot>resources/screenshot-04.jpg</screenshot>
+		</assets>
+	</extension>
+</addon>

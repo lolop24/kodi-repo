@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.kolop.lite"
+       name="Kolop Lite"
+       version="1.0.0"
+       provider-name="lolop24">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="script.module.requests" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">Lite Stream Cinema movies and series sorted by CSFD rating</summary>
+        <summary lang="sk">Odlahcena verzia Stream Cinema filmov a serialov zoradenych podla CSFD</summary>
+        <summary lang="cs">Odlehcena verze Stream Cinema filmu a serialu serazenych podle CSFD</summary>
+        <description lang="en_gb">A lighter Kolop variant focused on faster Kodi startup. It keeps CSFD-sorted movie and series rows, trims the home payload, and prewarms only the most important widgets.</description>
+        <description lang="sk">Odlahcena verzia Kolopu zamerana na rychlejsi start Kodi. Zachovava CSFD zoradenie pre filmy a serialy, zmensuje home payload a prewarmuje iba najdolezitejsie widgety.</description>
+        <description lang="cs">Odlehcena verze Kolopu zamerena na rychlejsi start Kodi. Zachovava CSFD razeni pro filmy a serialy, zmensuje home payload a prewarmuje jen nejdulezitejsi widgety.</description>
+        <news>v1.0.0 (2026-04-08)
+ - Added a startup-focused Lite variant with a lower default item limit and smaller prewarm set
+ - Kept CSFD-sorted movie and series widgets while trimming the default home workload
+ - Limited background warmup to the most important rows for faster cold starts
+        </news>
+        <platform>all</platform>
+        <license>GPL-2.0-or-later</license>
+        <source>https://github.com/lolop24/kodi-repo</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

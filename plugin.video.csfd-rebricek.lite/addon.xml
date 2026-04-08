@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.csfd-rebricek.lite"
+       name="CSFD Rebricek Lite"
+       version="1.0.0"
+       provider-name="CSFD-SC-Bridge">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="script.module.requests" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">Lightweight CSFD rankings for Stream Cinema</summary>
+        <summary lang="sk">Odlahcene CSFD rebricky pre Stream Cinema</summary>
+        <summary lang="cs">Odlehcene CSFD zebricky pro Stream Cinema</summary>
+        <description lang="en_gb">A lighter CSFD rankings addon tuned for faster home widgets and smaller ranking pages while keeping direct Stream Cinema search.</description>
+        <description lang="sk">Odlahceny addon s CSFD rebrickami upraveny pre rychlejsie home widgety a mensie stranky rebrickov pri zachovani priameho vyhladavania v Stream Cinema.</description>
+        <description lang="cs">Odlehceny addon s CSFD zebricky upraveny pro rychlejsi home widgety a mensi stranky zebricku pri zachovani primeho vyhledavani ve Stream Cinema.</description>
+        <news>v1.0.0 (2026-04-08)
+ - Added a Lite variant with smaller pages and lower worker pressure
+ - Tuned ranking cache retention for faster repeated home loads
+ - Kept CSFD metadata and direct Stream Cinema opening behavior
+        </news>
+        <platform>all</platform>
+    </extension>
+</addon>

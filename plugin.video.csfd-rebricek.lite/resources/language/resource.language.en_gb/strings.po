@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+
+msgctxt "#30001"
+msgid "CSFD Rankings Lite"
+msgstr "CSFD Rankings Lite"
+
+msgctxt "#30002"
+msgid "Movies"
+msgstr "Movies"
+
+msgctxt "#30003"
+msgid "TV Series"
+msgstr "TV Series"
+
+msgctxt "#30004"
+msgid "Seasons"
+msgstr "Seasons"
+
+msgctxt "#30005"
+msgid "Failed to load data."
+msgstr "Failed to load data."
+
+msgctxt "#30006"
+msgid "No reviews."
+msgstr "No reviews."
+
+msgctxt "#30007"
+msgid "CSFD Reviews (%d)"
+msgstr "CSFD Reviews (%d)"
+
+msgctxt "#30008"
+msgid "Load CSFD reviews"
+msgstr "Load CSFD reviews"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Reviews: %s (%d)"
+
+msgctxt "#30010"
+msgid "Next -> (%d remaining)"
+msgstr "Next -> (%d remaining)"
+
+msgctxt "#30011"
+msgid "Year from"
+msgstr "Year from"
+
+msgctxt "#30012"
+msgid "Loading plots and reviews... (%d/%d)"
+msgstr "Loading plots and reviews... (%d/%d)"

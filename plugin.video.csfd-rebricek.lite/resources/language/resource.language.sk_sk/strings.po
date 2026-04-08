@@ -1,0 +1,53 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: sk_SK\n"
+
+msgctxt "#30001"
+msgid "CSFD Rankings Lite"
+msgstr "CSFD Rebricky Lite"
+
+msgctxt "#30002"
+msgid "Movies"
+msgstr "Filmy"
+
+msgctxt "#30003"
+msgid "TV Series"
+msgstr "Serialy"
+
+msgctxt "#30004"
+msgid "Seasons"
+msgstr "Serie"
+
+msgctxt "#30005"
+msgid "Failed to load data."
+msgstr "Nepodarilo sa nacitat data."
+
+msgctxt "#30006"
+msgid "No reviews."
+msgstr "Ziadne recenzie."
+
+msgctxt "#30007"
+msgid "CSFD Reviews (%d)"
+msgstr "CSFD recenzie (%d)"
+
+msgctxt "#30008"
+msgid "Load CSFD reviews"
+msgstr "Nacitat CSFD recenzie"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Recenzie: %s (%d)"
+
+msgctxt "#30010"
+msgid "Next -> (%d remaining)"
+msgstr "Dalsie -> (%d zostava)"
+
+msgctxt "#30011"
+msgid "Year from"
+msgstr "Rok od"
+
+msgctxt "#30012"
+msgid "Loading plots and reviews... (%d/%d)"
+msgstr "Nacitavam popisy a recenzie... (%d/%d)"

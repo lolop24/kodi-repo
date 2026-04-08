@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.kolop"
        name="Kolop"
-       version="1.2.2"
+       version="1.2.3"
        provider-name="lolop24">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -20,7 +20,10 @@
         <description lang="en_gb">Loads new and recently added Stream Cinema movies and series, matches them against CSFD, enriches them with rating, votes, plot and reviews, then sorts the list in a CSFD-style order with cached widget results for faster home loading.</description>
         <description lang="sk">Nacita novinky a najnovsie pridane filmy a serialy zo Stream Cinema, sparuje ich s CSFD, doplni hodnotenie, hlasy, obsah a recenzie a potom ich zoradi v style CSFD. Pre home widgety pouziva vyslednu disk cache, aby sa nacitali rychlejsie.</description>
         <description lang="cs">Nacte novinky a nejnoveji pridane filmy a serialy ze Stream Cinema, sparuje je s CSFD, doplni hodnoceni, hlasy, obsah a recenze a potom je seradi ve stylu CSFD. Pro home widgety pouziva vyslednou disk cache, aby se nacitaly rychleji.</description>
-        <news>v1.2.2 (2026-04-07)
+        <news>v1.2.3 (2026-04-08)
+ - Startup prewarm now stays disabled automatically when skin.kolop.lite is the active skin
+ - This keeps the full and lite Kolop stacks from warming in parallel on the same Kodi boot
+v1.2.2 (2026-04-07)
  - Corrected movie widget mapping so Novinky use the original Stream Cinema latest feed and Novinky dabovane use the original latestd feed
  - Kept the dubbed movie feed prewarmed for skin.kolop while removing it from the addon root menu
 v1.2.1 (2026-04-07)
