@@ -87,18 +87,46 @@ def strip_subtitle_suffixes(value: str) -> str:
     return stem
 
 
-def build_lookup_candidates(release_name: str, source_filename: str) -> list[str]:
+def build_lookup_candidates(*values: str) -> list[str]:
     candidates: list[str] = []
-    for value in (
-        release_name,
-        strip_subtitle_suffixes(release_name),
-        source_filename,
-        strip_subtitle_suffixes(source_filename),
-    ):
-        slug = slugify(value)[:80]
-        if slug and slug not in candidates:
-            candidates.append(slug)
+    for value in values:
+        for variant in (value, strip_subtitle_suffixes(value)):
+            slug = slugify(variant)[:80]
+            if slug and slug not in candidates:
+                candidates.append(slug)
     return candidates
+
+
+def build_lookup_summary(
+    imdb_id: str = "",
+    release_name: str = "",
+    source_filename: str = "",
+    title: str = "",
+    year: str = "",
+) -> str:
+    parts = []
+    if imdb_id:
+        parts.append("imdb=%s" % imdb_id)
+    if release_name:
+        parts.append("release=%s" % release_name)
+    if source_filename:
+        parts.append("source=%s" % source_filename)
+    if title:
+        parts.append("title=%s" % title)
+    if year:
+        parts.append("year=%s" % year)
+    return ", ".join(parts) if parts else "no lookup keys"
+
+
+def score_text_match(text: str, candidates: list[str], exact_base: int, contains_base: int, exact_label: str, contains_label: str):
+    for index, candidate in enumerate(candidates):
+        exact_token = "_%s_" % candidate
+        if text.startswith("%s_" % candidate) or exact_token in text:
+            return exact_base - index, exact_label, candidate
+    for index, candidate in enumerate(candidates):
+        if candidate and candidate in text:
+            return contains_base - index, contains_label, candidate
+    return 0, "", ""
 
 
 def extract_job_prefix_from_backup(path: Path) -> str:
@@ -126,36 +154,89 @@ def job_status_priority(job: dict[str, object] | None) -> int:
     return 0
 
 
-def match_saved_subtitle(imdb_id: str, release_name: str, source_filename: str, language: str = "uk") -> dict[str, object] | None:
-    imdb_slug = slugify(imdb_id)
-    if not imdb_slug:
+def match_saved_subtitle(
+    imdb_id: str,
+    release_name: str,
+    source_filename: str,
+    title: str = "",
+    year: str = "",
+    language: str = "uk",
+) -> dict[str, object] | None:
+    imdb_slug = slugify(imdb_id) if imdb_id else ""
+    candidates = build_lookup_candidates(
+        release_name,
+        source_filename,
+        title,
+        ("%s.%s" % (title, year)) if title and year else "",
+        ("%s.%s" % (release_name, year)) if release_name and year else "",
+    )
+    if not imdb_slug and not candidates:
         return None
 
-    candidates = build_lookup_candidates(release_name, source_filename)
     best: dict[str, object] | None = None
 
-    for path in BACKUP_SUBTITLES_DIR.glob(f"{imdb_slug}_*.srt"):
+    if imdb_slug:
+        paths = list(BACKUP_SUBTITLES_DIR.glob(f"{imdb_slug}_*.srt"))
+        fallback_paths = list(BACKUP_SUBTITLES_DIR.glob("*.srt"))
+    else:
+        paths = list(BACKUP_SUBTITLES_DIR.glob("*.srt"))
+        fallback_paths = paths
+
+    for path in paths:
         stem = path.stem
         score = 0
         matched_by = ""
         matched_value = ""
 
-        for index, candidate in enumerate(candidates):
-            exact_prefix = f"{imdb_slug}_{candidate}_"
-            if stem.startswith(exact_prefix):
-                score = 300 - index
-                matched_by = "release_exact"
-                matched_value = candidate
-                break
+        if imdb_slug and stem.startswith("%s_" % imdb_slug):
+            score, matched_by, matched_value = score_text_match(
+                stem,
+                candidates,
+                exact_base=400,
+                contains_base=300,
+                exact_label="release_exact_imdb",
+                contains_label="release_contains_imdb",
+            )
+            if not score:
+                score = 250
+                matched_by = "imdb_only"
+                matched_value = imdb_slug
 
         if not score:
-            for index, candidate in enumerate(candidates):
-                if candidate and candidate in stem:
-                    score = 200 - index
-                    matched_by = "release_contains"
-                    matched_value = candidate
-                    break
+            continue
 
+        stat = path.stat()
+        job = find_job_by_prefix(extract_job_prefix_from_backup(path))
+        priority = job_status_priority(job)
+        if best is None or (score, priority, stat.st_mtime) > (
+            int(best["score"]),
+            int(best["job_priority"]),
+            float(best["mtime"]),
+        ):
+            best = {
+                "path": path,
+                "score": score,
+                "mtime": stat.st_mtime,
+                "job_priority": priority,
+                "job": job,
+                "matched_by": matched_by,
+                "matched_value": matched_value,
+                "language": language,
+            }
+
+    if best is not None or imdb_slug:
+        return best
+
+    for path in fallback_paths:
+        stem = path.stem
+        score, matched_by, matched_value = score_text_match(
+            stem,
+            candidates,
+            exact_base=220,
+            contains_base=160,
+            exact_label="release_exact_fallback",
+            contains_label="release_contains_fallback",
+        )
         if not score:
             continue
 
@@ -385,13 +466,29 @@ def lookup_stored_subtitle():
     imdb_id = str(request.args.get("imdb_id") or "").strip()
     release_name = str(request.args.get("release_name") or "").strip()
     source_filename = str(request.args.get("source_filename") or "").strip()
+    title = str(request.args.get("title") or "").strip()
+    year = str(request.args.get("year") or "").strip()
     language = str(request.args.get("language") or "uk").strip() or "uk"
-    if not imdb_id:
-        return jsonify({"error": "imdb_id is required."}), 400
+    lookup_summary = build_lookup_summary(
+        imdb_id=imdb_id,
+        release_name=release_name,
+        source_filename=source_filename,
+        title=title,
+        year=year,
+    )
+    if not imdb_id and not any((release_name, source_filename, title)):
+        return jsonify({"found": False, "reason": "no_lookup_keys", "lookup_summary": lookup_summary})
 
-    match = match_saved_subtitle(imdb_id, release_name, source_filename, language=language)
+    match = match_saved_subtitle(
+        imdb_id,
+        release_name,
+        source_filename,
+        title=title,
+        year=year,
+        language=language,
+    )
     if match is None:
-        return jsonify({"found": False})
+        return jsonify({"found": False, "reason": "no_match", "lookup_summary": lookup_summary})
 
     subtitle_path = Path(match["path"])
     subtitle_content_b64 = base64.b64encode(subtitle_path.read_bytes()).decode("ascii")
@@ -404,6 +501,7 @@ def lookup_stored_subtitle():
         "subtitle_content_b64": subtitle_content_b64,
         "matched_by": match.get("matched_by", ""),
         "matched_value": match.get("matched_value", ""),
+        "lookup_summary": lookup_summary,
         "job_id": job.get("job_id", "") if job else "",
         "job_status": job.get("status", "") if job else "",
         "job_returncode": job.get("returncode", "") if job else "",

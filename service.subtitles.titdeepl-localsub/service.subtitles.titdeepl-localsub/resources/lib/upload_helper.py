@@ -68,18 +68,18 @@ def download_helper_cached_subtitle(
     imdb_id="",
     release_name="",
     source_filename="",
+    title="",
+    year="",
     timeout=15,
 ):
-    imdb_id = (imdb_id or "").strip()
-    if not imdb_id:
-        return None
-
     helper_base = _normalize_helper_url(helper_url)
     query = urlencode(
         {
-            "imdb_id": imdb_id,
+            "imdb_id": (imdb_id or "").strip(),
             "release_name": release_name or "",
             "source_filename": source_filename or "",
+            "title": title or "",
+            "year": year or "",
             "language": "uk",
         }
     )
@@ -89,7 +89,7 @@ def download_helper_cached_subtitle(
     )
     parsed = _request_helper_json(request, timeout)
     if not parsed.get("found"):
-        return None
+        return parsed
 
     subtitle_content_b64 = str(parsed.get("subtitle_content_b64") or "").strip()
     if not subtitle_content_b64:

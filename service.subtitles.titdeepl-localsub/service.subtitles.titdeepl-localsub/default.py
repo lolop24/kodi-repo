@@ -621,6 +621,33 @@ def build_release_name(video_info, fallback_path):
     return os.path.basename(fallback_path)
 
 
+def build_helper_lookup_summary(video_info, release_name, source_name):
+    details = []
+    imdb_id = (video_info.get("imdb", "") or "").strip()
+    title = (video_info.get("title", "") or "").strip()
+    year = (video_info.get("year", "") or "").strip()
+    if imdb_id:
+        details.append("imdb=%s" % imdb_id)
+    if release_name:
+        details.append("release=%s" % release_name)
+    if source_name:
+        details.append("source=%s" % source_name)
+    if title:
+        details.append("title=%s" % title)
+    if year:
+        details.append("year=%s" % year)
+    return ", ".join(details) if details else "no lookup metadata"
+
+
+def helper_cache_message(prefix, details, reason=""):
+    message = prefix
+    if details:
+        message = "%s [%s]" % (message, details)
+    if reason:
+        message = "%s: %s" % (message, reason)
+    return message
+
+
 def build_dual_subtitle_from_ukrainian(source_path, ukrainian_path):
     _, source_name = split_kodi_path(source_path)
     local_source = local_copy(source_path)
@@ -632,17 +659,23 @@ def build_dual_subtitle_from_ukrainian(source_path, ukrainian_path):
 def check_helper_for_cached_translation(source_path):
     helper_url = get_setting("helper_url", "").strip()
     if not helper_url:
+        log("Helper cache check skipped: helper URL is empty")
         return None
 
     video_info = get_video_info()
     imdb_id = video_info.get("imdb", "").strip()
-    if not imdb_id:
-        log("Helper cache check: missing IMDb id, skipping")
-        return None
-
     helper_token = get_setting("helper_token", "").strip()
     release_name = build_release_name(video_info, source_path)
     _, source_name = split_kodi_path(source_path)
+    title = video_info.get("title", "").strip()
+    year = video_info.get("year", "").strip()
+    lookup_details = build_helper_lookup_summary(video_info, release_name, source_name or source_path)
+    if not imdb_id:
+        log("Helper cache check: IMDb missing, trying fallback lookup [%s]" % lookup_details)
+
+    if not imdb_id and not any((release_name, source_name, title)):
+        log("Helper cache check skipped: no lookup metadata [%s]" % lookup_details, xbmc.LOGWARNING)
+        return None
 
     try:
         cached = download_helper_cached_subtitle(
@@ -652,31 +685,51 @@ def check_helper_for_cached_translation(source_path):
             imdb_id=imdb_id,
             release_name=release_name,
             source_filename=source_name or source_path,
+            title=title,
+            year=year,
         )
     except HelperUploadError as exc:
-        log("Helper cache check failed: %s" % exc, xbmc.LOGWARNING)
+        message = helper_cache_message("Saved translation lookup failed", lookup_details, str(exc))
+        log("Helper cache check failed: %s" % message, xbmc.LOGWARNING)
+        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 5000)
         return None
 
-    if not cached:
-        log("Helper cache check: no saved translation for %s" % release_name)
+    if not cached or not cached.get("found"):
+        reason = ""
+        if isinstance(cached, dict):
+            reason = str(cached.get("reason") or "").strip()
+        message = helper_cache_message(
+            "Helper cache check: no saved translation",
+            lookup_details,
+            reason or "no match on helper",
+        )
+        log(message)
         return None
 
     path = cached.get("path")
     if not path or not os.path.isfile(path):
-        log("Helper cache check: helper returned invalid file path", xbmc.LOGWARNING)
+        message = helper_cache_message(
+            "Helper cache check: helper returned invalid file path",
+            lookup_details,
+            "missing downloaded cache file",
+        )
+        log(message, xbmc.LOGWARNING)
+        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 5000)
         return None
 
     log(
-        "Helper cache check: using %s (job_status=%s match=%s)"
+        "Helper cache check: using %s (job_status=%s match=%s, query=%s)"
         % (
             os.path.basename(path),
             cached.get("job_status", "unknown"),
             cached.get("matched_by", "unknown"),
+            cached.get("lookup_summary", lookup_details),
         )
     )
     __dialog__.notification(
         __scriptname__,
-        "Using saved translation from LibreELEC helper",
+        "Using saved translation from LibreELEC helper [%s]"
+        % cached.get("matched_by", "match"),
         xbmcgui.NOTIFICATION_INFO,
         3500,
     )
@@ -716,8 +769,9 @@ def try_upload_to_opensubtitles(ass_path):
     video_info = get_video_info()
     imdb_id = video_info.get("imdb", "").strip()
     if not imdb_id:
-        message = "%s: missing IMDb id" % (__addon__.getLocalizedString(32043) or "Remote upload failed")
-        log("Upload skipped: missing IMDb id for current video", xbmc.LOGWARNING)
+        details = build_helper_lookup_summary(video_info, build_release_name(video_info, ass_path), os.path.basename(ass_path))
+        message = "%s: missing IMDb id [%s]" % ((__addon__.getLocalizedString(32043) or "Remote upload failed"), details)
+        log("Upload skipped: missing IMDb id for current video [%s]" % details, xbmc.LOGWARNING)
         __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 4000)
         return
 
@@ -759,10 +813,10 @@ def try_upload_to_opensubtitles(ass_path):
         log("Helper accepted upload job: %s" % response)
         notify_upload_success(response, auto_submit)
     except HelperUploadError as exc:
-        log("Helper upload failed: %s" % exc, xbmc.LOGWARNING)
+        log("Helper upload failed for %s: %s" % (release_name, exc), xbmc.LOGWARNING)
         __dialog__.notification(
             __scriptname__,
-            "%s: %s" % (__addon__.getLocalizedString(32043), exc),
+            "%s [%s]: %s" % (__addon__.getLocalizedString(32043), release_name, exc),
             xbmcgui.NOTIFICATION_ERROR,
             5000,
         )
@@ -883,7 +937,11 @@ def handle_action():
             __dialog__.ok(__scriptname__, str(exc))
         except Exception as exc:
             progress.close()
-            __dialog__.ok(__scriptname__, "%s\n%s" % (__addon__.getLocalizedString(32030), exc))
+            __dialog__.ok(
+                __scriptname__,
+                "%s\nSource: %s\nReason: %s"
+                % (__addon__.getLocalizedString(32030), os.path.basename(source_path), exc),
+            )
         return
 
     if action == "settings":
