@@ -31,6 +31,7 @@ from resources.lib.os_check import (
     download_subtitle,
     format_choice_list,
     os_login,
+    resolve_imdb_id,
 )
 from resources.lib.os_uploader import UploadError, extract_srt_from_ass
 from resources.lib.source_matching import build_source_score, normalize_name
@@ -65,6 +66,7 @@ KNOWN_SUBTITLE_ADDON_TEMP_DIRS = (
     ("Edna.cz", "special://profile/addon_data/service.subtitles.edna.cz/temp"),
 )
 _SOURCE_LANG_MAP = {"0": "auto", "1": "cs", "2": "sk"}
+_RESOLVED_IMDB_CACHE = {}
 
 
 def log(message, level=xbmc.LOGINFO):
@@ -234,10 +236,50 @@ def jsonrpc(method, params=None):
 def get_video_info():
     info = {}
     info["title"] = xbmc.getInfoLabel("VideoPlayer.Title") or ""
+    info["original_title"] = xbmc.getInfoLabel("VideoPlayer.OriginalTitle") or ""
     info["year"] = xbmc.getInfoLabel("VideoPlayer.Year") or ""
     info["imdb"] = xbmc.getInfoLabel("VideoPlayer.IMDBNumber") or ""
     info["filename"] = xbmc.getInfoLabel("Player.Filename") or ""
     info["filepath"] = xbmc.Player().getPlayingFile() if xbmc.Player().isPlaying() else ""
+
+    active_players = jsonrpc("Player.GetActivePlayers")
+    if isinstance(active_players, dict):
+        active_players = active_players.get("result", [])
+    if not isinstance(active_players, list):
+        active_players = []
+
+    player_id = None
+    for player in active_players:
+        if player.get("type") == "video":
+            player_id = player.get("playerid")
+            break
+
+    if player_id is not None:
+        item_result = jsonrpc(
+            "Player.GetItem",
+            {
+                "playerid": player_id,
+                "properties": ["title", "originaltitle", "year", "file", "imdbnumber", "uniqueid"],
+            },
+        )
+        item = item_result.get("item") or {}
+        if item.get("title") and not info["title"]:
+            info["title"] = item.get("title", "")
+        if item.get("originaltitle") and not info["original_title"]:
+            info["original_title"] = item.get("originaltitle", "")
+        if item.get("year") and not info["year"]:
+            info["year"] = str(item.get("year"))
+        file_path = item.get("file") or ""
+        if file_path and not info["filepath"]:
+            info["filepath"] = file_path
+        if file_path and not info["filename"]:
+            _, info["filename"] = split_kodi_path(file_path)
+        if not info["imdb"]:
+            info["imdb"] = str(item.get("imdbnumber") or "")
+        if not info["imdb"]:
+            unique_ids = item.get("uniqueid") or {}
+            info["imdb"] = str(unique_ids.get("imdb") or "")
+
     return info
 
 
@@ -533,7 +575,7 @@ def generate_or_load_translated_subtitle(source_path):
 
 
 def check_and_maybe_download_os(source_path):
-    video_info = get_video_info()
+    video_info = ensure_video_imdb(get_video_info(), source_path)
     imdb_id = video_info.get("imdb", "")
     title = video_info.get("title", "")
     year = video_info.get("year", "")
@@ -621,6 +663,68 @@ def build_release_name(video_info, fallback_path):
     return os.path.basename(fallback_path)
 
 
+def ensure_video_imdb(video_info, fallback_path=""):
+    imdb_id = str(video_info.get("imdb", "") or "").replace("tt", "").strip()
+    if imdb_id.isdigit():
+        video_info["imdb"] = imdb_id
+        return video_info
+
+    release_name = build_release_name(
+        video_info,
+        fallback_path or video_info.get("filepath", "") or video_info.get("filename", ""),
+    )
+    cache_key = "|".join(
+        [
+            str(video_info.get("title", "") or ""),
+            str(video_info.get("original_title", "") or ""),
+            str(video_info.get("year", "") or ""),
+            str(release_name or ""),
+            str(video_info.get("filename", "") or ""),
+        ]
+    )
+
+    cached = _RESOLVED_IMDB_CACHE.get(cache_key)
+    if cached:
+        video_info["imdb"] = cached
+        return video_info
+
+    resolved = resolve_imdb_id(
+        imdb_id=imdb_id,
+        title=video_info.get("title", ""),
+        original_title=video_info.get("original_title", ""),
+        year=video_info.get("year", ""),
+        release_name=release_name,
+        filename=video_info.get("filename", ""),
+    )
+    if not resolved:
+        log(
+            "IMDb resolve failed [title=%s, original_title=%s, year=%s, release=%s, filename=%s]"
+            % (
+                video_info.get("title", ""),
+                video_info.get("original_title", ""),
+                video_info.get("year", ""),
+                release_name,
+                video_info.get("filename", ""),
+            )
+        )
+        return video_info
+
+    resolved_imdb = str(resolved.get("imdb_id", "")).strip()
+    if resolved_imdb:
+        video_info["imdb"] = resolved_imdb
+        _RESOLVED_IMDB_CACHE[cache_key] = resolved_imdb
+        log(
+            "Resolved IMDb id via OpenSubtitles search: %s (query=%s, match=%s, feature=%s)"
+            % (
+                resolved_imdb,
+                resolved.get("query", ""),
+                resolved.get("matched_by", ""),
+                resolved.get("feature_title", ""),
+            )
+        )
+    return video_info
+
+
 def build_helper_lookup_summary(video_info, release_name, source_name):
     details = []
     imdb_id = (video_info.get("imdb", "") or "").strip()
@@ -662,7 +766,7 @@ def check_helper_for_cached_translation(source_path):
         log("Helper cache check skipped: helper URL is empty")
         return None
 
-    video_info = get_video_info()
+    video_info = ensure_video_imdb(get_video_info(), source_path)
     imdb_id = video_info.get("imdb", "").strip()
     helper_token = get_setting("helper_token", "").strip()
     release_name = build_release_name(video_info, source_path)
@@ -766,7 +870,7 @@ def try_upload_to_opensubtitles(ass_path):
         )
         return
 
-    video_info = get_video_info()
+    video_info = ensure_video_imdb(get_video_info(), ass_path)
     imdb_id = video_info.get("imdb", "").strip()
     if not imdb_id:
         details = build_helper_lookup_summary(video_info, build_release_name(video_info, ass_path), os.path.basename(ass_path))

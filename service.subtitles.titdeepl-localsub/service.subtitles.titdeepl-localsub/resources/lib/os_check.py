@@ -3,6 +3,7 @@
 
 import json
 import os
+import re
 
 try:
     from urllib.error import HTTPError, URLError
@@ -17,6 +18,14 @@ API_KEY = "qo2wQs1PXwIHJsXvIiWXu1ZbVjaboPh6"
 USER_AGENT = "TitulkyDeepLSub v0.2.0"
 TIMEOUT = 10
 DOWNLOAD_TIMEOUT = 30
+RELEASE_STOP_TOKENS = {
+    "1080p", "2160p", "720p", "480p", "576p",
+    "webrip", "web", "webdl", "web-dl", "bluray", "brrip", "hdrip", "dvdrip", "remux",
+    "x264", "x265", "h264", "h265", "hevc", "av1",
+    "aac", "aac2", "aac5", "dd", "ddp", "ddp5", "ddp5.1", "ac3", "dts",
+    "yts", "ytsmx", "ytslt", "amzn", "nf", "dsnp", "hmax", "proper", "repack",
+}
+LANGUAGE_HINT_TOKENS = {"cs", "cz", "sk", "uk", "ua", "eng", "en", "subs", "subtitles"}
 
 
 def _api_get(endpoint, params=None):
@@ -204,3 +213,146 @@ def format_choice_list(found):
         )
         items.append(label)
     return items
+
+
+def normalize_lookup_text(value):
+    lowered = (value or "").lower()
+    lowered = re.sub(r"[\[\(].*?[\]\)]", " ", lowered)
+    lowered = re.sub(r"[^a-z0-9]+", " ", lowered)
+    return " ".join(lowered.split())
+
+
+def extract_title_candidate(value):
+    stem = os.path.splitext(os.path.basename(value or ""))[0]
+    stem = re.sub(r"[\[\(].*?[\]\)]", " ", stem)
+    raw_tokens = [token for token in re.split(r"[.\-_\s]+", stem) if token]
+    if not raw_tokens:
+        return ""
+
+    collected = []
+    for token in raw_tokens:
+        lower = token.lower()
+        if re.match(r"^(19|20)\d{2}$", lower):
+            break
+        if lower in RELEASE_STOP_TOKENS:
+            break
+        if lower in LANGUAGE_HINT_TOKENS and collected:
+            break
+        collected.append(token)
+
+    if not collected:
+        collected = [token for token in raw_tokens if token.lower() not in RELEASE_STOP_TOKENS][:6]
+    return " ".join(collected).strip()
+
+
+def build_imdb_query_candidates(title="", original_title="", release_name="", filename=""):
+    candidates = []
+    seen = set()
+
+    def add_candidate(value, source):
+        normalized = " ".join((value or "").split())
+        key = normalize_lookup_text(normalized)
+        if not key or key in seen:
+            return
+        seen.add(key)
+        candidates.append({"value": normalized, "source": source})
+
+    add_candidate(original_title, "original_title")
+    add_candidate(title, "title")
+    add_candidate(extract_title_candidate(release_name), "release_name")
+    add_candidate(extract_title_candidate(filename), "filename")
+    return candidates
+
+
+def token_overlap_score(left, right):
+    left_tokens = set(normalize_lookup_text(left).split())
+    right_tokens = set(normalize_lookup_text(right).split())
+    if not left_tokens or not right_tokens:
+        return 0
+    overlap = len(left_tokens & right_tokens)
+    if not overlap:
+        return 0
+    return int((overlap * 100) / max(len(left_tokens), len(right_tokens)))
+
+
+def resolve_imdb_id(imdb_id="", title="", original_title="", year="", release_name="", filename=""):
+    if imdb_id:
+        clean_imdb = str(imdb_id).replace("tt", "").strip()
+        if clean_imdb.isdigit():
+            return {
+                "imdb_id": clean_imdb,
+                "matched_by": "existing",
+                "query": "",
+                "feature_title": "",
+                "release": "",
+            }
+
+    candidates = build_imdb_query_candidates(
+        title=title,
+        original_title=original_title,
+        release_name=release_name,
+        filename=filename,
+    )
+    if not candidates:
+        return None
+
+    best = None
+    for query_candidate in candidates:
+        query = query_candidate["value"]
+        data = _api_get(
+            "subtitles",
+            {
+                "query": query,
+                "year": year,
+                "type": "movie",
+            },
+        )
+        for item in (data or {}).get("data") or []:
+            attrs = item.get("attributes", {})
+            feature = attrs.get("feature_details") or {}
+            candidate_imdb = str(feature.get("imdb_id") or "").strip()
+            if not candidate_imdb.isdigit():
+                continue
+
+            feature_title = feature.get("title") or feature.get("movie_name") or ""
+            release = attrs.get("release") or ""
+            score = 0
+            matched_by = ""
+            for reference_candidate in candidates:
+                reference = reference_candidate["value"]
+                reference_source = reference_candidate["source"]
+                left = normalize_lookup_text(reference)
+                right = normalize_lookup_text(feature_title)
+                if left and right and left == right:
+                    score = max(score, 120)
+                    matched_by = "%s:title_exact" % reference_source
+                else:
+                    overlap = token_overlap_score(reference, feature_title)
+                    if overlap >= 90:
+                        score = max(score, 90)
+                        matched_by = "%s:title_overlap" % reference_source
+                    elif reference_source in ("release_name", "filename") and release and token_overlap_score(reference, release) >= 92:
+                        score = max(score, 82)
+                        matched_by = "%s:release_overlap" % reference_source
+
+            feature_year = str(feature.get("year") or "").strip()
+            if year and feature_year == str(year).strip():
+                score += 5
+
+            if score < 90:
+                continue
+
+            if best is None or score > int(best["score"]):
+                best = {
+                    "imdb_id": candidate_imdb,
+                    "matched_by": matched_by or "query_match",
+                    "query": query,
+                    "feature_title": feature_title,
+                    "release": release,
+                    "score": score,
+                }
+
+    if best is None:
+        return None
+    best.pop("score", None)
+    return best
