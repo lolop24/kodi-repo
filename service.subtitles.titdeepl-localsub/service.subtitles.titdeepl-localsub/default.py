@@ -34,6 +34,7 @@ from resources.lib.os_check import (
     resolve_imdb_id,
 )
 from resources.lib.os_uploader import UploadError, extract_srt_from_ass
+from resources.lib.settings_migrator import migrate_settings
 from resources.lib.source_matching import build_source_score, normalize_name
 from resources.lib.upload_helper import (
     HelperUploadError,
@@ -48,6 +49,7 @@ except AttributeError:
     translatePath = xbmc.translatePath
 
 
+migrate_settings()
 __addon__ = xbmcaddon.Addon()
 __scriptid__ = __addon__.getAddonInfo("id")
 __scriptname__ = __addon__.getAddonInfo("name")

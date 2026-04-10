@@ -154,7 +154,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.6" provider-name="Codex">
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.7" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -169,10 +169,10 @@
         <extension point="xbmc.addon.metadata">
             <summary lang="en_GB">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
             <description lang="en_GB">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-            <news>v0.1.6
-    - Try to resolve missing IMDb id from OpenSubtitles search before subtitle lookup, helper cache lookup and upload
-    - Pull extra playback metadata from Kodi Player.GetItem and uniqueid/imdbnumber when available
-    - Keep strict title matching so the addon avoids resolving a wrong IMDb id for a different movie</news>
+            <news>v0.1.7
+    - Restore Kodi 21 settings UI by switching back to the modern settings.xml version 1 format
+    - Keep source_language as integer so old LibreELEC user settings can map correctly
+    - Run a small settings migration on addon start to normalize older stored values</news>
             <platform>all</platform>
             <license>MIT</license>
             <assets>

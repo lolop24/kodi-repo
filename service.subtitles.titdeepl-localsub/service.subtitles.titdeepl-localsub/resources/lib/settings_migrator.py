@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Normalize legacy addon_data settings so Kodi can read them on LibreELEC."""
+"""Normalize addon_data settings so Kodi 21 can read them on LibreELEC."""
 
 from __future__ import annotations
 
@@ -58,8 +58,8 @@ def migrate_settings():
         return
 
     changed = False
-    if root.get("version") is not None:
-        root.attrib.pop("version", None)
+    if root.get("version") != "2":
+        root.set("version", "2")
         changed = True
 
     for setting in root.findall("setting"):
@@ -74,7 +74,7 @@ def migrate_settings():
 
     try:
         tree.write(SETTINGS_PATH, encoding="utf-8", xml_declaration=False)
-        log("Settings migrator: normalized addon_data/settings.xml")
+        log("Settings migrator: normalized addon_data/settings.xml to version 2")
     except Exception as exc:
         log("Settings migrator: could not write user settings: %s" % exc, xbmc.LOGWARNING)
 
