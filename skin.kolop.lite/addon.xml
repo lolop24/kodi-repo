@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.kolop.lite" version="1.0.3" name="Kolop Skin Lite" provider-name="lolop24">
+<addon id="skin.kolop.lite" version="1.0.4" name="Kolop Skin Lite" provider-name="lolop24">
 	<requires>
 		<import addon="xbmc.gui" version="5.17.0"/>
 		<import addon="plugin.video.kolop.lite" version="1.0.0"/>
