@@ -361,7 +361,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop" version="1.1.5" name="Kolop Skin" provider-name="lolop24">
+    <addon id="skin.kolop" version="1.1.6" name="Kolop Skin" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="plugin.video.kolop" version="1.2.2" />
@@ -419,7 +419,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="skin.kolop.lite" version="1.0.2" name="Kolop Skin Lite" provider-name="lolop24">
+    <addon id="skin.kolop.lite" version="1.0.3" name="Kolop Skin Lite" provider-name="lolop24">
         <requires>
             <import addon="xbmc.gui" version="5.17.0" />
             <import addon="plugin.video.kolop.lite" version="1.0.0" />

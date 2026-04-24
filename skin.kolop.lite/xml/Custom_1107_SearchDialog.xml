@@ -17,6 +17,7 @@
 			<control type="panel" id="9000">
 				<include>ButtonMenuList</include>
 				<content>
+					<include condition="System.AddonIsEnabled(plugin.video.stream-cinema)">SCHPSearch</include>
 					<include condition="System.AddonIsEnabled(plugin.video.kolop.lite)">KolopHPSearch</include>
 					<item>
 						<label>$LOCALIZE[31113]</label>
