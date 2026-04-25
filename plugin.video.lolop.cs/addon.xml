@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.lolop.cs"
+       name="Lolop CS"
+       version="1.0.0"
+       provider-name="lolop24">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+        <import addon="script.module.beautifulsoup4" version="4.9.3"/>
+        <import addon="script.module.requests" version="2.25.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">Combined Stream Cinema and CSFD rankings in one addon</summary>
+        <summary lang="sk">Kombinovany Stream Cinema a CSFD rebricek v jednom addone</summary>
+        <summary lang="cs">Kombinovany Stream Cinema a CSFD zebricek v jednom addonu</summary>
+        <description lang="en_gb">All-in-one Lolop CS addon: Stream Cinema sources sorted by CSFD plus full CSFD rankings (movies, series, seasons) with year filter. Powers skin.lolop.cs without needing two separate addons.</description>
+        <description lang="sk">All-in-one Lolop CS addon: Stream Cinema zdroje zoradene podla CSFD plus plne CSFD rebricky (filmy, serialy, serie) s filtrom od roku. Pohana skin.lolop.cs bez potreby dvoch samostatnych addonov.</description>
+        <description lang="cs">All-in-one Lolop CS addon: Stream Cinema zdroje serazene podle CSFD plus plne CSFD zebricky (filmy, serialy, serie) s filtrem od roku. Pohani skin.lolop.cs bez potreby dvou samostatnych addonu.</description>
+        <news>v1.0.0 (2026-04-25)
+ - Initial release combining plugin.video.kolop and plugin.video.csfd-rebricek into a single addon
+ - Provides both CSFD-sorted Stream Cinema sources and full CSFD ranking browsing
+ - Powers skin.lolop.cs so only one addon is required instead of two
+        </news>
+        <platform>all</platform>
+        <license>GPL-2.0-or-later</license>
+        <source>https://github.com/lolop24/kodi-repo</source>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

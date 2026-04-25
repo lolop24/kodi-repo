@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.lolop.cs" version="1.0.0" name="Lolop CS Skin" provider-name="lolop24">
+	<requires>
+		<import addon="xbmc.gui" version="5.17.0"/>
+		<import addon="plugin.video.lolop.cs" version="1.0.0"/>
+	</requires>
+	<extension point="xbmc.gui.skin" debugging="false">
+		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en_GB">Single-addon Kolop skin with CSFD rankings built in</summary>
+		<summary lang="sk">Skin Kolop ktoremu staci jeden addon a obsahuje CSFD rebricky</summary>
+		<summary lang="cs_CZ">Skin Kolop kteremu staci jeden addon a obsahuje CSFD zebricky</summary>
+		<description lang="en_GB">A Kodi skin for Lolop CS that bundles Stream Cinema sources and CSFD rankings into one required addon (plugin.video.lolop.cs). Faster startup and no need to install separate Kolop and CSFD addons.</description>
+		<description lang="sk">Kodi skin pre Lolop CS ktory spaja Stream Cinema zdroje a CSFD rebricky do jedineho povinneho addonu (plugin.video.lolop.cs). Rychlejsi start a netreba samostatne instalovat Kolop a CSFD addony.</description>
+		<description lang="cs_CZ">Kodi skin pro Lolop CS ktery spojuje Stream Cinema zdroje a CSFD zebricky do jedineho povinneho addonu (plugin.video.lolop.cs). Rychlejsi start a netreba samostatne instalovat Kolop a CSFD addony.</description>
+		<news>v1.0.0 (2026-04-25)
+ - Initial release based on skin.kolop
+ - Switched all widget URLs to the new combined plugin.video.lolop.cs addon
+ - Removed dependency on separate plugin.video.kolop and plugin.video.csfd-rebricek
+		</news>
+		<platform>all</platform>
+		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+		<source>https://github.com/lolop24/kodi-repo</source>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+			<screenshot>resources/screenshot-02.jpg</screenshot>
+			<screenshot>resources/screenshot-03.jpg</screenshot>
+			<screenshot>resources/screenshot-04.jpg</screenshot>
+		</assets>
+	</extension>
+</addon>

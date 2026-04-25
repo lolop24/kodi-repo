@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.lolop.cs.lite\n"
+"Language: en_GB\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# ── Kolop SC sources (30001-30099) ───────────────────────────────
+
+msgctxt "#30001"
+msgid "Lolop CS"
+msgstr "Lolop CS Lite"
+
+msgctxt "#30002"
+msgid "Movies Recently Added by CSFD"
+msgstr "Movies Recently Added by CSFD"
+
+msgctxt "#30003"
+msgid "Movies New Releases by CSFD"
+msgstr "Movies New Releases by CSFD"
+
+msgctxt "#30004"
+msgid "Reviews (%d)"
+msgstr "Reviews (%d)"
+
+msgctxt "#30005"
+msgid "No reviews available"
+msgstr "No reviews available"
+
+msgctxt "#30006"
+msgid "No items were returned from Stream Cinema."
+msgstr "No items were returned from Stream Cinema."
+
+msgctxt "#30007"
+msgid "Loading Stream Cinema items..."
+msgstr "Loading Stream Cinema items..."
+
+msgctxt "#30008"
+msgid "Loading CSFD metadata... (%d/%d)"
+msgstr "Loading CSFD metadata... (%d/%d)"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Reviews: %s (%d)"
+
+msgctxt "#30010"
+msgid "Item limit"
+msgstr "Item limit"
+
+msgctxt "#30011"
+msgid "Series Recently Added by CSFD"
+msgstr "Series Recently Added by CSFD"
+
+msgctxt "#30012"
+msgid "Series New Releases by CSFD"
+msgstr "Series New Releases by CSFD"
+
+msgctxt "#30013"
+msgid "Movies Tips of the Day by CSFD"
+msgstr "Movies Tips of the Day by CSFD"
+
+msgctxt "#30014"
+msgid "Series Tips of the Day by CSFD"
+msgstr "Series Tips of the Day by CSFD"
+
+msgctxt "#30015"
+msgid "Movies Dubbed New Releases by CSFD"
+msgstr "Movies Dubbed New Releases by CSFD"
+
+# ── CSFD rankings (30100-30199) ──────────────────────────────────
+
+msgctxt "#30101"
+msgid "CSFD Rankings"
+msgstr "CSFD Rankings Lite"
+
+msgctxt "#30102"
+msgid "Movies"
+msgstr "Movies"
+
+msgctxt "#30103"
+msgid "TV Series"
+msgstr "TV Series"
+
+msgctxt "#30104"
+msgid "Seasons"
+msgstr "Seasons"
+
+msgctxt "#30105"
+msgid "Failed to load data."
+msgstr "Failed to load data."
+
+msgctxt "#30106"
+msgid "No reviews."
+msgstr "No reviews."
+
+msgctxt "#30107"
+msgid "CSFD Reviews (%d)"
+msgstr "CSFD Reviews (%d)"
+
+msgctxt "#30108"
+msgid "Load CSFD reviews"
+msgstr "Load CSFD reviews"
+
+msgctxt "#30110"
+msgid "Next -> (%d remaining)"
+msgstr "Next -> (%d remaining)"
+
+msgctxt "#30111"
+msgid "Year from"
+msgstr "Year from"
+
+msgctxt "#30112"
+msgid "Loading plots and reviews... (%d/%d)"
+msgstr "Loading plots and reviews... (%d/%d)"

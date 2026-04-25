@@ -133,6 +133,70 @@
             </assets>
         </extension>
     </addon>
+    <addon id="plugin.video.lolop.cs" name="Lolop CS" version="1.0.0" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="xbmc.addon" version="21.0.0" />
+            <import addon="script.module.beautifulsoup4" version="4.9.3" />
+            <import addon="script.module.requests" version="2.25.0" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="default.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.service" library="service.py" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_gb">Combined Stream Cinema and CSFD rankings in one addon</summary>
+            <summary lang="sk">Kombinovany Stream Cinema a CSFD rebricek v jednom addone</summary>
+            <summary lang="cs">Kombinovany Stream Cinema a CSFD zebricek v jednom addonu</summary>
+            <description lang="en_gb">All-in-one Lolop CS addon: Stream Cinema sources sorted by CSFD plus full CSFD rankings (movies, series, seasons) with year filter. Powers skin.lolop.cs without needing two separate addons.</description>
+            <description lang="sk">All-in-one Lolop CS addon: Stream Cinema zdroje zoradene podla CSFD plus plne CSFD rebricky (filmy, serialy, serie) s filtrom od roku. Pohana skin.lolop.cs bez potreby dvoch samostatnych addonov.</description>
+            <description lang="cs">All-in-one Lolop CS addon: Stream Cinema zdroje serazene podle CSFD plus plne CSFD zebricky (filmy, serialy, serie) s filtrem od roku. Pohani skin.lolop.cs bez potreby dvou samostatnych addonu.</description>
+            <news>v1.0.0 (2026-04-25)
+     - Initial release combining plugin.video.kolop and plugin.video.csfd-rebricek into a single addon
+     - Provides both CSFD-sorted Stream Cinema sources and full CSFD ranking browsing
+     - Powers skin.lolop.cs so only one addon is required instead of two
+            </news>
+            <platform>all</platform>
+            <license>GPL-2.0-or-later</license>
+            <source>https://github.com/lolop24/kodi-repo</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="plugin.video.lolop.cs.lite" name="Lolop CS Lite" version="1.0.0" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.python" version="3.0.0" />
+            <import addon="xbmc.addon" version="21.0.0" />
+            <import addon="script.module.beautifulsoup4" version="4.9.3" />
+            <import addon="script.module.requests" version="2.25.0" />
+        </requires>
+        <extension point="xbmc.python.pluginsource" library="default.py">
+            <provides>video</provides>
+        </extension>
+        <extension point="xbmc.service" library="service.py" />
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_gb">Lite combined Stream Cinema and CSFD rankings in one addon</summary>
+            <summary lang="sk">Odlahceny Stream Cinema a CSFD rebricek v jednom addone</summary>
+            <summary lang="cs">Odlehceny Stream Cinema a CSFD zebricek v jednom addonu</summary>
+            <description lang="en_gb">Lite all-in-one Lolop CS addon: trimmed Stream Cinema sources sorted by CSFD plus full CSFD rankings (movies, series, seasons) with year filter. Powers skin.lolop.cs.lite without needing two separate addons.</description>
+            <description lang="sk">Odlahceny all-in-one Lolop CS addon: zostriatne Stream Cinema zdroje zoradene podla CSFD plus plne CSFD rebricky (filmy, serialy, serie) s filtrom od roku. Pohana skin.lolop.cs.lite bez potreby dvoch samostatnych addonov.</description>
+            <description lang="cs">Odlehceny all-in-one Lolop CS addon: zkracene Stream Cinema zdroje serazene podle CSFD plus plne CSFD zebricky (filmy, serialy, serie) s filtrem od roku. Pohani skin.lolop.cs.lite bez potreby dvou samostatnych addonu.</description>
+            <news>v1.0.0 (2026-04-25)
+     - Initial release combining plugin.video.kolop.lite and plugin.video.csfd-rebricek.lite into a single addon
+     - Provides both CSFD-sorted Stream Cinema sources and full CSFD ranking browsing
+     - Powers skin.lolop.cs.lite so only one addon is required instead of two
+            </news>
+            <platform>all</platform>
+            <license>GPL-2.0-or-later</license>
+            <source>https://github.com/lolop24/kodi-repo</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+            </assets>
+        </extension>
+    </addon>
     <addon id="repository.42polol" name="42po.lol Repository" version="1.0.0" provider-name="lolop24">
         <requires>
             <import addon="xbmc.addon" version="12.0.0" />
@@ -444,6 +508,72 @@
      - Added a Lite skin variant that keeps the core Kolop sections but trims the active home rows
      - Reduced home row limits to 15 items and removed the newest-added rows from the default home flow
      - Switched the skin integration to the dedicated Kolop Lite and CSFD Lite addons
+    		</news>
+            <platform>all</platform>
+            <license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+            <source>https://github.com/lolop24/kodi-repo</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+                <screenshot>resources/screenshot-01.jpg</screenshot>
+                <screenshot>resources/screenshot-02.jpg</screenshot>
+                <screenshot>resources/screenshot-03.jpg</screenshot>
+                <screenshot>resources/screenshot-04.jpg</screenshot>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="skin.lolop.cs" version="1.0.0" name="Lolop CS Skin" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.gui" version="5.17.0" />
+            <import addon="plugin.video.lolop.cs" version="1.0.0" />
+        </requires>
+        <extension point="xbmc.gui.skin" debugging="false">
+            <res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Single-addon Kolop skin with CSFD rankings built in</summary>
+            <summary lang="sk">Skin Kolop ktoremu staci jeden addon a obsahuje CSFD rebricky</summary>
+            <summary lang="cs_CZ">Skin Kolop kteremu staci jeden addon a obsahuje CSFD zebricky</summary>
+            <description lang="en_GB">A Kodi skin for Lolop CS that bundles Stream Cinema sources and CSFD rankings into one required addon (plugin.video.lolop.cs). Faster startup and no need to install separate Kolop and CSFD addons.</description>
+            <description lang="sk">Kodi skin pre Lolop CS ktory spaja Stream Cinema zdroje a CSFD rebricky do jedineho povinneho addonu (plugin.video.lolop.cs). Rychlejsi start a netreba samostatne instalovat Kolop a CSFD addony.</description>
+            <description lang="cs_CZ">Kodi skin pro Lolop CS ktery spojuje Stream Cinema zdroje a CSFD zebricky do jedineho povinneho addonu (plugin.video.lolop.cs). Rychlejsi start a netreba samostatne instalovat Kolop a CSFD addony.</description>
+            <news>v1.0.0 (2026-04-25)
+     - Initial release based on skin.kolop
+     - Switched all widget URLs to the new combined plugin.video.lolop.cs addon
+     - Removed dependency on separate plugin.video.kolop and plugin.video.csfd-rebricek
+    		</news>
+            <platform>all</platform>
+            <license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+            <source>https://github.com/lolop24/kodi-repo</source>
+            <assets>
+                <icon>resources/icon.png</icon>
+                <fanart>resources/fanart.jpg</fanart>
+                <screenshot>resources/screenshot-01.jpg</screenshot>
+                <screenshot>resources/screenshot-02.jpg</screenshot>
+                <screenshot>resources/screenshot-03.jpg</screenshot>
+                <screenshot>resources/screenshot-04.jpg</screenshot>
+            </assets>
+        </extension>
+    </addon>
+    <addon id="skin.lolop.cs.lite" version="1.0.0" name="Lolop CS Skin Lite" provider-name="lolop24">
+        <requires>
+            <import addon="xbmc.gui" version="5.17.0" />
+            <import addon="plugin.video.lolop.cs.lite" version="1.0.0" />
+        </requires>
+        <extension point="xbmc.gui.skin" debugging="false">
+            <res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary lang="en_GB">Single-addon lite Kolop skin with CSFD rankings built in</summary>
+            <summary lang="sk">Odlahceny skin Kolop ktoremu staci jeden addon</summary>
+            <summary lang="cs_CZ">Odlehceny skin Kolop kteremu staci jeden addon</summary>
+            <description lang="en_GB">A lite Kodi skin for Lolop CS that bundles trimmed Stream Cinema sources and CSFD rankings into one required addon (plugin.video.lolop.cs.lite). Smaller home rows, faster startup, no need to install separate Kolop and CSFD addons.</description>
+            <description lang="sk">Odlahceny Kodi skin pre Lolop CS ktory spaja zostriatne Stream Cinema zdroje a CSFD rebricky do jedineho povinneho addonu (plugin.video.lolop.cs.lite). Mensie home riadky, rychlejsi start, netreba samostatne instalovat Kolop a CSFD addony.</description>
+            <description lang="cs_CZ">Odlehceny Kodi skin pro Lolop CS ktery spojuje zkracene Stream Cinema zdroje a CSFD zebricky do jedineho povinneho addonu (plugin.video.lolop.cs.lite). Mensi home radky, rychlejsi start, netreba samostatne instalovat Kolop a CSFD addony.</description>
+            <news>v1.0.0 (2026-04-25)
+     - Initial release based on skin.kolop.lite
+     - Switched all widget URLs to the new combined plugin.video.lolop.cs.lite addon
+     - Removed dependency on separate plugin.video.kolop.lite and plugin.video.csfd-rebricek.lite
     		</news>
             <platform>all</platform>
             <license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>

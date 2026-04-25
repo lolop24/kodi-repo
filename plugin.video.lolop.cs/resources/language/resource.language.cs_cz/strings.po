@@ -1,0 +1,110 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.lolop.cs\n"
+"Language: cs_CZ\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#30001"
+msgid "Lolop CS"
+msgstr "Lolop CS"
+
+msgctxt "#30002"
+msgid "Movies Recently Added by CSFD"
+msgstr "Filmy - nejnoveji pridane podle CSFD"
+
+msgctxt "#30003"
+msgid "Movies New Releases by CSFD"
+msgstr "Filmy - novinky podle CSFD"
+
+msgctxt "#30004"
+msgid "Reviews (%d)"
+msgstr "Recenze (%d)"
+
+msgctxt "#30005"
+msgid "No reviews available"
+msgstr "Bez recenzi"
+
+msgctxt "#30006"
+msgid "No items were returned from Stream Cinema."
+msgstr "Stream Cinema nevratilo zadne polozky."
+
+msgctxt "#30007"
+msgid "Loading Stream Cinema items..."
+msgstr "Nacitam polozky ze Stream Cinema..."
+
+msgctxt "#30008"
+msgid "Loading CSFD metadata... (%d/%d)"
+msgstr "Doplnuji CSFD metadata... (%d/%d)"
+
+msgctxt "#30009"
+msgid "Reviews: %s (%d)"
+msgstr "Recenze: %s (%d)"
+
+msgctxt "#30010"
+msgid "Item limit"
+msgstr "Limit polozek"
+
+msgctxt "#30011"
+msgid "Series Recently Added by CSFD"
+msgstr "Serialy - nejnoveji pridane podle CSFD"
+
+msgctxt "#30012"
+msgid "Series New Releases by CSFD"
+msgstr "Serialy - novinky podle CSFD"
+
+msgctxt "#30013"
+msgid "Movies Tips of the Day by CSFD"
+msgstr "Filmy - tipy dne podle CSFD"
+
+msgctxt "#30014"
+msgid "Series Tips of the Day by CSFD"
+msgstr "Serialy - tipy dne podle CSFD"
+
+msgctxt "#30015"
+msgid "Movies Dubbed New Releases by CSFD"
+msgstr "Filmy - dabovane novinky podle CSFD"
+
+msgctxt "#30101"
+msgid "CSFD Rankings"
+msgstr "CSFD Zebricky"
+
+msgctxt "#30102"
+msgid "Movies"
+msgstr "Filmy"
+
+msgctxt "#30103"
+msgid "TV Series"
+msgstr "Serialy"
+
+msgctxt "#30104"
+msgid "Seasons"
+msgstr "Serie"
+
+msgctxt "#30105"
+msgid "Failed to load data."
+msgstr "Nepodarilo se nacist data."
+
+msgctxt "#30106"
+msgid "No reviews."
+msgstr "Zadne recenze."
+
+msgctxt "#30107"
+msgid "CSFD Reviews (%d)"
+msgstr "CSFD recenze (%d)"
+
+msgctxt "#30108"
+msgid "Load CSFD reviews"
+msgstr "Nacist CSFD recenze"
+
+msgctxt "#30110"
+msgid "Next -> (%d remaining)"
+msgstr "Dalsi -> (%d zbyva)"
+
+msgctxt "#30111"
+msgid "Year from"
+msgstr "Rok od"
+
+msgctxt "#30112"
+msgid "Loading plots and reviews... (%d/%d)"
+msgstr "Nacitam popisy a recenze... (%d/%d)"
