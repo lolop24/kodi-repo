@@ -39,6 +39,33 @@
           </control>
         </setting>
       </group>
+      <group id="3" label="32060">
+        <setting id="enable_embedded_subtitles" type="boolean" label="32061" help="">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="ffmpeg_path" type="string" label="32062" help="">
+          <level>1</level>
+          <default>ffmpeg</default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string">
+            <heading>32062</heading>
+          </control>
+        </setting>
+        <setting id="ffprobe_path" type="string" label="32063" help="">
+          <level>1</level>
+          <default>ffprobe</default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string">
+            <heading>32063</heading>
+          </control>
+        </setting>
+      </group>
       <group id="2" label="32050">
         <setting id="os_username" type="string" label="32051" help="">
           <level>1</level>

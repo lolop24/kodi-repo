@@ -108,3 +108,19 @@ msgstr "Mark as machine translated"
 msgctxt "#32057"
 msgid "Remote helper token"
 msgstr "Remote helper token"
+
+msgctxt "#32060"
+msgid "--- Embedded Subtitles ---"
+msgstr "--- Embedded Subtitles ---"
+
+msgctxt "#32061"
+msgid "Show embedded subtitle tracks"
+msgstr "Show embedded subtitle tracks"
+
+msgctxt "#32062"
+msgid "ffmpeg path"
+msgstr "ffmpeg path"
+
+msgctxt "#32063"
+msgid "ffprobe path"
+msgstr "ffprobe path"

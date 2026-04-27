@@ -218,7 +218,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.8" provider-name="Codex">
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.9" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>

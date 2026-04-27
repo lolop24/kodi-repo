@@ -5,12 +5,14 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 import time
 import uuid
 import zipfile
 
-from urllib.parse import parse_qsl, quote, unquote
+from urllib import request as urlrequest
+from urllib.parse import parse_qsl, quote, unquote, urlencode
 
 import xbmc
 import xbmcaddon
@@ -69,6 +71,23 @@ KNOWN_SUBTITLE_ADDON_TEMP_DIRS = (
 )
 _SOURCE_LANG_MAP = {"0": "auto", "1": "cs", "2": "sk"}
 _RESOLVED_IMDB_CACHE = {}
+_EMBEDDED_SOURCE_LANGS = ("sk", "cs")
+_LANGUAGE_ALIASES = {
+    "ces": "cs",
+    "cze": "cs",
+    "cz": "cs",
+    "cs": "cs",
+    "slk": "sk",
+    "slo": "sk",
+    "sk": "sk",
+    "uk": "uk",
+    "ukr": "uk",
+}
+_LANGUAGE_LABELS = {
+    "cs": "Czech",
+    "sk": "Slovak",
+    "uk": "Ukrainian",
+}
 
 
 def log(message, level=xbmc.LOGINFO):
@@ -172,6 +191,22 @@ def end_directory():
 
 def add_action_item(label, action, source_label="Action"):
     url = "plugin://%s/?action=%s" % (__scriptid__, action)
+    list_item = xbmcgui.ListItem(label=source_label, label2=label)
+    list_item.setProperty("sync", "false")
+    list_item.setProperty("hearing_imp", "false")
+    xbmcplugin.addDirectoryItem(
+        handle=int(sys.argv[1]),
+        url=url,
+        listitem=list_item,
+        isFolder=False,
+    )
+
+
+def add_plugin_item(label, action, source_label="Action", extra_params=None):
+    query = {"action": action}
+    if extra_params:
+        query.update(extra_params)
+    url = "plugin://%s/?%s" % (__scriptid__, urlencode(query))
     list_item = xbmcgui.ListItem(label=source_label, label2=label)
     list_item.setProperty("sync", "false")
     list_item.setProperty("hearing_imp", "false")
@@ -346,6 +381,406 @@ def current_subtitle_context():
     deduped_names = list(dict.fromkeys(name for name in names if name))
     deduped_languages = list(dict.fromkeys(lang for lang in languages if lang))
     return {"names": deduped_names, "languages": deduped_languages}
+
+
+def normalize_subtitle_language(language):
+    return _LANGUAGE_ALIASES.get(str(language or "").strip().lower(), "")
+
+
+def language_label(language_code):
+    return _LANGUAGE_LABELS.get(language_code, language_code.upper())
+
+
+def active_video_player_id():
+    active_players = jsonrpc("Player.GetActivePlayers")
+    if isinstance(active_players, dict):
+        active_players = active_players.get("result", [])
+    if not isinstance(active_players, list):
+        return None
+    for player in active_players:
+        if player.get("type") == "video":
+            return player.get("playerid")
+    return None
+
+
+def current_embedded_subtitles():
+    player_id = active_video_player_id()
+    if player_id is None:
+        return []
+
+    props = jsonrpc(
+        "Player.GetProperties",
+        {"playerid": player_id, "properties": ["subtitles"]},
+    )
+    subtitles = props.get("subtitles") or []
+    if not isinstance(subtitles, list):
+        return []
+
+    results = []
+    for subtitle in subtitles:
+        language_code = normalize_subtitle_language(subtitle.get("language"))
+        if language_code not in ("cs", "sk", "uk"):
+            continue
+        name = str(subtitle.get("name") or "").strip()
+        results.append(
+            {
+                "kodi_index": subtitle.get("index"),
+                "language": language_code,
+                "raw_language": str(subtitle.get("language") or "").strip(),
+                "name": name,
+                "forced": bool(subtitle.get("isforced")),
+                "impaired": bool(subtitle.get("isimpaired")),
+            }
+        )
+    return results
+
+
+def subtitle_track_rank(track):
+    title = str(track.get("title") or track.get("name") or "").lower()
+    forced = bool(track.get("forced")) or "forced" in title
+    impaired = bool(track.get("impaired")) or "sdh" in title or "impaired" in title
+    return (1 if forced else 0, 1 if impaired else 0, int(track.get("index") or 0))
+
+
+def first_preferred_track(tracks, language_code):
+    candidates = [track for track in tracks if track.get("language") == language_code]
+    if not candidates:
+        return None
+    candidates.sort(key=subtitle_track_rank)
+    return candidates[0]
+
+
+def embedded_subtitle_source_items():
+    if not get_setting_bool("enable_embedded_subtitles", True):
+        return []
+
+    video_info = get_video_info()
+    video_path = video_info.get("filepath", "") or xbmc.getInfoLabel("Player.Filenameandpath")
+    if not video_path:
+        return []
+
+    tracks = current_embedded_subtitles()
+    ukrainian_track = first_preferred_track(tracks, "uk")
+    if ukrainian_track is None:
+        return []
+
+    items = [
+        {
+            "label": "Embedded: use existing Ukrainian subtitles",
+            "action": "embedded_single",
+            "source_label": "EMB UK",
+            "params": {"language": "uk"},
+        }
+    ]
+
+    for language_code in _EMBEDDED_SOURCE_LANGS:
+        source_track = first_preferred_track(tracks, language_code)
+        if source_track is None:
+            continue
+        label = "Embedded dual: %s + Ukrainian" % language_label(language_code)
+        items.append(
+            {
+                "label": label,
+                "action": "embedded_dual",
+                "source_label": "EMB %s+UK" % language_code.upper(),
+                "params": {"source_language": language_code, "ukrainian_language": "uk"},
+            }
+        )
+    return items
+
+
+def embedded_tool(name, default):
+    value = get_setting(name, default).strip()
+    return value or default
+
+
+def ffmpeg_tool():
+    return embedded_tool("ffmpeg_path", "ffmpeg")
+
+
+def ffprobe_tool():
+    return embedded_tool("ffprobe_path", "ffprobe")
+
+
+def sanitize_process_text(text, video_path):
+    cleaned = str(text or "")
+    if video_path:
+        cleaned = cleaned.replace(video_path, "<video>")
+    if len(cleaned) > 1200:
+        cleaned = cleaned[-1200:]
+    return cleaned.strip()
+
+
+def probe_embedded_subtitle_streams(video_path):
+    cmd = [
+        ffprobe_tool(),
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-show_entries",
+        "stream=index,codec_type,codec_name:stream_tags=language,title:stream_disposition=forced,hearing_impaired",
+        "-of",
+        "json",
+        video_path,
+    ]
+    try:
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=120)
+    except FileNotFoundError:
+        raise RuntimeError("ffprobe was not found. Set ffprobe path in add-on settings.")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("ffprobe timed out while reading embedded subtitle streams.")
+
+    if proc.returncode != 0:
+        raise RuntimeError("ffprobe failed: %s" % sanitize_process_text(proc.stderr, video_path))
+
+    try:
+        data = json.loads(proc.stdout or "{}")
+    except Exception as exc:
+        raise RuntimeError("ffprobe returned invalid JSON: %s" % exc)
+
+    streams = []
+    for stream in data.get("streams") or []:
+        if stream.get("codec_type") != "subtitle":
+            continue
+        tags = stream.get("tags") or {}
+        disposition = stream.get("disposition") or {}
+        language_code = normalize_subtitle_language(tags.get("language"))
+        if language_code not in ("cs", "sk", "uk"):
+            continue
+        streams.append(
+            {
+                "index": stream.get("index"),
+                "language": language_code,
+                "raw_language": str(tags.get("language") or "").strip(),
+                "title": str(tags.get("title") or "").strip(),
+                "codec": str(stream.get("codec_name") or "").strip(),
+                "forced": bool(disposition.get("forced")),
+                "impaired": bool(disposition.get("hearing_impaired")),
+            }
+        )
+    return streams
+
+
+def select_embedded_stream(streams, language_code):
+    stream = first_preferred_track(streams, language_code)
+    if stream is None:
+        raise RuntimeError("No embedded %s subtitle stream found." % language_label(language_code))
+    if stream.get("index") in (None, ""):
+        raise RuntimeError("Embedded %s subtitle stream has no ffmpeg index." % language_label(language_code))
+    return stream
+
+
+def embedded_cache_base(video_path):
+    video_info = get_video_info()
+    title = video_info.get("tvshow_title") or video_info.get("title") or "embedded"
+    episode_key = build_episode_key(video_info)
+    return safe_stem("%s.%s" % (title, episode_key)) if episode_key else safe_stem(title)
+
+
+def embedded_subtitle_cache_path(video_path, stream):
+    cache_key = hashlib.sha1(
+        ("%s|%s|%s|%s" % (video_path, stream.get("index"), stream.get("language"), stream.get("title"))).encode("utf-8")
+    ).hexdigest()[:12]
+    name = "%s.embedded.%s.stream%s.%s.srt" % (
+        embedded_cache_base(video_path),
+        stream.get("language"),
+        stream.get("index"),
+        cache_key,
+    )
+    return os.path.join(__workdir__, name)
+
+
+def embedded_dual_cache_path(video_path, source_stream, ukrainian_stream):
+    cache_key = hashlib.sha1(
+        (
+            "%s|%s|%s|%s|%s"
+            % (
+                video_path,
+                source_stream.get("index"),
+                source_stream.get("language"),
+                ukrainian_stream.get("index"),
+                ukrainian_stream.get("language"),
+            )
+        ).encode("utf-8")
+    ).hexdigest()[:12]
+    name = "%s.embedded.%s-uk.dual.%s.ass" % (
+        embedded_cache_base(video_path),
+        source_stream.get("language"),
+        cache_key,
+    )
+    return os.path.join(__workdir__, name)
+
+
+def count_subtitle_cues(path):
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as handle:
+            return sum(1 for line in handle if line.strip().isdigit())
+    except Exception:
+        return 0
+
+
+def extract_embedded_subtitle(video_path, stream):
+    ensure_workdir()
+    output_path = embedded_subtitle_cache_path(video_path, stream)
+    if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
+        return output_path
+
+    cmd = [
+        ffmpeg_tool(),
+        "-nostdin",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "warning",
+        "-i",
+        video_path,
+        "-map",
+        "0:%s" % stream.get("index"),
+        "-c:s",
+        "srt",
+        output_path,
+    ]
+    try:
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    except FileNotFoundError:
+        raise RuntimeError("ffmpeg was not found. Set ffmpeg path in add-on settings.")
+
+    if not os.path.isfile(output_path) or os.path.getsize(output_path) == 0:
+        raise RuntimeError("ffmpeg did not create subtitle file: %s" % sanitize_process_text(proc.stderr, video_path))
+
+    cues = count_subtitle_cues(output_path)
+    if cues == 0:
+        raise RuntimeError("Extracted embedded subtitle file has no readable subtitle cues.")
+
+    if proc.returncode != 0:
+        log(
+            "ffmpeg returned %s while extracting embedded subtitle, keeping non-empty output: %s"
+            % (proc.returncode, sanitize_process_text(proc.stderr, video_path)),
+            xbmc.LOGWARNING,
+        )
+    return output_path
+
+
+def get_external_addon_setting(addon_id, setting_id):
+    try:
+        return xbmcaddon.Addon(addon_id).getSetting(setting_id)
+    except Exception:
+        return ""
+
+
+def stream_cinema_setting(setting_id):
+    return get_external_addon_setting("plugin.video.stream-cinema", setting_id)
+
+
+def stream_cinema_selected_item():
+    try:
+        raw = xbmcgui.Window(10000).getProperty("SC:selected")
+    except Exception:
+        raw = ""
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except Exception:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def http_json(url, data=None, headers=None, timeout=30):
+    payload = None
+    if data is not None:
+        payload = json.dumps(data).encode("utf-8")
+    request = urlrequest.Request(url, data=payload, headers=headers or {})
+    with urlrequest.urlopen(request, timeout=timeout) as response:
+        return json.loads(response.read().decode("utf-8", "replace"))
+
+
+def stream_cinema_api_headers(uid):
+    return {
+        "User-Agent": "Kodi TitDeepL LocalSub/%s" % __addon__.getAddonInfo("version"),
+        "X-Uuid": uid,
+        "X-AUTH-TOKEN": stream_cinema_setting("system.auth_token"),
+    }
+
+
+def resolve_stream_cinema_selected_url(video_path):
+    if "127.0.0.1" not in video_path and "localhost" not in video_path:
+        return video_path
+
+    selected = stream_cinema_selected_item()
+    stream_path = str(selected.get("url") or "").strip()
+    if not stream_path.startswith("/"):
+        return video_path
+
+    uid = stream_cinema_setting("system.uuid") or stream_cinema_setting("uid")
+    auth_token = stream_cinema_setting("system.auth_token")
+    kraska_token = stream_cinema_setting("kraska.token")
+    if not uid or not auth_token or not kraska_token:
+        return video_path
+
+    query = {
+        "ver": "2.0",
+        "uid": uid,
+        "skin": xbmc.getSkinDir() if hasattr(xbmc, "getSkinDir") else "skin.estuary",
+        "lang": "sk",
+        "HDR": "1",
+        "DV": "1",
+        "old": "1",
+    }
+    sc_url = "https://stream-cinema.online/kodi%s?%s" % (stream_path, urlencode(sorted(query.items())))
+
+    try:
+        data = http_json(sc_url, headers=stream_cinema_api_headers(uid), timeout=30)
+        version = data.get("version")
+        ident_value = data.get("v%s" % version) if version is not None else ""
+        if not version or not ident_value:
+            return video_path
+        ident = "v%s:%s" % (version, ident_value)
+        resolved = http_json(
+            "https://api.kra.sk/api/file/download",
+            data={"data": {"ident": ident}, "session_id": kraska_token},
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "Kodi TitDeepL LocalSub/%s" % __addon__.getAddonInfo("version"),
+            },
+            timeout=30,
+        )
+        direct_url = (resolved.get("data") or {}).get("link") or ""
+        if direct_url:
+            log("Embedded subtitles: using direct Stream Cinema media URL for extraction")
+            return direct_url
+    except Exception as exc:
+        log("Embedded subtitles: Stream Cinema direct URL resolve failed: %s" % exc, xbmc.LOGWARNING)
+    return video_path
+
+
+def current_video_path_for_extraction():
+    video_info = get_video_info()
+    video_path = video_info.get("filepath", "") or xbmc.getInfoLabel("Player.Filenameandpath")
+    if not video_path:
+        raise RuntimeError("Current video path is empty; cannot extract embedded subtitles.")
+    return resolve_stream_cinema_selected_url(video_path)
+
+
+def generate_or_load_embedded_single(language_code):
+    video_path = current_video_path_for_extraction()
+    streams = probe_embedded_subtitle_streams(video_path)
+    stream = select_embedded_stream(streams, language_code)
+    return extract_embedded_subtitle(video_path, stream)
+
+
+def generate_or_load_embedded_dual(source_language, ukrainian_language="uk"):
+    video_path = current_video_path_for_extraction()
+    streams = probe_embedded_subtitle_streams(video_path)
+    source_stream = select_embedded_stream(streams, source_language)
+    ukrainian_stream = select_embedded_stream(streams, ukrainian_language)
+    dual_path = embedded_dual_cache_path(video_path, source_stream, ukrainian_stream)
+    if os.path.isfile(dual_path) and os.path.getsize(dual_path) > 0:
+        return dual_path
+
+    source_path = extract_embedded_subtitle(video_path, source_stream)
+    ukrainian_path = extract_embedded_subtitle(video_path, ukrainian_stream)
+    return merge_two_subtitles_to_dual_ass(source_path, ukrainian_path, dual_path)
 
 
 def file_mtime(path):
@@ -998,7 +1433,21 @@ def try_upload_to_opensubtitles(ass_path):
 def search():
     ensure_workdir()
     cleanup_workdir()
-    if not get_setting("deepl_api_key").strip():
+    embedded_items = embedded_subtitle_source_items()
+    has_deepl_key = bool(get_setting("deepl_api_key").strip())
+
+    for item in embedded_items:
+        add_plugin_item(
+            item["label"],
+            item["action"],
+            item["source_label"],
+            item.get("params") or {},
+        )
+
+    if not has_deepl_key:
+        if embedded_items:
+            add_action_item("Open settings", "settings", "Settings")
+            return
         add_action_item(__addon__.getLocalizedString(32033), "settings", "Setup")
         add_action_item("Open settings", "settings", "Settings")
         return
@@ -1065,6 +1514,47 @@ def handle_action():
         if info:
             try_upload_to_opensubtitles(info["path"])
             download(info["path"])
+        return
+
+    if action == "embedded_single":
+        language_code = normalize_subtitle_language(params().get("language", "uk")) or "uk"
+        progress = xbmcgui.DialogProgress()
+        progress.create(__scriptname__, "Extracting embedded %s subtitles..." % language_label(language_code))
+        try:
+            path = generate_or_load_embedded_single(language_code)
+            progress.close()
+            download(path)
+        except Exception as exc:
+            progress.close()
+            message = "Could not extract embedded subtitle track.\nLanguage: %s\nReason: %s" % (
+                language_label(language_code),
+                exc,
+            )
+            log(message, xbmc.LOGWARNING)
+            __dialog__.ok(__scriptname__, message)
+        return
+
+    if action == "embedded_dual":
+        source_language = normalize_subtitle_language(params().get("source_language", "sk")) or "sk"
+        ukrainian_language = normalize_subtitle_language(params().get("ukrainian_language", "uk")) or "uk"
+        progress = xbmcgui.DialogProgress()
+        progress.create(
+            __scriptname__,
+            "Extracting embedded %s + Ukrainian subtitles..."
+            % language_label(source_language),
+        )
+        try:
+            path = generate_or_load_embedded_dual(source_language, ukrainian_language)
+            progress.close()
+            download(path)
+        except Exception as exc:
+            progress.close()
+            message = "Could not build embedded dual subtitles.\nSource: %s\nReason: %s" % (
+                "%s + %s" % (language_label(source_language), language_label(ukrainian_language)),
+                exc,
+            )
+            log(message, xbmc.LOGWARNING)
+            __dialog__.ok(__scriptname__, message)
         return
 
     if action == "download":
