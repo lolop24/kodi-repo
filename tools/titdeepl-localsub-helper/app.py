@@ -280,7 +280,7 @@ def match_saved_subtitle(
                 continue
             if job_episode_key and job_episode_key != requested_episode_key:
                 continue
-            if not stored_episode_key and not job_episode_key and matched_by == "imdb_only":
+            if not stored_episode_key and not job_episode_key:
                 continue
         else:
             job = find_job_by_prefix(extract_job_prefix_from_backup(path))
@@ -332,7 +332,7 @@ def match_saved_subtitle(
                 continue
             if job_episode_key and job_episode_key != requested_episode_key:
                 continue
-            if not stored_episode_key and not job_episode_key and matched_by == "release_contains_fallback":
+            if not stored_episode_key and not job_episode_key:
                 continue
 
         stat = path.stat()
