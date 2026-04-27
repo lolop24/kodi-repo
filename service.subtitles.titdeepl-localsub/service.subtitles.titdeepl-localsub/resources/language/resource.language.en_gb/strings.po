@@ -124,3 +124,11 @@ msgstr "ffmpeg path"
 msgctxt "#32063"
 msgid "ffprobe path"
 msgstr "ffprobe path"
+
+msgctxt "#32064"
+msgid "Helper embedded chunk length (seconds)"
+msgstr "Helper embedded chunk length (seconds)"
+
+msgctxt "#32065"
+msgid "Wait for first helper chunk (seconds)"
+msgstr "Wait for first helper chunk (seconds)"

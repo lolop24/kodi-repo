@@ -12,7 +12,7 @@ import uuid
 import zipfile
 
 from urllib import request as urlrequest
-from urllib.parse import parse_qsl, quote, unquote, urlencode
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlparse
 
 import xbmc
 import xbmcaddon
@@ -41,6 +41,9 @@ from resources.lib.source_matching import build_source_score, normalize_name
 from resources.lib.upload_helper import (
     HelperUploadError,
     download_helper_cached_subtitle,
+    download_helper_embedded_dual_subtitle,
+    get_helper_embedded_dual_job,
+    queue_helper_embedded_dual_job,
     queue_helper_upload,
 )
 
@@ -57,6 +60,7 @@ __scriptid__ = __addon__.getAddonInfo("id")
 __scriptname__ = __addon__.getAddonInfo("name")
 __profile__ = translatePath(__addon__.getAddonInfo("profile"))
 __workdir__ = os.path.join(__profile__, "generated")
+__active_embedded_job_path__ = os.path.join(__profile__, "active_embedded_dual_job.json")
 __dialog__ = xbmcgui.Dialog()
 try:
     __settings__ = __addon__.getSettings()
@@ -435,6 +439,15 @@ def current_embedded_subtitles():
     return results
 
 
+def helper_url_is_configured():
+    return bool(get_setting("helper_url", "").strip())
+
+
+def current_playback_path():
+    video_info = get_video_info()
+    return video_info.get("filepath", "") or xbmc.getInfoLabel("Player.Filenameandpath") or ""
+
+
 def subtitle_track_rank(track):
     title = str(track.get("title") or track.get("name") or "").lower()
     forced = bool(track.get("forced")) or "forced" in title
@@ -464,25 +477,32 @@ def embedded_subtitle_source_items():
     if ukrainian_track is None:
         return []
 
-    items = [
-        {
-            "label": "Embedded: use existing Ukrainian subtitles",
-            "action": "embedded_single",
-            "source_label": "EMB UK",
-            "params": {"language": "uk"},
-        }
-    ]
+    helper_dual = helper_url_is_configured()
+    items = []
+    if not helper_dual:
+        items.append(
+            {
+                "label": "Embedded: use existing Ukrainian subtitles",
+                "action": "embedded_single",
+                "source_label": "EMB UK",
+                "params": {"language": "uk"},
+            }
+        )
 
     for language_code in _EMBEDDED_SOURCE_LANGS:
         source_track = first_preferred_track(tracks, language_code)
         if source_track is None:
             continue
-        label = "Embedded dual: %s + Ukrainian" % language_label(language_code)
+        label = (
+            "Helper progressive dual: %s + Ukrainian"
+            if helper_dual
+            else "Embedded dual: %s + Ukrainian"
+        ) % language_label(language_code)
         items.append(
             {
                 "label": label,
-                "action": "embedded_dual",
-                "source_label": "EMB %s+UK" % language_code.upper(),
+                "action": "embedded_helper_dual" if helper_dual else "embedded_dual",
+                "source_label": "HELP %s+UK" % language_code.upper() if helper_dual else "EMB %s+UK" % language_code.upper(),
                 "params": {"source_language": language_code, "ukrainian_language": "uk"},
             }
         )
@@ -760,6 +780,200 @@ def current_video_path_for_extraction():
     if not video_path:
         raise RuntimeError("Current video path is empty; cannot extract embedded subtitles.")
     return resolve_stream_cinema_selected_url(video_path)
+
+
+def safe_json_read(path, default=None):
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            parsed = json.load(handle)
+        return parsed if isinstance(parsed, dict) else default
+    except Exception:
+        return default
+
+
+def read_active_embedded_job():
+    return safe_json_read(__active_embedded_job_path__, {}) or {}
+
+
+def write_active_embedded_job(record):
+    os.makedirs(__profile__, exist_ok=True)
+    with open(__active_embedded_job_path__, "w", encoding="utf-8") as handle:
+        json.dump(record, handle, indent=2, sort_keys=True)
+
+
+def clear_active_embedded_job():
+    try:
+        os.remove(__active_embedded_job_path__)
+    except OSError:
+        pass
+
+
+def normalized_helper_url_for_display(helper_url):
+    helper_url = (helper_url or "").strip().rstrip("/")
+    if helper_url and not helper_url.startswith(("http://", "https://")):
+        helper_url = "http://" + helper_url
+    return helper_url
+
+
+def helper_is_local(helper_url):
+    parsed = urlparse(normalized_helper_url_for_display(helper_url))
+    host = (parsed.hostname or "").lower()
+    return host in ("", "localhost", "127.0.0.1", "::1") or host.startswith("127.")
+
+
+def media_url_is_local_to_kodi(media_url):
+    parsed = urlparse(str(media_url or ""))
+    scheme = (parsed.scheme or "").lower()
+    host = (parsed.hostname or "").lower()
+    if scheme in ("http", "https"):
+        return host in ("localhost", "127.0.0.1", "::1") or host.startswith("127.")
+    if scheme in ("ftp", "smb", "nfs"):
+        return False
+    return True
+
+
+def helper_media_url_for_extraction(helper_url):
+    media_url = current_video_path_for_extraction()
+    if not helper_is_local(helper_url) and media_url_is_local_to_kodi(media_url):
+        raise RuntimeError(
+            "Remote helper cannot read this Kodi-local media URL. "
+            "Play a Stream Cinema item that can be resolved to a direct remote URL, "
+            "or run the helper on the same device as Kodi."
+        )
+    return media_url
+
+
+def current_total_seconds():
+    player_id = active_video_player_id()
+    if player_id is None:
+        return 0
+    props = jsonrpc("Player.GetProperties", {"playerid": player_id, "properties": ["totaltime"]})
+    total = props.get("totaltime") or {}
+    try:
+        hours = int(total.get("hours") or 0)
+        minutes = int(total.get("minutes") or 0)
+        seconds = int(total.get("seconds") or 0)
+        milliseconds = int(total.get("milliseconds") or 0)
+    except Exception:
+        return 0
+    return hours * 3600 + minutes * 60 + seconds + (1 if milliseconds else 0)
+
+
+def embedded_job_record(job_id, helper_url, source_language, ukrainian_language, video_info):
+    return {
+        "job_id": job_id,
+        "helper_url": normalized_helper_url_for_display(helper_url),
+        "source_language": source_language,
+        "ukrainian_language": ukrainian_language,
+        "playback_path": current_playback_path(),
+        "title": video_info.get("tvshow_title") or video_info.get("title") or "",
+        "episode_key": build_episode_key(video_info),
+        "last_loaded_seconds": 0,
+        "last_version": "",
+        "created_at": int(time.time()),
+        "updated_at": int(time.time()),
+    }
+
+
+def download_latest_embedded_helper_subtitle(helper_url, helper_token, job_id, version):
+    ensure_workdir()
+    return download_helper_embedded_dual_subtitle(
+        helper_url=helper_url,
+        helper_token=helper_token,
+        job_id=job_id,
+        output_dir=__workdir__,
+        version=version or "latest",
+        timeout=45,
+    )
+
+
+def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", progress=None):
+    helper_url = get_setting("helper_url", "").strip()
+    if not helper_url:
+        raise RuntimeError(__addon__.getLocalizedString(32045) or "Remote helper URL is not set.")
+
+    helper_token = get_setting("helper_token", "").strip()
+    media_url = helper_media_url_for_extraction(helper_url)
+    video_info = ensure_video_imdb(get_video_info(), media_url)
+    chunk_seconds = get_setting_int("embedded_helper_chunk_seconds", 300) or 300
+    first_timeout = get_setting_int("embedded_helper_first_timeout", 240) or 240
+    max_seconds = current_total_seconds() or 7200
+    release_name = build_release_name(video_info, media_url)
+
+    if progress:
+        progress.update(5, "Queueing helper extraction job...")
+
+    response = queue_helper_embedded_dual_job(
+        helper_url=helper_url,
+        helper_token=helper_token,
+        media_url=media_url,
+        source_language=source_language,
+        ukrainian_language=ukrainian_language,
+        imdb_id=video_info.get("imdb", "").strip(),
+        release_name=release_name,
+        tvshow_title=video_info.get("tvshow_title", "").strip(),
+        season=clean_episode_number(video_info.get("season", "")),
+        episode=clean_episode_number(video_info.get("episode", "")),
+        title=video_info.get("title", "").strip(),
+        year=video_info.get("year", "").strip(),
+        chunk_seconds=chunk_seconds,
+        max_seconds=max_seconds,
+        timeout=45,
+    )
+    job_id = str(response.get("job_id") or "").strip()
+    if not job_id:
+        raise RuntimeError("Remote helper did not return an embedded subtitle job id.")
+
+    record = embedded_job_record(job_id, helper_url, source_language, ukrainian_language, video_info)
+    write_active_embedded_job(record)
+    log("Queued helper embedded dual job %s for %s + Ukrainian" % (job_id[:8], language_label(source_language)))
+
+    started = time.time()
+    last_status = str(response.get("status") or "queued")
+    while time.time() - started < first_timeout:
+        if progress and progress.iscanceled():
+            __dialog__.notification(
+                __scriptname__,
+                "Helper is still preparing dual subtitles in background.",
+                xbmcgui.NOTIFICATION_INFO,
+                3500,
+            )
+            return None
+
+        elapsed = int(time.time() - started)
+        percent = min(95, 10 + int((elapsed / float(first_timeout)) * 80))
+        if progress:
+            progress.update(percent, "Waiting for first %s-minute subtitle chunk... [%s]" % (int(chunk_seconds / 60), last_status))
+
+        time.sleep(2)
+        job = get_helper_embedded_dual_job(helper_url, helper_token, job_id, timeout=20)
+        last_status = str(job.get("status") or last_status)
+        error = str(job.get("error") or "").strip()
+        if last_status == "failed":
+            clear_active_embedded_job()
+            raise RuntimeError(error or "Remote helper failed while extracting embedded dual subtitles.")
+
+        ready_seconds = int(job.get("latest_ready_seconds") or 0)
+        if ready_seconds <= 0:
+            continue
+
+        version = str(job.get("latest_version") or ready_seconds)
+        subtitle_path = download_latest_embedded_helper_subtitle(helper_url, helper_token, job_id, version)
+        record["last_loaded_seconds"] = ready_seconds
+        record["last_version"] = version
+        record["updated_at"] = int(time.time())
+        write_active_embedded_job(record)
+        if progress:
+            progress.update(100, "First helper subtitle chunk is ready.")
+        return subtitle_path
+
+    __dialog__.notification(
+        __scriptname__,
+        "Helper is still preparing dual subtitles; they will load automatically when ready.",
+        xbmcgui.NOTIFICATION_INFO,
+        5000,
+    )
+    return None
 
 
 def generate_or_load_embedded_single(language_code):
@@ -1550,6 +1764,38 @@ def handle_action():
         except Exception as exc:
             progress.close()
             message = "Could not build embedded dual subtitles.\nSource: %s\nReason: %s" % (
+                "%s + %s" % (language_label(source_language), language_label(ukrainian_language)),
+                exc,
+            )
+            log(message, xbmc.LOGWARNING)
+            __dialog__.ok(__scriptname__, message)
+        return
+
+    if action == "embedded_helper_dual":
+        source_language = normalize_subtitle_language(params().get("source_language", "sk")) or "sk"
+        ukrainian_language = normalize_subtitle_language(params().get("ukrainian_language", "uk")) or "uk"
+        progress = xbmcgui.DialogProgress()
+        progress.create(
+            __scriptname__,
+            "Preparing helper dual subtitles: %s + Ukrainian..."
+            % language_label(source_language),
+        )
+        try:
+            path = queue_progressive_embedded_dual(source_language, ukrainian_language, progress=progress)
+            progress.close()
+            if path:
+                download(path)
+        except HelperUploadError as exc:
+            progress.close()
+            message = "Could not prepare helper dual subtitles.\nSource: %s\nReason: %s" % (
+                "%s + %s" % (language_label(source_language), language_label(ukrainian_language)),
+                exc,
+            )
+            log(message, xbmc.LOGWARNING)
+            __dialog__.ok(__scriptname__, message)
+        except Exception as exc:
+            progress.close()
+            message = "Could not prepare helper dual subtitles.\nSource: %s\nReason: %s" % (
                 "%s + %s" % (language_label(source_language), language_label(ukrainian_language)),
                 exc,
             )

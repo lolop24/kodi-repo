@@ -16,18 +16,21 @@ import uuid
 from string import hexdigits
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 
 APP_ROOT = Path(__file__).resolve().parent
 UPLOADER_PATH = APP_ROOT / "uploader.py"
 DATA_DIR = Path(os.getenv("HELPER_DATA_DIR", APP_ROOT / ".data")).expanduser().resolve()
 JOBS_DIR = DATA_DIR / "jobs"
+EMBEDDED_JOBS_DIR = DATA_DIR / "embedded-dual-jobs"
 BACKUP_SUBTITLES_DIR = DATA_DIR / "saved-subtitles"
 BROWSER_PROFILE_DIR = DATA_DIR / "browser-profile"
 SCREENSHOT_DIR = DATA_DIR / "screenshots"
 JOB_QUEUE: queue.Queue[str] = queue.Queue()
+EMBEDDED_QUEUE: queue.Queue[str] = queue.Queue()
 JOB_RUNTIME: dict[str, dict[str, object]] = {}
 JOB_LOCK = threading.Lock()
+EMBEDDED_LOCK = threading.Lock()
 
 app = Flask(__name__)
 
@@ -40,7 +43,7 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 
 def ensure_dirs() -> None:
-    for path in (DATA_DIR, JOBS_DIR, BACKUP_SUBTITLES_DIR, BROWSER_PROFILE_DIR, SCREENSHOT_DIR):
+    for path in (DATA_DIR, JOBS_DIR, EMBEDDED_JOBS_DIR, BACKUP_SUBTITLES_DIR, BROWSER_PROFILE_DIR, SCREENSHOT_DIR):
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -74,6 +77,14 @@ def clean_episode_number(value: object) -> str:
     except Exception:
         return ""
     return str(number) if number >= 0 else ""
+
+
+def clean_positive_int(value: object, default: int, minimum: int = 1, maximum: int = 36000) -> int:
+    try:
+        number = int(float(str(value).strip()))
+    except Exception:
+        number = default
+    return max(minimum, min(maximum, number))
 
 
 def build_episode_key(season: object = "", episode: object = "") -> str:
@@ -541,6 +552,451 @@ def worker_loop() -> None:
             JOB_QUEUE.task_done()
 
 
+LANGUAGE_ALIASES = {
+    "ces": "cs",
+    "cze": "cs",
+    "cz": "cs",
+    "cs": "cs",
+    "slk": "sk",
+    "slo": "sk",
+    "sk": "sk",
+    "uk": "uk",
+    "ukr": "uk",
+}
+LANGUAGE_LABELS = {"cs": "Czech", "sk": "Slovak", "uk": "Ukrainian"}
+
+
+def normalize_subtitle_language(language: object) -> str:
+    return LANGUAGE_ALIASES.get(str(language or "").strip().lower(), "")
+
+
+def embedded_job_dir(job_id: str) -> Path:
+    return EMBEDDED_JOBS_DIR / job_id
+
+
+def embedded_job_meta_path(job_id: str) -> Path:
+    return embedded_job_dir(job_id) / "job.json"
+
+
+def read_embedded_job(job_id: str) -> dict[str, object] | None:
+    path = embedded_job_meta_path(job_id)
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_embedded_job(job: dict[str, object]) -> None:
+    path = embedded_job_meta_path(str(job["job_id"]))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(job, indent=2, sort_keys=True), encoding="utf-8")
+
+
+def update_embedded_job(job_id: str, **changes) -> dict[str, object]:
+    with EMBEDDED_LOCK:
+        job = read_embedded_job(job_id)
+        if job is None:
+            raise KeyError(job_id)
+        job.update(changes)
+        job["updated_at"] = now_iso()
+        write_embedded_job(job)
+        return job
+
+
+def embedded_job_response(job: dict[str, object]) -> dict[str, object]:
+    allowed = {
+        "job_id",
+        "status",
+        "created_at",
+        "updated_at",
+        "started_at",
+        "finished_at",
+        "error",
+        "returncode",
+        "imdb_id",
+        "release_name",
+        "tvshow_title",
+        "season",
+        "episode",
+        "source_language",
+        "ukrainian_language",
+        "chunk_seconds",
+        "duration_seconds",
+        "latest_ready_seconds",
+        "latest_version",
+        "full_ready",
+        "chunks",
+        "selected_streams",
+    }
+    return {key: value for key, value in job.items() if key in allowed and value not in (None, "")}
+
+
+def safe_run_text(command: list[str], timeout=None) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        command,
+        cwd=str(APP_ROOT),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+        timeout=timeout,
+    )
+
+
+def process_error_text(text: str, media_url: str = "") -> str:
+    cleaned = str(text or "")
+    if media_url:
+        cleaned = cleaned.replace(media_url, "<media-url>")
+    if len(cleaned) > 1600:
+        cleaned = cleaned[-1600:]
+    return cleaned.strip()
+
+
+def subtitle_track_rank(track: dict[str, object]) -> tuple[int, int, int]:
+    title = str(track.get("title") or "").lower()
+    forced = bool(track.get("forced")) or "forced" in title
+    impaired = bool(track.get("impaired")) or "sdh" in title or "impaired" in title
+    try:
+        index = int(track.get("index") or 0)
+    except Exception:
+        index = 0
+    return (1 if forced else 0, 1 if impaired else 0, index)
+
+
+def select_subtitle_stream(streams: list[dict[str, object]], language: str) -> dict[str, object]:
+    candidates = [stream for stream in streams if stream.get("language") == language]
+    if not candidates:
+        label = LANGUAGE_LABELS.get(language, language.upper())
+        raise RuntimeError("No %s embedded subtitle stream found." % label)
+    candidates.sort(key=subtitle_track_rank)
+    selected = candidates[0]
+    if selected.get("index") in (None, ""):
+        label = LANGUAGE_LABELS.get(language, language.upper())
+        raise RuntimeError("%s embedded subtitle stream has no stream index." % label)
+    return selected
+
+
+def probe_media_for_subtitles(media_url: str) -> tuple[list[dict[str, object]], int]:
+    command = [
+        os.getenv("HELPER_FFPROBE", "ffprobe"),
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-show_entries",
+        "format=duration:stream=index,codec_type,codec_name:stream_tags=language,title:stream_disposition=forced,hearing_impaired",
+        "-of",
+        "json",
+        media_url,
+    ]
+    try:
+        result = safe_run_text(command, timeout=180)
+    except FileNotFoundError:
+        raise RuntimeError("ffprobe was not found on helper.")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("ffprobe timed out while reading media subtitles.")
+    if result.returncode != 0:
+        raise RuntimeError("ffprobe failed: %s" % process_error_text(result.stderr, media_url))
+    try:
+        parsed = json.loads(result.stdout or "{}")
+    except Exception as exc:
+        raise RuntimeError("ffprobe returned invalid JSON: %s" % exc)
+
+    streams: list[dict[str, object]] = []
+    for stream in parsed.get("streams") or []:
+        if stream.get("codec_type") != "subtitle":
+            continue
+        tags = stream.get("tags") or {}
+        disposition = stream.get("disposition") or {}
+        language = normalize_subtitle_language(tags.get("language"))
+        if language not in {"cs", "sk", "uk"}:
+            continue
+        streams.append(
+            {
+                "index": stream.get("index"),
+                "language": language,
+                "raw_language": str(tags.get("language") or "").strip(),
+                "title": str(tags.get("title") or "").strip(),
+                "codec": str(stream.get("codec_name") or "").strip(),
+                "forced": bool(disposition.get("forced")),
+                "impaired": bool(disposition.get("hearing_impaired")),
+            }
+        )
+
+    duration_seconds = 0
+    try:
+        duration_seconds = int(float((parsed.get("format") or {}).get("duration") or 0))
+    except Exception:
+        duration_seconds = 0
+    return streams, duration_seconds
+
+
+def _parse_srt_timestamp(value: str) -> int:
+    text = str(value or "").strip().replace(",", ".")
+    parts = text.split(":")
+    if len(parts) != 3:
+        return 0
+    hours, minutes, seconds = parts
+    second_parts = seconds.split(".")
+    whole_seconds = second_parts[0]
+    milliseconds = (second_parts[1] if len(second_parts) > 1 else "0").ljust(3, "0")[:3]
+    return int(hours) * 3600000 + int(minutes) * 60000 + int(whole_seconds) * 1000 + int(milliseconds)
+
+
+def _is_srt_timestamp(line: str) -> bool:
+    return "-->" in str(line or "")
+
+
+def parse_srt_events(path: Path) -> list[tuple[int, int, str]]:
+    content = path.read_text(encoding="utf-8", errors="replace").replace("\r\n", "\n").replace("\r", "\n")
+    lines = content.split("\n")
+    events: list[tuple[int, int, str]] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index].strip()
+        if not _is_srt_timestamp(line):
+            index += 1
+            continue
+        start_raw, end_raw = line.split("-->", 1)
+        start_ms = _parse_srt_timestamp(start_raw)
+        end_ms = _parse_srt_timestamp(end_raw)
+        index += 1
+        text_lines = []
+        while index < len(lines):
+            text_line = lines[index]
+            if not text_line.strip():
+                break
+            if _is_srt_timestamp(text_line):
+                break
+            if text_line.strip().isdigit() and index + 1 < len(lines) and _is_srt_timestamp(lines[index + 1]):
+                break
+            text_lines.append(text_line.strip())
+            index += 1
+        if text_lines:
+            events.append((start_ms, end_ms, "\n".join(text_lines)))
+    return events
+
+
+def ms_to_ass_timestamp(ms: int) -> str:
+    ms = max(0, int(ms))
+    hours = ms // 3600000
+    ms %= 3600000
+    minutes = ms // 60000
+    ms %= 60000
+    seconds = ms // 1000
+    centiseconds = (ms % 1000) // 10
+    return "%d:%02d:%02d.%02d" % (hours, minutes, seconds, centiseconds)
+
+
+def strip_subtitle_tags(text: str) -> str:
+    text = re.sub(r"\\[Nn]", "\n", str(text or ""))
+    text = re.sub(r"\{[^}]*\}", "", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    return text.strip()
+
+
+def escape_ass_text(text: str) -> str:
+    return str(text or "").replace("\r", "").replace("\n", "\\N")
+
+
+DUAL_ASS_HEADER = """\
+[Script Info]
+Title: TitDeepL Progressive Dual Subtitles
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: top-style,Arial,54,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,2,1,8,20,20,25,1
+Style: bottom-style,Arial,54,&H0000FFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,2,1,2,20,20,25,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+
+
+def write_dual_ass(source_srt: Path, ukrainian_srt: Path, output_path: Path) -> int:
+    source_events = parse_srt_events(source_srt)
+    ukrainian_events = parse_srt_events(ukrainian_srt)
+    if not source_events and not ukrainian_events:
+        raise RuntimeError("Extracted subtitle files are empty or unparseable.")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    top_ctag = "{\\1c&HFFFFFF&}"
+    bottom_ctag = "{\\1c&H00FFFF&}"
+    lines = [DUAL_ASS_HEADER]
+    ass_events = []
+    for start_ms, end_ms, text in source_events:
+        ass_events.append(
+            (
+                start_ms,
+                "Dialogue: 0,%s,%s,top-style,,0,0,0,,%s%s\n"
+                % (ms_to_ass_timestamp(start_ms), ms_to_ass_timestamp(end_ms), top_ctag, escape_ass_text(strip_subtitle_tags(text))),
+            )
+        )
+    for start_ms, end_ms, text in ukrainian_events:
+        ass_events.append(
+            (
+                start_ms,
+                "Dialogue: 0,%s,%s,bottom-style,,0,0,0,,%s%s\n"
+                % (ms_to_ass_timestamp(start_ms), ms_to_ass_timestamp(end_ms), bottom_ctag, escape_ass_text(strip_subtitle_tags(text))),
+            )
+        )
+    ass_events.sort(key=lambda event: event[0])
+    lines.extend(line for _, line in ass_events)
+    output_path.write_text("".join(lines), encoding="utf-8", newline="")
+    return len(source_events) + len(ukrainian_events)
+
+
+def extract_dual_srt_chunk(
+    media_url: str,
+    source_stream: dict[str, object],
+    ukrainian_stream: dict[str, object],
+    seconds: int,
+    source_path: Path,
+    ukrainian_path: Path,
+) -> None:
+    command = [
+        os.getenv("HELPER_FFMPEG", "ffmpeg"),
+        "-nostdin",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "warning",
+        "-t",
+        str(seconds),
+        "-i",
+        media_url,
+        "-map",
+        "0:%s" % source_stream.get("index"),
+        "-c:s",
+        "srt",
+        str(source_path),
+        "-map",
+        "0:%s" % ukrainian_stream.get("index"),
+        "-c:s",
+        "srt",
+        str(ukrainian_path),
+    ]
+    try:
+        result = safe_run_text(command, timeout=max(240, seconds * 3))
+    except FileNotFoundError:
+        raise RuntimeError("ffmpeg was not found on helper.")
+    except subprocess.TimeoutExpired:
+        raise RuntimeError("ffmpeg timed out while extracting first %s seconds." % seconds)
+
+    missing = [str(path.name) for path in (source_path, ukrainian_path) if not path.is_file()]
+    if missing:
+        raise RuntimeError(
+            "ffmpeg did not create subtitle output (%s): %s"
+            % (", ".join(missing), process_error_text(result.stderr, media_url))
+        )
+    if result.returncode != 0:
+        # Some remote streams close noisily after enough subtitle data was produced. Keep valid output.
+        print("ffmpeg warning for embedded dual chunk %s: %s" % (seconds, process_error_text(result.stderr, media_url)), file=sys.stderr)
+
+
+def embedded_chunk_seconds(job: dict[str, object]) -> list[int]:
+    chunk_seconds = clean_positive_int(job.get("chunk_seconds"), 300, minimum=60, maximum=1800)
+    duration_seconds = clean_positive_int(job.get("duration_seconds"), 0, minimum=0, maximum=36000)
+    max_seconds = clean_positive_int(job.get("max_seconds"), duration_seconds or 7200, minimum=chunk_seconds, maximum=36000)
+    if duration_seconds:
+        max_seconds = min(max_seconds, duration_seconds + 30)
+
+    chunks = []
+    current = chunk_seconds
+    while current < max_seconds:
+        chunks.append(current)
+        current += chunk_seconds
+    if max_seconds not in chunks:
+        chunks.append(max_seconds)
+    return chunks
+
+
+def process_embedded_dual_job(job_id: str) -> None:
+    job = update_embedded_job(job_id, status="running", started_at=now_iso(), error="")
+    media_url = str(job.get("media_url") or "").strip()
+    if not media_url:
+        raise RuntimeError("media_url is required.")
+
+    working_dir = embedded_job_dir(job_id)
+    chunks_dir = working_dir / "chunks"
+    chunks_dir.mkdir(parents=True, exist_ok=True)
+    log_path = working_dir / "job.log"
+
+    def log_line(message: str) -> None:
+        with log_path.open("a", encoding="utf-8") as handle:
+            handle.write("[%s] %s\n" % (now_iso(), message))
+
+    log_line("probing media")
+    streams, duration_seconds = probe_media_for_subtitles(media_url)
+    source_language = normalize_subtitle_language(job.get("source_language")) or "sk"
+    ukrainian_language = normalize_subtitle_language(job.get("ukrainian_language")) or "uk"
+    source_stream = select_subtitle_stream(streams, source_language)
+    ukrainian_stream = select_subtitle_stream(streams, ukrainian_language)
+    job = update_embedded_job(
+        job_id,
+        duration_seconds=duration_seconds,
+        selected_streams={"source": source_stream, "ukrainian": ukrainian_stream},
+        chunks=[],
+    )
+
+    chunks: list[dict[str, object]] = []
+    chunk_plan = embedded_chunk_seconds(job)
+    for seconds in chunk_plan:
+        source_srt = chunks_dir / ("source_%06d.srt" % seconds)
+        ukrainian_srt = chunks_dir / ("ukrainian_%06d.srt" % seconds)
+        dual_ass = chunks_dir / ("dual_%06d.ass" % seconds)
+        log_line("extracting first %s seconds" % seconds)
+        extract_dual_srt_chunk(media_url, source_stream, ukrainian_stream, seconds, source_srt, ukrainian_srt)
+        try:
+            event_count = write_dual_ass(source_srt, ukrainian_srt, dual_ass)
+        except RuntimeError as exc:
+            if "empty or unparseable" in str(exc) and seconds != chunk_plan[-1]:
+                log_line("no readable subtitle cues by %s seconds yet, trying next chunk" % seconds)
+                continue
+            raise
+        chunk = {
+            "seconds": seconds,
+            "version": str(seconds),
+            "path": str(dual_ass),
+            "bytes": dual_ass.stat().st_size,
+            "events": event_count,
+            "created_at": now_iso(),
+        }
+        chunks.append(chunk)
+        full_ready = bool(duration_seconds and seconds >= duration_seconds)
+        update_embedded_job(
+            job_id,
+            chunks=chunks,
+            latest_ready_seconds=seconds,
+            latest_version=str(seconds),
+            latest_subtitle_path=str(dual_ass),
+            full_ready=full_ready,
+        )
+        if full_ready:
+            break
+
+    if not chunks:
+        raise RuntimeError("No readable subtitle cues were extracted from the selected embedded streams.")
+
+    update_embedded_job(job_id, status="finished", finished_at=now_iso(), returncode=0, full_ready=True)
+
+
+def embedded_worker_loop() -> None:
+    while True:
+        job_id = EMBEDDED_QUEUE.get()
+        try:
+            process_embedded_dual_job(job_id)
+        except Exception as exc:  # pragma: no cover - background error path
+            try:
+                update_embedded_job(job_id, status="failed", finished_at=now_iso(), error=str(exc), returncode=1)
+            except Exception:
+                pass
+        finally:
+            EMBEDDED_QUEUE.task_done()
+
+
 @app.get("/healthz")
 def healthz():
     return jsonify(
@@ -613,6 +1069,111 @@ def lookup_stored_subtitle():
         "job_returncode": job.get("returncode", "") if job else "",
     }
     return jsonify(response)
+
+
+@app.post("/api/embedded-dual-jobs")
+def create_embedded_dual_job():
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Expected a JSON object."}), 400
+
+    media_url = str(payload.get("media_url") or "").strip()
+    if not media_url:
+        return jsonify({"error": "media_url is required."}), 400
+
+    source_language = normalize_subtitle_language(payload.get("source_language")) or "sk"
+    ukrainian_language = normalize_subtitle_language(payload.get("ukrainian_language")) or "uk"
+    if source_language not in {"cs", "sk"}:
+        return jsonify({"error": "source_language must be cs or sk."}), 400
+    if ukrainian_language != "uk":
+        return jsonify({"error": "ukrainian_language must be uk."}), 400
+
+    job_id = uuid.uuid4().hex
+    working_dir = embedded_job_dir(job_id)
+    working_dir.mkdir(parents=True, exist_ok=True)
+    job = {
+        "job_id": job_id,
+        "status": "queued",
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+        "started_at": "",
+        "finished_at": "",
+        "error": "",
+        "returncode": None,
+        "media_url": media_url,
+        "source_language": source_language,
+        "ukrainian_language": ukrainian_language,
+        "chunk_seconds": clean_positive_int(payload.get("chunk_seconds"), 300, minimum=60, maximum=1800),
+        "max_seconds": clean_positive_int(payload.get("max_seconds"), 7200, minimum=300, maximum=36000),
+        "duration_seconds": 0,
+        "latest_ready_seconds": 0,
+        "latest_version": "",
+        "latest_subtitle_path": "",
+        "full_ready": False,
+        "chunks": [],
+        "selected_streams": {},
+        "imdb_id": str(payload.get("imdb_id") or "").strip(),
+        "release_name": str(payload.get("release_name") or "").strip(),
+        "tvshow_title": str(payload.get("tvshow_title") or "").strip(),
+        "season": clean_episode_number(payload.get("season")),
+        "episode": clean_episode_number(payload.get("episode")),
+        "title": str(payload.get("title") or "").strip(),
+        "year": str(payload.get("year") or "").strip(),
+        "log_path": str(working_dir / "job.log"),
+    }
+    write_embedded_job(job)
+    EMBEDDED_QUEUE.put(job_id)
+    return jsonify(embedded_job_response(job)), 202
+
+
+@app.get("/api/embedded-dual-jobs/<job_id>")
+def get_embedded_dual_job(job_id: str):
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    job = read_embedded_job(job_id)
+    if job is None:
+        return jsonify({"error": "Job not found."}), 404
+    return jsonify(embedded_job_response(job))
+
+
+@app.get("/api/embedded-dual-jobs/<job_id>/subtitle")
+def get_embedded_dual_subtitle(job_id: str):
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    job = read_embedded_job(job_id)
+    if job is None:
+        return jsonify({"error": "Job not found."}), 404
+
+    version = str(request.args.get("version") or "latest").strip()
+    path = ""
+    if version == "latest":
+        path = str(job.get("latest_subtitle_path") or "")
+    else:
+        for chunk in job.get("chunks") or []:
+            if str(chunk.get("version") or "") == version or str(chunk.get("seconds") or "") == version:
+                path = str(chunk.get("path") or "")
+                break
+
+    if not path:
+        return jsonify({"error": "Subtitle chunk is not ready."}), 404
+
+    subtitle_path = Path(path)
+    try:
+        subtitle_path.resolve().relative_to(embedded_job_dir(job_id).resolve())
+    except Exception:
+        return jsonify({"error": "Invalid subtitle path."}), 500
+    if not subtitle_path.is_file():
+        return jsonify({"error": "Subtitle file is missing."}), 404
+
+    return send_file(str(subtitle_path), mimetype="text/plain; charset=utf-8", as_attachment=False)
 
 
 @app.post("/api/upload-jobs")
@@ -712,6 +1273,8 @@ def main() -> int:
     ensure_dirs()
     worker = threading.Thread(target=worker_loop, name="upload-worker", daemon=True)
     worker.start()
+    embedded_worker = threading.Thread(target=embedded_worker_loop, name="embedded-dual-worker", daemon=True)
+    embedded_worker.start()
 
     host = os.getenv("HELPER_HOST", "0.0.0.0")
     port = int(os.getenv("HELPER_PORT", "8097"))

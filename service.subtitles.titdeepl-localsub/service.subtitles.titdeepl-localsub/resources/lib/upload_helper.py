@@ -164,3 +164,90 @@ def queue_helper_upload(
         headers=_helper_headers(helper_token),
     )
     return _request_helper_json(request, timeout)
+
+
+def queue_helper_embedded_dual_job(
+    helper_url,
+    helper_token,
+    media_url,
+    source_language="sk",
+    ukrainian_language="uk",
+    imdb_id="",
+    release_name="",
+    tvshow_title="",
+    season="",
+    episode="",
+    title="",
+    year="",
+    chunk_seconds=300,
+    max_seconds=7200,
+    timeout=30,
+):
+    helper_base = _normalize_helper_url(helper_url)
+    payload = {
+        "media_url": media_url or "",
+        "source_language": source_language or "sk",
+        "ukrainian_language": ukrainian_language or "uk",
+        "imdb_id": imdb_id or "",
+        "release_name": release_name or "",
+        "tvshow_title": tvshow_title or "",
+        "season": season or "",
+        "episode": episode or "",
+        "title": title or "",
+        "year": year or "",
+        "chunk_seconds": int(chunk_seconds or 300),
+        "max_seconds": int(max_seconds or 7200),
+    }
+    request = Request(
+        helper_base + "/api/embedded-dual-jobs",
+        data=json.dumps(payload).encode("utf-8"),
+        headers=_helper_headers(helper_token),
+    )
+    return _request_helper_json(request, timeout)
+
+
+def get_helper_embedded_dual_job(helper_url, helper_token, job_id, timeout=15):
+    helper_base = _normalize_helper_url(helper_url)
+    request = Request(
+        helper_base + "/api/embedded-dual-jobs/%s" % job_id,
+        headers=_helper_headers(helper_token, content_type=None),
+    )
+    return _request_helper_json(request, timeout)
+
+
+def download_helper_embedded_dual_subtitle(
+    helper_url,
+    helper_token,
+    job_id,
+    output_dir,
+    version="latest",
+    timeout=30,
+):
+    helper_base = _normalize_helper_url(helper_url)
+    url = "%s/api/embedded-dual-jobs/%s/subtitle?%s" % (
+        helper_base,
+        job_id,
+        urlencode({"version": version or "latest"}),
+    )
+    request = Request(url, headers=_helper_headers(helper_token, content_type=None))
+    try:
+        response = urlopen(request, timeout=timeout)
+        content = response.read()
+    except HTTPError as exc:
+        try:
+            details = exc.read().decode("utf-8")
+        except Exception:
+            details = str(exc)
+        raise HelperUploadError("Helper returned HTTP %s: %s" % (exc.code, details))
+    except URLError as exc:
+        raise HelperUploadError("Could not reach helper: %s" % exc)
+    except Exception as exc:
+        raise HelperUploadError("Unexpected helper error: %s" % exc)
+
+    os.makedirs(output_dir, exist_ok=True)
+    safe_job_id = "".join(char for char in str(job_id) if char.isalnum())[:32] or "embedded"
+    safe_version = "".join(char for char in str(version or "latest") if char.isalnum() or char in ("-", "_"))[:24] or "latest"
+    output_path = os.path.join(output_dir, "embedded_dual_%s_%s.ass" % (safe_job_id[:8], safe_version))
+    with open(output_path, "wb") as handle:
+        handle.write(content)
+    return output_path
