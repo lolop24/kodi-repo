@@ -65,27 +65,23 @@
             <heading>32063</heading>
           </control>
         </setting>
-        <setting id="embedded_helper_chunk_seconds" type="integer" label="32064" help="">
+        <setting id="embedded_helper_chunk_seconds" type="string" label="32064" help="">
           <level>1</level>
           <default>300</default>
           <constraints>
-            <minimum>60</minimum>
-            <step>60</step>
-            <maximum>1800</maximum>
+            <allowempty>false</allowempty>
           </constraints>
-          <control type="edit" format="integer">
+          <control type="edit" format="string">
             <heading>32064</heading>
           </control>
         </setting>
-        <setting id="embedded_helper_first_timeout" type="integer" label="32065" help="">
+        <setting id="embedded_helper_first_timeout" type="string" label="32065" help="">
           <level>1</level>
           <default>240</default>
           <constraints>
-            <minimum>30</minimum>
-            <step>30</step>
-            <maximum>900</maximum>
+            <allowempty>false</allowempty>
           </constraints>
-          <control type="edit" format="integer">
+          <control type="edit" format="string">
             <heading>32065</heading>
           </control>
         </setting>

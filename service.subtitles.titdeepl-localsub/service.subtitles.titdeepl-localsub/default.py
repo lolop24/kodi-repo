@@ -113,19 +113,34 @@ def get_setting(name, default=""):
 
 
 def get_setting_int(name, default=0):
+    value = ""
+    try:
+        value = __addon__.getSetting(name)
+    except Exception:
+        value = ""
+    if value != "":
+        try:
+            return int(str(value).strip())
+        except Exception:
+            return default
+    try:
+        return int(__addon__.getSettingInt(name))
+    except Exception:
+        pass
     if __settings__ is not None:
         try:
             return int(__settings__.getInt(name))
         except Exception:
             pass
+    return default
+
+
+def get_bounded_setting_int(name, default, minimum, maximum):
     try:
-        return int(__addon__.getSettingInt(name))
+        value = int(str(get_setting(name, str(default))).strip())
     except Exception:
-        value = __addon__.getSetting(name)
-        try:
-            return int(str(value).strip())
-        except Exception:
-            return default
+        value = default
+    return max(minimum, min(maximum, value))
 
 
 def get_source_language():
@@ -895,8 +910,8 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
     helper_token = get_setting("helper_token", "").strip()
     media_url = helper_media_url_for_extraction(helper_url)
     video_info = ensure_video_imdb(get_video_info(), media_url)
-    chunk_seconds = get_setting_int("embedded_helper_chunk_seconds", 300) or 300
-    first_timeout = get_setting_int("embedded_helper_first_timeout", 240) or 240
+    chunk_seconds = get_bounded_setting_int("embedded_helper_chunk_seconds", 300, 60, 1800)
+    first_timeout = get_bounded_setting_int("embedded_helper_first_timeout", 240, 30, 900)
     max_seconds = current_total_seconds() or 7200
     release_name = build_release_name(video_info, media_url)
 
