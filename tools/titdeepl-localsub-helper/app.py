@@ -7,6 +7,7 @@ import base64
 import json
 import os
 import queue
+import re
 import subprocess
 import sys
 import threading
@@ -64,11 +65,52 @@ def slugify(value: str) -> str:
     return "".join(allowed).strip("._") or "subtitle"
 
 
-def build_backup_subtitle_path(job_id: str, imdb_id: str, release_name: str, subtitle_filename: str) -> Path:
+def clean_episode_number(value: object) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    try:
+        number = int(float(text))
+    except Exception:
+        return ""
+    return str(number) if number >= 0 else ""
+
+
+def build_episode_key(season: object = "", episode: object = "") -> str:
+    season_number = clean_episode_number(season)
+    episode_number = clean_episode_number(episode)
+    if not season_number or not episode_number:
+        return ""
+    return "s%02de%02d" % (int(season_number), int(episode_number))
+
+
+def extract_episode_key(value: str) -> str:
+    text = str(value or "")
+    match = re.search(r"(?i)(?:^|[^A-Za-z0-9])S(\d{1,2})\s*[._ -]*E(\d{1,3})(?:$|[^A-Za-z0-9])", text)
+    if not match:
+        match = re.search(r"(?i)(?:^|[^A-Za-z0-9])(\d{1,2})x(\d{1,3})(?:$|[^A-Za-z0-9])", text)
+    if not match:
+        return ""
+    return build_episode_key(match.group(1), match.group(2))
+
+
+def build_backup_subtitle_path(
+    job_id: str,
+    imdb_id: str,
+    release_name: str,
+    subtitle_filename: str,
+    season: object = "",
+    episode: object = "",
+) -> Path:
     stem, ext = os.path.splitext(sanitize_filename(subtitle_filename))
     release_slug = slugify(release_name)[:80]
     imdb_slug = slugify(imdb_id)
-    backup_name = "%s_%s_%s%s" % (imdb_slug, release_slug, job_id[:8], ext or ".srt")
+    episode_key = build_episode_key(season, episode) or extract_episode_key(release_name) or extract_episode_key(stem)
+    parts = [imdb_slug]
+    if episode_key:
+        parts.append(episode_key)
+    parts.extend([release_slug, job_id[:8]])
+    backup_name = "%s%s" % ("_".join(part for part in parts if part), ext or ".srt")
     return BACKUP_SUBTITLES_DIR / backup_name
 
 
@@ -103,10 +145,18 @@ def build_lookup_summary(
     source_filename: str = "",
     title: str = "",
     year: str = "",
+    tvshow_title: str = "",
+    season: str = "",
+    episode: str = "",
 ) -> str:
     parts = []
+    episode_key = build_episode_key(season, episode)
     if imdb_id:
         parts.append("imdb=%s" % imdb_id)
+    if tvshow_title:
+        parts.append("show=%s" % tvshow_title)
+    if episode_key:
+        parts.append("episode=%s" % episode_key.upper())
     if release_name:
         parts.append("release=%s" % release_name)
     if source_filename:
@@ -119,12 +169,15 @@ def build_lookup_summary(
 
 
 def score_text_match(text: str, candidates: list[str], exact_base: int, contains_base: int, exact_label: str, contains_label: str):
+    text_lookup = text.lower()
     for index, candidate in enumerate(candidates):
-        exact_token = "_%s_" % candidate
-        if text.startswith("%s_" % candidate) or exact_token in text:
+        candidate_lookup = candidate.lower()
+        exact_token = "_%s_" % candidate_lookup
+        if text_lookup.startswith("%s_" % candidate_lookup) or exact_token in text_lookup:
             return exact_base - index, exact_label, candidate
     for index, candidate in enumerate(candidates):
-        if candidate and candidate in text:
+        candidate_lookup = candidate.lower()
+        if candidate_lookup and candidate_lookup in text_lookup:
             return contains_base - index, contains_label, candidate
     return 0, "", ""
 
@@ -160,10 +213,23 @@ def match_saved_subtitle(
     source_filename: str,
     title: str = "",
     year: str = "",
+    tvshow_title: str = "",
+    season: str = "",
+    episode: str = "",
     language: str = "uk",
 ) -> dict[str, object] | None:
     imdb_slug = slugify(imdb_id) if imdb_id else ""
+    requested_episode_key = (
+        build_episode_key(season, episode)
+        or extract_episode_key(release_name)
+        or extract_episode_key(source_filename)
+        or extract_episode_key(title)
+    )
+    is_episode_lookup = bool(tvshow_title or season or episode or requested_episode_key)
     candidates = build_lookup_candidates(
+        requested_episode_key,
+        ("%s.%s" % (tvshow_title, requested_episode_key)) if tvshow_title and requested_episode_key else "",
+        ("%s.%s" % (title, requested_episode_key)) if title and requested_episode_key else "",
         release_name,
         source_filename,
         title,
@@ -198,15 +264,31 @@ def match_saved_subtitle(
                 contains_label="release_contains_imdb",
             )
             if not score:
+                if is_episode_lookup:
+                    continue
                 score = 250
                 matched_by = "imdb_only"
                 matched_value = imdb_slug
+
+        if requested_episode_key:
+            stored_episode_key = extract_episode_key(stem)
+            job = find_job_by_prefix(extract_job_prefix_from_backup(path))
+            job_episode_key = ""
+            if job:
+                job_episode_key = build_episode_key(job.get("season", ""), job.get("episode", ""))
+            if stored_episode_key and stored_episode_key != requested_episode_key:
+                continue
+            if job_episode_key and job_episode_key != requested_episode_key:
+                continue
+            if not stored_episode_key and not job_episode_key and matched_by == "imdb_only":
+                continue
+        else:
+            job = find_job_by_prefix(extract_job_prefix_from_backup(path))
 
         if not score:
             continue
 
         stat = path.stat()
-        job = find_job_by_prefix(extract_job_prefix_from_backup(path))
         priority = job_status_priority(job)
         if best is None or (score, priority, stat.st_mtime) > (
             int(best["score"]),
@@ -240,8 +322,20 @@ def match_saved_subtitle(
         if not score:
             continue
 
-        stat = path.stat()
         job = find_job_by_prefix(extract_job_prefix_from_backup(path))
+        if requested_episode_key:
+            stored_episode_key = extract_episode_key(stem)
+            job_episode_key = ""
+            if job:
+                job_episode_key = build_episode_key(job.get("season", ""), job.get("episode", ""))
+            if stored_episode_key and stored_episode_key != requested_episode_key:
+                continue
+            if job_episode_key and job_episode_key != requested_episode_key:
+                continue
+            if not stored_episode_key and not job_episode_key and matched_by == "release_contains_fallback":
+                continue
+
+        stat = path.stat()
         priority = job_status_priority(job)
         if best is None or (score, priority, stat.st_mtime) > (
             int(best["score"]),
@@ -319,6 +413,9 @@ def job_response(job: dict[str, object]) -> dict[str, object]:
         "imdb_id",
         "fps",
         "release_name",
+        "tvshow_title",
+        "season",
+        "episode",
         "machine_translated",
         "auto_submit",
         "log_path",
@@ -468,6 +565,9 @@ def lookup_stored_subtitle():
     source_filename = str(request.args.get("source_filename") or "").strip()
     title = str(request.args.get("title") or "").strip()
     year = str(request.args.get("year") or "").strip()
+    tvshow_title = str(request.args.get("tvshow_title") or "").strip()
+    season = str(request.args.get("season") or "").strip()
+    episode = str(request.args.get("episode") or "").strip()
     language = str(request.args.get("language") or "uk").strip() or "uk"
     lookup_summary = build_lookup_summary(
         imdb_id=imdb_id,
@@ -475,8 +575,11 @@ def lookup_stored_subtitle():
         source_filename=source_filename,
         title=title,
         year=year,
+        tvshow_title=tvshow_title,
+        season=season,
+        episode=episode,
     )
-    if not imdb_id and not any((release_name, source_filename, title)):
+    if not imdb_id and not any((release_name, source_filename, title, tvshow_title)):
         return jsonify({"found": False, "reason": "no_lookup_keys", "lookup_summary": lookup_summary})
 
     match = match_saved_subtitle(
@@ -485,6 +588,9 @@ def lookup_stored_subtitle():
         source_filename,
         title=title,
         year=year,
+        tvshow_title=tvshow_title,
+        season=season,
+        episode=episode,
         language=language,
     )
     if match is None:
@@ -522,6 +628,9 @@ def create_upload_job():
     subtitle_content_b64 = str(payload.get("subtitle_content_b64") or "").strip()
     imdb_id = str(payload.get("imdb_id") or "").strip()
     release_name = str(payload.get("release_name") or "").strip()
+    tvshow_title = str(payload.get("tvshow_title") or "").strip()
+    season = clean_episode_number(payload.get("season"))
+    episode = clean_episode_number(payload.get("episode"))
     if not subtitle_content_b64:
         return jsonify({"error": "subtitle_content_b64 is required."}), 400
     if not imdb_id:
@@ -540,7 +649,14 @@ def create_upload_job():
     subtitle_filename = sanitize_filename(str(payload.get("subtitle_filename") or "subtitle.srt"))
     subtitle_path = working_dir / subtitle_filename
     subtitle_path.write_bytes(subtitle_bytes)
-    backup_subtitle_path = build_backup_subtitle_path(job_id, imdb_id, release_name, subtitle_filename)
+    backup_subtitle_path = build_backup_subtitle_path(
+        job_id,
+        imdb_id,
+        release_name,
+        subtitle_filename,
+        season=season,
+        episode=episode,
+    )
     backup_subtitle_path.write_bytes(subtitle_bytes)
 
     log_path = working_dir / "job.log"
@@ -561,6 +677,9 @@ def create_upload_job():
         "imdb_id": imdb_id,
         "fps": str(payload.get("fps") or "25.000"),
         "release_name": release_name,
+        "tvshow_title": tvshow_title,
+        "season": season,
+        "episode": episode,
         "machine_translated": bool(payload.get("machine_translated", True)),
         "auto_submit": bool(payload.get("auto_submit", False)),
     }

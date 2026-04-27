@@ -239,6 +239,9 @@ def get_video_info():
     info = {}
     info["title"] = xbmc.getInfoLabel("VideoPlayer.Title") or ""
     info["original_title"] = xbmc.getInfoLabel("VideoPlayer.OriginalTitle") or ""
+    info["tvshow_title"] = xbmc.getInfoLabel("VideoPlayer.TVShowTitle") or ""
+    info["season"] = xbmc.getInfoLabel("VideoPlayer.Season") or ""
+    info["episode"] = xbmc.getInfoLabel("VideoPlayer.Episode") or ""
     info["year"] = xbmc.getInfoLabel("VideoPlayer.Year") or ""
     info["imdb"] = xbmc.getInfoLabel("VideoPlayer.IMDBNumber") or ""
     info["filename"] = xbmc.getInfoLabel("Player.Filename") or ""
@@ -261,7 +264,17 @@ def get_video_info():
             "Player.GetItem",
             {
                 "playerid": player_id,
-                "properties": ["title", "originaltitle", "year", "file", "imdbnumber", "uniqueid"],
+                "properties": [
+                    "title",
+                    "originaltitle",
+                    "showtitle",
+                    "season",
+                    "episode",
+                    "year",
+                    "file",
+                    "imdbnumber",
+                    "uniqueid",
+                ],
             },
         )
         item = item_result.get("item") or {}
@@ -269,6 +282,12 @@ def get_video_info():
             info["title"] = item.get("title", "")
         if item.get("originaltitle") and not info["original_title"]:
             info["original_title"] = item.get("originaltitle", "")
+        if item.get("showtitle") and not info["tvshow_title"]:
+            info["tvshow_title"] = item.get("showtitle", "")
+        if item.get("season") not in (None, "") and not info["season"]:
+            info["season"] = str(item.get("season"))
+        if item.get("episode") not in (None, "") and not info["episode"]:
+            info["episode"] = str(item.get("episode"))
         if item.get("year") and not info["year"]:
             info["year"] = str(item.get("year"))
         file_path = item.get("file") or ""
@@ -665,6 +684,33 @@ def build_release_name(video_info, fallback_path):
     return os.path.basename(fallback_path)
 
 
+def clean_episode_number(value):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    try:
+        number = int(float(text))
+    except Exception:
+        return ""
+    return str(number) if number >= 0 else ""
+
+
+def build_episode_key(video_info):
+    season = clean_episode_number(video_info.get("season", ""))
+    episode = clean_episode_number(video_info.get("episode", ""))
+    if not season or not episode:
+        return ""
+    return "S%02dE%02d" % (int(season), int(episode))
+
+
+def is_episode_video(video_info):
+    return bool(
+        (video_info.get("tvshow_title") or "").strip()
+        or clean_episode_number(video_info.get("season", ""))
+        or clean_episode_number(video_info.get("episode", ""))
+    )
+
+
 def ensure_video_imdb(video_info, fallback_path=""):
     imdb_id = str(video_info.get("imdb", "") or "").replace("tt", "").strip()
     if imdb_id.isdigit():
@@ -679,6 +725,9 @@ def ensure_video_imdb(video_info, fallback_path=""):
         [
             str(video_info.get("title", "") or ""),
             str(video_info.get("original_title", "") or ""),
+            str(video_info.get("tvshow_title", "") or ""),
+            str(video_info.get("season", "") or ""),
+            str(video_info.get("episode", "") or ""),
             str(video_info.get("year", "") or ""),
             str(release_name or ""),
             str(video_info.get("filename", "") or ""),
@@ -731,9 +780,15 @@ def build_helper_lookup_summary(video_info, release_name, source_name):
     details = []
     imdb_id = (video_info.get("imdb", "") or "").strip()
     title = (video_info.get("title", "") or "").strip()
+    tvshow_title = (video_info.get("tvshow_title", "") or "").strip()
+    episode_key = build_episode_key(video_info)
     year = (video_info.get("year", "") or "").strip()
     if imdb_id:
         details.append("imdb=%s" % imdb_id)
+    if tvshow_title:
+        details.append("show=%s" % tvshow_title)
+    if episode_key:
+        details.append("episode=%s" % episode_key)
     if release_name:
         details.append("release=%s" % release_name)
     if source_name:
@@ -775,6 +830,9 @@ def check_helper_for_cached_translation(source_path):
     _, source_name = split_kodi_path(source_path)
     title = video_info.get("title", "").strip()
     year = video_info.get("year", "").strip()
+    tvshow_title = video_info.get("tvshow_title", "").strip()
+    season = clean_episode_number(video_info.get("season", ""))
+    episode = clean_episode_number(video_info.get("episode", ""))
     lookup_details = build_helper_lookup_summary(video_info, release_name, source_name or source_path)
     if not imdb_id:
         log("Helper cache check: IMDb missing, trying fallback lookup [%s]" % lookup_details)
@@ -793,6 +851,9 @@ def check_helper_for_cached_translation(source_path):
             source_filename=source_name or source_path,
             title=title,
             year=year,
+            tvshow_title=tvshow_title,
+            season=season,
+            episode=episode,
         )
     except HelperUploadError as exc:
         message = helper_cache_message("Saved translation lookup failed", lookup_details, str(exc))
@@ -899,6 +960,9 @@ def try_upload_to_opensubtitles(ass_path):
     auto_submit = get_setting_bool("auto_submit", False)
     machine_translated = get_setting_bool("mark_machine_translated", True)
     release_name = build_release_name(video_info, ass_path)
+    tvshow_title = video_info.get("tvshow_title", "").strip()
+    season = clean_episode_number(video_info.get("season", ""))
+    episode = clean_episode_number(video_info.get("episode", ""))
 
     try:
         log("Queueing helper upload for %s" % os.path.basename(srt_path))
@@ -910,6 +974,9 @@ def try_upload_to_opensubtitles(ass_path):
             imdb_id=imdb_id,
             fps="25.000",
             release_name=release_name,
+            tvshow_title=tvshow_title,
+            season=season,
+            episode=episode,
             username=os_user,
             password=os_pass,
             machine_translated=machine_translated,

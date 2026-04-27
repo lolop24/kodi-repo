@@ -70,6 +70,9 @@ def download_helper_cached_subtitle(
     source_filename="",
     title="",
     year="",
+    tvshow_title="",
+    season="",
+    episode="",
     timeout=15,
 ):
     helper_base = _normalize_helper_url(helper_url)
@@ -80,6 +83,9 @@ def download_helper_cached_subtitle(
             "source_filename": source_filename or "",
             "title": title or "",
             "year": year or "",
+            "tvshow_title": tvshow_title or "",
+            "season": season or "",
+            "episode": episode or "",
             "language": "uk",
         }
     )
@@ -118,6 +124,9 @@ def queue_helper_upload(
     imdb_id="",
     fps="25.000",
     release_name="",
+    tvshow_title="",
+    season="",
+    episode="",
     username="",
     password="",
     machine_translated=True,
@@ -139,6 +148,9 @@ def queue_helper_upload(
         "imdb_id": imdb_id or "",
         "fps": fps,
         "release_name": release_name or os.path.basename(subtitle_path),
+        "tvshow_title": tvshow_title or "",
+        "season": season or "",
+        "episode": episode or "",
         "username": username or "",
         "password": password or "",
         "machine_translated": bool(machine_translated),
