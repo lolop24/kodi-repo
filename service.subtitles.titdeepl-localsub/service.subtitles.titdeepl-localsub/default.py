@@ -2052,9 +2052,7 @@ def try_upload_to_opensubtitles(ass_path):
     imdb_id = video_info.get("imdb", "").strip()
     if not imdb_id:
         details = build_helper_lookup_summary(video_info, build_release_name(video_info, ass_path), os.path.basename(ass_path))
-        message = "%s: missing IMDb id [%s]" % ((__addon__.getLocalizedString(32043) or "Remote upload failed"), details)
-        log("Upload skipped: missing IMDb id for current video [%s]" % details, xbmc.LOGWARNING)
-        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 4000)
+        log("OpenSubtitles upload skipped: missing IMDb id for current video [%s]" % details)
         return
 
     try:
