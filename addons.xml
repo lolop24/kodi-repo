@@ -220,7 +220,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.lolop-logsender" name="Lolop Log Sender" version="0.1.1" provider-name="Codex">
+    <addon id="service.lolop-logsender" name="Lolop Log Sender" version="0.1.2" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -231,8 +231,8 @@
         <extension point="xbmc.addon.metadata">
             <summary lang="en_GB">Send Kodi logs to the TitDeepL helper</summary>
             <description lang="en_GB">Small diagnostic addon for Android and Xbox Kodi. It sends kodi.log and kodi.old.log to the configured TitDeepL helper so update failures can be inspected remotely.</description>
-            <news>v0.1.1
-    - Add repository assets and Kodi-compatible metadata language tags</news>
+            <news>v0.1.2
+    - Publish web-visible icon/fanart paths and rebuild package with Kodi-safe ZIP metadata</news>
             <platform>all</platform>
             <license>MIT</license>
             <assets>
