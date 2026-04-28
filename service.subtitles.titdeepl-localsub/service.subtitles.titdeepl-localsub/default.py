@@ -12,6 +12,7 @@ import uuid
 import zipfile
 
 from urllib import request as urlrequest
+from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, unquote, urlencode, urlparse
 
 import xbmc
@@ -703,8 +704,30 @@ def get_external_addon_setting(addon_id, setting_id):
         return ""
 
 
+def set_external_addon_setting(addon_id, setting_id, value):
+    try:
+        xbmcaddon.Addon(addon_id).setSetting(setting_id, str(value or ""))
+        return True
+    except Exception:
+        return False
+
+
 def stream_cinema_setting(setting_id):
     return get_external_addon_setting("plugin.video.stream-cinema", setting_id)
+
+
+def stream_cinema_bool_setting(setting_id, default=False):
+    value = stream_cinema_setting(setting_id)
+    if value == "":
+        return default
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def stream_cinema_int_setting(setting_id, default=0):
+    try:
+        return int(str(stream_cinema_setting(setting_id)).strip())
+    except Exception:
+        return default
 
 
 def stream_cinema_selected_item():
@@ -721,13 +744,71 @@ def stream_cinema_selected_item():
     return parsed if isinstance(parsed, dict) else {}
 
 
-def http_json(url, data=None, headers=None, timeout=30):
+def stream_cinema_window_json_property(name):
+    try:
+        raw = xbmcgui.Window(10000).getProperty(name)
+    except Exception:
+        raw = ""
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except Exception:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def compact_log_value(value, max_len=180):
+    text = str(value or "").strip()
+    if len(text) > max_len:
+        return text[: max_len - 3] + "..."
+    return text
+
+
+def dict_keys_summary(value, max_items=18):
+    if not isinstance(value, dict):
+        return ""
+    keys = sorted(str(key) for key in value.keys())
+    if len(keys) > max_items:
+        return ", ".join(keys[:max_items]) + ", ..."
+    return ", ".join(keys)
+
+
+def sanitize_http_error_text(text):
+    cleaned = str(text or "").replace("\r", " ").replace("\n", " ").strip()
+    for secret in (
+        stream_cinema_setting("kraska.token"),
+        stream_cinema_setting("system.auth_token"),
+        get_setting("helper_token", ""),
+    ):
+        if secret:
+            cleaned = cleaned.replace(secret, "<token>")
+    if len(cleaned) > 500:
+        cleaned = cleaned[:497] + "..."
+    return cleaned
+
+
+def http_json(url, data=None, headers=None, timeout=30, stage="HTTP JSON"):
     payload = None
     if data is not None:
         payload = json.dumps(data).encode("utf-8")
     request = urlrequest.Request(url, data=payload, headers=headers or {})
-    with urlrequest.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8", "replace"))
+    try:
+        with urlrequest.urlopen(request, timeout=timeout) as response:
+            raw = response.read().decode("utf-8", "replace")
+    except HTTPError as exc:
+        try:
+            body = exc.read().decode("utf-8", "replace")
+        except Exception:
+            body = ""
+        details = sanitize_http_error_text(body)
+        if details:
+            raise RuntimeError("%s failed with HTTP %s: %s" % (stage, exc.code, details))
+        raise RuntimeError("%s failed with HTTP %s" % (stage, exc.code))
+    try:
+        return json.loads(raw or "{}")
+    except Exception as exc:
+        raise RuntimeError("%s returned invalid JSON: %s" % (stage, exc))
 
 
 def stream_cinema_api_headers(uid):
@@ -738,6 +819,151 @@ def stream_cinema_api_headers(uid):
     }
 
 
+def stream_cinema_query_items(stream_path, uid):
+    parsed = urlparse(stream_path)
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    default_query = {
+        "ver": "2.0",
+        "uid": uid,
+        "skin": xbmc.getSkinDir() if hasattr(xbmc, "getSkinDir") else "skin.estuary",
+        "lang": "sk",
+    }
+
+    parental = False
+    if stream_cinema_bool_setting("parental.control.enabled", False):
+        hour_now = int(time.strftime("%H"))
+        parental = (
+            stream_cinema_int_setting("parental.control.start", 0)
+            <= hour_now
+            <= stream_cinema_int_setting("parental.control.end", 0)
+        )
+    if stream_cinema_bool_setting("stream.dubed", False) or (
+        parental and stream_cinema_bool_setting("parental.control.dubed", False)
+    ):
+        default_query["dub"] = "1"
+    if not parental and stream_cinema_bool_setting("stream.dubed.titles", False):
+        default_query["dub"] = "1"
+        default_query["tit"] = "1"
+    if parental:
+        default_query["m"] = {"0": "0", "1": "6", "2": "12", "3": "15", "4": "18"}.get(
+            stream_cinema_setting("parental.control.rating"),
+            "0",
+        )
+    if stream_cinema_bool_setting("plugin.show.genre", False):
+        default_query["gen"] = "1"
+    if "HDR" not in query:
+        default_query["HDR"] = "0" if stream_cinema_bool_setting("stream.exclude.hdr", False) else "1"
+    if "DV" not in query:
+        default_query["DV"] = "0" if stream_cinema_bool_setting("stream.exclude.dolbyvision", False) else "1"
+    if stream_cinema_bool_setting("plugin.show.old.menu", False):
+        default_query["old"] = "1"
+
+    query.update(default_query)
+    prefs = stream_cinema_window_json_property("SC:stream_filter_prefs")
+    if prefs:
+        query.update(prefs)
+
+    always_array = ("co", "ca", "ge", "mu")
+    items = []
+    for key, value in sorted(query.items(), key=lambda item: str(item[0])):
+        if isinstance(value, (list, tuple)):
+            for entry in value:
+                items.append(("%s[]" % key if key in always_array else key, entry))
+        elif key in always_array:
+            items.append(("%s[]" % key, value))
+        else:
+            items.append((key, value))
+    return parsed.path or stream_path.split("?", 1)[0], items
+
+
+def stream_cinema_api_url(stream_path, uid):
+    path, query_items = stream_cinema_query_items(stream_path, uid)
+    return "https://stream-cinema.online/kodi%s?%s" % (path, urlencode(query_items))
+
+
+def stream_cinema_kraska_login():
+    username = stream_cinema_setting("kraska.user")
+    password = stream_cinema_setting("kraska.pass")
+    if not username or not password:
+        return ""
+    data = http_json(
+        "https://api.kra.sk/api/user/login",
+        data={"data": {"username": username, "password": password}},
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "Kodi TitDeepL LocalSub/%s" % __addon__.getAddonInfo("version"),
+        },
+        timeout=30,
+        stage="Kra.sk login",
+    )
+    token = str(data.get("session_id") or "").strip()
+    if token:
+        set_external_addon_setting("plugin.video.stream-cinema", "kraska.token", token)
+    return token
+
+
+def kraska_file_download(ident, token, stage):
+    return http_json(
+        "https://api.kra.sk/api/file/download",
+        data={"data": {"ident": ident}, "session_id": token},
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "Kodi TitDeepL LocalSub/%s" % __addon__.getAddonInfo("version"),
+        },
+        timeout=30,
+        stage=stage,
+    )
+
+
+def stream_cinema_ident_candidates(selected, api_data):
+    candidates = []
+
+    def add(label, ident):
+        ident = str(ident or "").strip()
+        if not ident:
+            return
+        if ident not in [item[1] for item in candidates]:
+            candidates.append((label, ident))
+
+    version = api_data.get("version")
+    version_key = "v%s" % version if version is not None else ""
+    version_value = api_data.get(version_key) if version_key else ""
+    if version_key and version_value:
+        add("api %s" % version_key, "%s:%s" % (version_key, version_value))
+    add("selected xxx", selected.get("xxx"))
+    add("selected ident", selected.get("ident"))
+    return candidates
+
+
+def resolve_kraska_direct_url(candidates, kraska_token):
+    token = kraska_token
+    errors = []
+    refreshed = False
+    for label, ident in candidates:
+        while True:
+            try:
+                resolved = kraska_file_download(ident, token, "Kra.sk file download (%s)" % label)
+                direct_url = (resolved.get("data") or {}).get("link") or ""
+                if direct_url:
+                    return direct_url
+                errors.append("%s returned no link (keys=%s)" % (label, dict_keys_summary(resolved.get("data") or {})))
+            except Exception as exc:
+                errors.append("%s: %s" % (label, exc))
+                if not refreshed:
+                    refreshed = True
+                    try:
+                        new_token = stream_cinema_kraska_login()
+                    except Exception as login_exc:
+                        errors.append("Kra.sk login refresh failed: %s" % login_exc)
+                        new_token = ""
+                    if new_token and new_token != token:
+                        token = new_token
+                        log("Embedded subtitles: refreshed Kra.sk session and retrying direct URL resolve")
+                        continue
+            break
+    raise RuntimeError("; ".join(errors[-4:]) or "Kra.sk file download failed")
+
+
 def resolve_stream_cinema_selected_url(video_path):
     if "127.0.0.1" not in video_path and "localhost" not in video_path:
         return video_path
@@ -745,42 +971,48 @@ def resolve_stream_cinema_selected_url(video_path):
     selected = stream_cinema_selected_item()
     stream_path = str(selected.get("url") or "").strip()
     if not stream_path.startswith("/"):
+        log(
+            "Embedded subtitles: Stream Cinema selected item has no API path (keys=%s)"
+            % dict_keys_summary(selected),
+            xbmc.LOGWARNING,
+        )
         return video_path
 
     uid = stream_cinema_setting("system.uuid") or stream_cinema_setting("uid")
     auth_token = stream_cinema_setting("system.auth_token")
     kraska_token = stream_cinema_setting("kraska.token")
+    if not kraska_token:
+        try:
+            kraska_token = stream_cinema_kraska_login()
+        except Exception as exc:
+            log("Embedded subtitles: Kra.sk session refresh failed before resolve: %s" % exc, xbmc.LOGWARNING)
     if not uid or not auth_token or not kraska_token:
+        missing = []
+        if not uid:
+            missing.append("uid")
+        if not auth_token:
+            missing.append("auth_token")
+        if not kraska_token:
+            missing.append("kraska_token")
+        log("Embedded subtitles: missing Stream Cinema setting(s): %s" % ", ".join(missing), xbmc.LOGWARNING)
         return video_path
 
-    query = {
-        "ver": "2.0",
-        "uid": uid,
-        "skin": xbmc.getSkinDir() if hasattr(xbmc, "getSkinDir") else "skin.estuary",
-        "lang": "sk",
-        "HDR": "1",
-        "DV": "1",
-        "old": "1",
-    }
-    sc_url = "https://stream-cinema.online/kodi%s?%s" % (stream_path, urlencode(sorted(query.items())))
-
     try:
-        data = http_json(sc_url, headers=stream_cinema_api_headers(uid), timeout=30)
-        version = data.get("version")
-        ident_value = data.get("v%s" % version) if version is not None else ""
-        if not version or not ident_value:
-            return video_path
-        ident = "v%s:%s" % (version, ident_value)
-        resolved = http_json(
-            "https://api.kra.sk/api/file/download",
-            data={"data": {"ident": ident}, "session_id": kraska_token},
-            headers={
-                "Content-Type": "application/json",
-                "User-Agent": "Kodi TitDeepL LocalSub/%s" % __addon__.getAddonInfo("version"),
-            },
-            timeout=30,
+        sc_url = stream_cinema_api_url(stream_path, uid)
+        log(
+            "Embedded subtitles: resolving Stream Cinema direct URL (path=%s, selected_keys=%s)"
+            % (compact_log_value(stream_path), dict_keys_summary(selected))
         )
-        direct_url = (resolved.get("data") or {}).get("link") or ""
+        data = http_json(sc_url, headers=stream_cinema_api_headers(uid), timeout=30, stage="Stream Cinema API")
+        candidates = stream_cinema_ident_candidates(selected, data)
+        if not candidates:
+            log(
+                "Embedded subtitles: Stream Cinema API returned no playable ident (response_keys=%s)"
+                % dict_keys_summary(data),
+                xbmc.LOGWARNING,
+            )
+            return video_path
+        direct_url = resolve_kraska_direct_url(candidates, kraska_token)
         if direct_url:
             log("Embedded subtitles: using direct Stream Cinema media URL for extraction")
             return direct_url
