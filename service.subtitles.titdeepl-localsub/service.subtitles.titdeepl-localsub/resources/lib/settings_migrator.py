@@ -18,9 +18,6 @@ except AttributeError:  # pragma: no cover
 
 
 ADDON_ID = "service.subtitles.titdeepl-localsub"
-ADDON = xbmcaddon.Addon(ADDON_ID)
-PROFILE_DIR = translatePath(ADDON.getAddonInfo("profile"))
-SETTINGS_PATH = os.path.join(PROFILE_DIR, "settings.xml")
 SOURCE_LANGUAGE_MAP = {
     "": "0",
     "0": "0",
@@ -44,11 +41,19 @@ def normalize_source_language(value):
 
 
 def migrate_settings():
-    if not os.path.isfile(SETTINGS_PATH):
+    try:
+        addon = xbmcaddon.Addon()
+        profile_dir = translatePath(addon.getAddonInfo("profile"))
+    except Exception as exc:
+        log("Settings migrator: addon profile is not available yet: %s" % exc, xbmc.LOGWARNING)
+        return
+
+    settings_path = os.path.join(profile_dir, "settings.xml")
+    if not os.path.isfile(settings_path):
         return
 
     try:
-        tree = ET.parse(SETTINGS_PATH)
+        tree = ET.parse(settings_path)
     except Exception as exc:
         log("Settings migrator: could not parse user settings: %s" % exc, xbmc.LOGWARNING)
         return
@@ -73,7 +78,7 @@ def migrate_settings():
         return
 
     try:
-        tree.write(SETTINGS_PATH, encoding="utf-8", xml_declaration=False)
+        tree.write(settings_path, encoding="utf-8", xml_declaration=False)
         log("Settings migrator: normalized addon_data/settings.xml to version 2")
     except Exception as exc:
         log("Settings migrator: could not write user settings: %s" % exc, xbmc.LOGWARNING)

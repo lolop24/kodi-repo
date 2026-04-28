@@ -1151,6 +1151,22 @@ def current_total_seconds():
     return hours * 3600 + minutes * 60 + seconds + (1 if milliseconds else 0)
 
 
+def current_playback_seconds():
+    player_id = active_video_player_id()
+    if player_id is None:
+        return 0
+    props = jsonrpc("Player.GetProperties", {"playerid": player_id, "properties": ["time"]})
+    current = props.get("time") or {}
+    try:
+        hours = int(current.get("hours") or 0)
+        minutes = int(current.get("minutes") or 0)
+        seconds = int(current.get("seconds") or 0)
+        milliseconds = int(current.get("milliseconds") or 0)
+    except Exception:
+        return 0
+    return hours * 3600 + minutes * 60 + seconds + (1 if milliseconds else 0)
+
+
 def embedded_job_record(job_id, helper_url, source_language, ukrainian_language, video_info):
     return {
         "job_id": job_id,
@@ -1158,6 +1174,7 @@ def embedded_job_record(job_id, helper_url, source_language, ukrainian_language,
         "source_language": source_language,
         "ukrainian_language": ukrainian_language,
         "playback_path": current_playback_path(),
+        "playback_start_seconds": current_playback_seconds(),
         "title": video_info.get("tvshow_title") or video_info.get("title") or "",
         "episode_key": build_episode_key(video_info),
         "last_loaded_seconds": 0,
@@ -1188,14 +1205,19 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
     media_url = helper_media_url_for_extraction(helper_url)
     video_info = ensure_video_imdb(get_video_info(), media_url)
     chunk_seconds = get_bounded_setting_int("embedded_helper_chunk_seconds", 300, 60, 1800)
-    first_chunk_seconds = min(60, chunk_seconds)
+    first_chunk_seconds = min(180, chunk_seconds)
     first_timeout = get_bounded_setting_int("embedded_helper_first_timeout", 240, 30, 900)
     max_seconds = current_total_seconds() or 7200
+    playback_seconds = current_playback_seconds()
+    start_seconds = max(0, playback_seconds - 60)
     release_name = build_release_name(video_info, media_url)
 
     if progress:
         progress.update(5, "Queueing helper extraction job...")
-    log("Embedded subtitles: queueing helper job (first_chunk=%ss, chunk=%ss)" % (first_chunk_seconds, chunk_seconds))
+    log(
+        "Embedded subtitles: queueing helper job (start=%ss, first_window=%ss, chunk=%ss)"
+        % (start_seconds, first_chunk_seconds, chunk_seconds)
+    )
 
     response = queue_helper_embedded_dual_job(
         helper_url=helper_url,
@@ -1210,6 +1232,7 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
         episode=clean_episode_number(video_info.get("episode", "")),
         title=video_info.get("title", "").strip(),
         year=video_info.get("year", "").strip(),
+        start_seconds=start_seconds,
         chunk_seconds=chunk_seconds,
         first_chunk_seconds=first_chunk_seconds,
         max_seconds=max_seconds,
@@ -1238,7 +1261,7 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
         elapsed = int(time.time() - started)
         percent = min(95, 10 + int((elapsed / float(first_timeout)) * 80))
         if progress:
-            progress.update(percent, "Waiting for first %s-minute subtitle chunk... [%s]" % (int(chunk_seconds / 60), last_status))
+            progress.update(percent, "Waiting for subtitles near current playback... [%s]" % last_status)
 
         time.sleep(2)
         job = get_helper_embedded_dual_job(helper_url, helper_token, job_id, timeout=20)
