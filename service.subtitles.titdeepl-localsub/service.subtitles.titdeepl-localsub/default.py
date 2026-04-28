@@ -62,6 +62,8 @@ __scriptname__ = __addon__.getAddonInfo("name")
 __profile__ = translatePath(__addon__.getAddonInfo("profile"))
 __workdir__ = os.path.join(__profile__, "generated")
 __active_embedded_job_path__ = os.path.join(__profile__, "active_embedded_dual_job.json")
+__media_relay_state_path__ = os.path.join(__profile__, "media_relay_state.json")
+__media_relay_registry_path__ = os.path.join(__profile__, "media_relay_registry.json")
 __dialog__ = xbmcgui.Dialog()
 try:
     __settings__ = __addon__.getSettings()
@@ -1055,6 +1057,45 @@ def clear_active_embedded_job():
         pass
 
 
+def safe_json_write(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    temp_path = "%s.tmp" % path
+    with open(temp_path, "w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2, sort_keys=True)
+    try:
+        os.replace(temp_path, path)
+    except AttributeError:
+        if os.path.exists(path):
+            os.remove(path)
+        os.rename(temp_path, path)
+
+
+def register_media_relay_url(media_url):
+    state = safe_json_read(__media_relay_state_path__, {}) or {}
+    base_url = str(state.get("base_url") or "").strip().rstrip("/")
+    token = str(state.get("token") or "").strip()
+    if not base_url or not token:
+        raise RuntimeError("Kodi media relay is not ready yet. Restart Kodi or wait a few seconds after addon update.")
+
+    registry = safe_json_read(__media_relay_registry_path__, {}) or {}
+    records = registry.get("records")
+    if not isinstance(records, dict):
+        records = {}
+    now = int(time.time())
+    records = {
+        key: value
+        for key, value in records.items()
+        if isinstance(value, dict) and now - int(value.get("created_at") or 0) < 6 * 60 * 60
+    }
+    relay_id = hashlib.sha1(("%s|%s|%s" % (media_url, now, uuid.uuid4().hex)).encode("utf-8")).hexdigest()[:24]
+    records[relay_id] = {
+        "target": media_url,
+        "created_at": now,
+    }
+    safe_json_write(__media_relay_registry_path__, {"records": records, "updated_at": now})
+    return "%s/media/%s?token=%s" % (base_url, relay_id, quote(token, safe=""))
+
+
 def normalized_helper_url_for_display(helper_url):
     helper_url = (helper_url or "").strip().rstrip("/")
     if helper_url and not helper_url.startswith(("http://", "https://")):
@@ -1082,11 +1123,15 @@ def media_url_is_local_to_kodi(media_url):
 def helper_media_url_for_extraction(helper_url):
     media_url = current_video_path_for_extraction()
     if not helper_is_local(helper_url) and media_url_is_local_to_kodi(media_url):
-        raise RuntimeError(
-            "Remote helper cannot read this Kodi-local media URL. "
-            "Play a Stream Cinema item that can be resolved to a direct remote URL, "
-            "or run the helper on the same device as Kodi."
-        )
+        try:
+            relay_url = register_media_relay_url(media_url)
+            log("Embedded subtitles: using Kodi media relay for helper extraction")
+            return relay_url
+        except Exception as exc:
+            raise RuntimeError(
+                "Remote helper cannot read this Kodi-local media URL and Kodi media relay is unavailable: %s"
+                % exc
+            )
     return media_url
 
 
