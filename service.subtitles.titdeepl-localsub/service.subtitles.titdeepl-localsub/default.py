@@ -42,10 +42,12 @@ from resources.lib.source_matching import build_source_score, normalize_name
 from resources.lib.upload_helper import (
     HelperUploadError,
     download_helper_cached_subtitle,
+    download_helper_cached_dualsub,
     download_helper_embedded_dual_subtitle,
     get_helper_embedded_dual_job,
     queue_helper_embedded_dual_job,
     queue_helper_upload,
+    upload_helper_dual_subtitle,
 )
 
 
@@ -1776,12 +1778,158 @@ def helper_cache_message(prefix, details, reason=""):
     return message
 
 
+def helper_lookup_context(fallback_path="", source_path=""):
+    lookup_path = source_path or fallback_path or ""
+    video_info = ensure_video_imdb(get_video_info(), lookup_path)
+    release_name = build_release_name(video_info, lookup_path)
+    _, source_name = split_kodi_path(lookup_path)
+    if not source_name:
+        _, source_name = split_kodi_path(video_info.get("filepath", "") or video_info.get("filename", ""))
+    if not source_name and lookup_path:
+        source_name = os.path.basename(lookup_path)
+
+    context = {
+        "imdb_id": video_info.get("imdb", "").strip(),
+        "release_name": release_name,
+        "source_filename": source_name or lookup_path,
+        "title": video_info.get("title", "").strip(),
+        "year": video_info.get("year", "").strip(),
+        "tvshow_title": video_info.get("tvshow_title", "").strip(),
+        "season": clean_episode_number(video_info.get("season", "")),
+        "episode": clean_episode_number(video_info.get("episode", "")),
+    }
+    context["lookup_details"] = build_helper_lookup_summary(
+        video_info,
+        release_name,
+        context["source_filename"],
+    )
+    return video_info, context
+
+
+def upload_dual_subtitle_to_helper(ass_path, source_path="", source_language=""):
+    helper_url = get_setting("helper_url", "").strip()
+    if not helper_url:
+        log("Dualsub helper cache save skipped: helper URL is empty")
+        return
+    if not ass_path or not os.path.isfile(ass_path):
+        log("Dualsub helper cache save skipped: missing ASS file %s" % ass_path, xbmc.LOGWARNING)
+        return
+
+    _, source_name = split_kodi_path(source_path)
+    detected_source_language = (
+        normalize_subtitle_language(source_language)
+        or normalize_subtitle_language(guess_language_from_name(source_name or source_path))
+    )
+    setting_language = get_source_language()
+    if not detected_source_language and setting_language in ("cs", "sk"):
+        detected_source_language = setting_language
+
+    _, context = helper_lookup_context(ass_path, source_path or ass_path)
+    if not context["imdb_id"] and not any(
+        (context["release_name"], context["source_filename"], context["title"], context["tvshow_title"])
+    ):
+        log("Dualsub helper cache save skipped: no lookup metadata [%s]" % context["lookup_details"], xbmc.LOGWARNING)
+        return
+
+    try:
+        response = upload_helper_dual_subtitle(
+            helper_url=helper_url,
+            helper_token=get_setting("helper_token", "").strip(),
+            subtitle_path=ass_path,
+            imdb_id=context["imdb_id"],
+            release_name=context["release_name"],
+            source_filename=context["source_filename"],
+            title=context["title"],
+            year=context["year"],
+            tvshow_title=context["tvshow_title"],
+            season=context["season"],
+            episode=context["episode"],
+            source_language=detected_source_language,
+        )
+        log(
+            "Dualsub helper cache saved: %s [%s]"
+            % (response.get("subtitle_filename", os.path.basename(ass_path)), context["lookup_details"])
+        )
+    except HelperUploadError as exc:
+        message = helper_cache_message("Dualsub helper cache save failed", context["lookup_details"], str(exc))
+        log(message, xbmc.LOGWARNING)
+        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 5000)
+
+
+def cached_dualsub_source_items():
+    helper_url = get_setting("helper_url", "").strip()
+    if not helper_url:
+        return []
+
+    video_path = current_playback_path()
+    _, context = helper_lookup_context(video_path, video_path)
+    if not context["imdb_id"] and not any(
+        (context["release_name"], context["source_filename"], context["title"], context["tvshow_title"])
+    ):
+        log("Saved dualsub lookup skipped: no lookup metadata [%s]" % context["lookup_details"], xbmc.LOGWARNING)
+        return []
+
+    try:
+        cached = download_helper_cached_dualsub(
+            helper_url=helper_url,
+            helper_token=get_setting("helper_token", "").strip(),
+            output_dir=__workdir__,
+            imdb_id=context["imdb_id"],
+            release_name=context["release_name"],
+            source_filename=context["source_filename"],
+            title=context["title"],
+            year=context["year"],
+            tvshow_title=context["tvshow_title"],
+            season=context["season"],
+            episode=context["episode"],
+        )
+    except HelperUploadError as exc:
+        message = helper_cache_message("Saved dualsub lookup failed", context["lookup_details"], str(exc))
+        log(message, xbmc.LOGWARNING)
+        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 5000)
+        return []
+
+    if not cached or not cached.get("found"):
+        reason = ""
+        if isinstance(cached, dict):
+            reason = str(cached.get("reason") or "").strip()
+        log(helper_cache_message("Saved dualsub lookup: no cached dualsub", context["lookup_details"], reason))
+        return []
+
+    cached_path = cached.get("path")
+    if not cached_path or not os.path.isfile(cached_path):
+        message = helper_cache_message(
+            "Saved dualsub lookup failed",
+            context["lookup_details"],
+            "helper returned no readable subtitle file",
+        )
+        log(message, xbmc.LOGWARNING)
+        __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 5000)
+        return []
+
+    matched_by = cached.get("matched_by", "match")
+    log(
+        "Saved dualsub lookup: using %s (match=%s, query=%s)"
+        % (os.path.basename(cached_path), matched_by, cached.get("lookup_summary", context["lookup_details"]))
+    )
+    return [
+        {
+            "label": "Saved dualsub from helper [%s]" % matched_by,
+            "action": "cached_dual",
+            "source_label": "SAVED DUAL",
+            "params": {"path": cached_path},
+        }
+    ]
+
+
 def build_dual_subtitle_from_ukrainian(source_path, ukrainian_path):
     _, source_name = split_kodi_path(source_path)
     local_source = local_copy(source_path)
     output_name = "%s.dual.ass" % safe_stem(source_name or "subtitle")
     output_path = os.path.join(__workdir__, output_name)
-    return merge_two_subtitles_to_dual_ass(local_source, ukrainian_path, output_path)
+    dual_path = merge_two_subtitles_to_dual_ass(local_source, ukrainian_path, output_path)
+    upload_dual_subtitle_to_helper(dual_path, source_path=source_path)
+    return dual_path
 
 
 def check_helper_for_cached_translation(source_path):
@@ -1965,8 +2113,17 @@ def try_upload_to_opensubtitles(ass_path):
 def search():
     ensure_workdir()
     cleanup_workdir()
+    cached_dual_items = cached_dualsub_source_items()
     embedded_items = embedded_subtitle_source_items()
     has_deepl_key = bool(get_setting("deepl_api_key").strip())
+
+    for item in cached_dual_items:
+        add_plugin_item(
+            item["label"],
+            item["action"],
+            item["source_label"],
+            item.get("params") or {},
+        )
 
     for item in embedded_items:
         add_plugin_item(
@@ -1977,7 +2134,7 @@ def search():
         )
 
     if not has_deepl_key:
-        if embedded_items:
+        if cached_dual_items or embedded_items:
             add_action_item("Open settings", "settings", "Settings")
             return
         add_action_item(__addon__.getLocalizedString(32033), "settings", "Setup")
@@ -2021,7 +2178,7 @@ def browse_and_generate():
         else:
             prepared_path = local_copy(source)
             _, prepared_name = split_kodi_path(source)
-        return generate_translated_subtitle(
+        info = generate_translated_subtitle(
             prepared_path,
             __workdir__,
             translator,
@@ -2029,6 +2186,8 @@ def browse_and_generate():
             source_name_hint=prepared_name or source,
             output_name_hint=prepared_name or source,
         )
+        info["source_path"] = source
+        return info
     except Exception as exc:
         __dialog__.ok(__scriptname__, "%s\n%s" % (__addon__.getLocalizedString(32030), exc))
         return None
@@ -2044,8 +2203,23 @@ def handle_action():
         ensure_workdir()
         info = browse_and_generate()
         if info:
+            upload_dual_subtitle_to_helper(
+                info["path"],
+                source_path=info.get("source_path", ""),
+                source_language=info.get("detected_language", ""),
+            )
             try_upload_to_opensubtitles(info["path"])
             download(info["path"])
+        return
+
+    if action == "cached_dual":
+        cached_path = params().get("path", "")
+        if cached_path and os.path.isfile(cached_path):
+            download(cached_path)
+        else:
+            message = "Saved dualsub is no longer available on this device."
+            log(message, xbmc.LOGWARNING)
+            __dialog__.notification(__scriptname__, message, xbmcgui.NOTIFICATION_WARNING, 4000)
         return
 
     if action == "embedded_single":
@@ -2157,6 +2331,7 @@ def handle_action():
         try:
             translated_path = generate_or_load_translated_subtitle(source_path)
             progress.close()
+            upload_dual_subtitle_to_helper(translated_path, source_path=source_path)
             try_upload_to_opensubtitles(translated_path)
             download(translated_path)
         except DeepLError as exc:

@@ -116,6 +116,108 @@ def download_helper_cached_subtitle(
     return parsed
 
 
+def download_helper_cached_dualsub(
+    helper_url,
+    helper_token,
+    output_dir,
+    imdb_id="",
+    release_name="",
+    source_filename="",
+    title="",
+    year="",
+    tvshow_title="",
+    season="",
+    episode="",
+    source_language="",
+    timeout=15,
+):
+    helper_base = _normalize_helper_url(helper_url)
+    query = urlencode(
+        {
+            "imdb_id": (imdb_id or "").strip(),
+            "release_name": release_name or "",
+            "source_filename": source_filename or "",
+            "title": title or "",
+            "year": year or "",
+            "tvshow_title": tvshow_title or "",
+            "season": season or "",
+            "episode": episode or "",
+            "source_language": source_language or "",
+            "target_language": "uk",
+        }
+    )
+    request = Request(
+        helper_base + "/api/dual-subtitles/lookup?" + query,
+        headers=_helper_headers(helper_token, content_type=None),
+    )
+    parsed = _request_helper_json(request, timeout)
+    if not parsed.get("found"):
+        return parsed
+
+    subtitle_content_b64 = str(parsed.get("subtitle_content_b64") or "").strip()
+    if not subtitle_content_b64:
+        raise HelperUploadError("Helper found a cached dual subtitle but did not return its content.")
+
+    subtitle_filename = os.path.basename(str(parsed.get("subtitle_filename") or "helper_cached_dual.ass"))
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, subtitle_filename)
+    try:
+        subtitle_bytes = base64.b64decode(subtitle_content_b64.encode("ascii"), validate=True)
+    except Exception as exc:
+        raise HelperUploadError("Helper returned invalid cached dual subtitle data: %s" % exc)
+
+    with open(output_path, "wb") as handle:
+        handle.write(subtitle_bytes)
+
+    parsed["path"] = output_path
+    return parsed
+
+
+def upload_helper_dual_subtitle(
+    helper_url,
+    helper_token,
+    subtitle_path,
+    imdb_id="",
+    release_name="",
+    source_filename="",
+    title="",
+    year="",
+    tvshow_title="",
+    season="",
+    episode="",
+    source_language="",
+    timeout=30,
+):
+    if not os.path.isfile(subtitle_path):
+        raise HelperUploadError("Dual subtitle file not found: %s" % subtitle_path)
+
+    helper_base = _normalize_helper_url(helper_url)
+    with open(subtitle_path, "rb") as handle:
+        subtitle_content = base64.b64encode(handle.read()).decode("ascii")
+
+    payload = {
+        "subtitle_filename": os.path.basename(subtitle_path),
+        "subtitle_content_b64": subtitle_content,
+        "imdb_id": imdb_id or "",
+        "release_name": release_name or os.path.basename(subtitle_path),
+        "source_filename": source_filename or "",
+        "title": title or "",
+        "year": year or "",
+        "tvshow_title": tvshow_title or "",
+        "season": season or "",
+        "episode": episode or "",
+        "source_language": source_language or "",
+        "target_language": "uk",
+    }
+
+    request = Request(
+        helper_base + "/api/dual-subtitles",
+        data=json.dumps(payload).encode("utf-8"),
+        headers=_helper_headers(helper_token),
+    )
+    return _request_helper_json(request, timeout)
+
+
 def queue_helper_upload(
     helper_url,
     helper_token,

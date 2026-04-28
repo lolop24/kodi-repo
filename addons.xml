@@ -241,7 +241,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.19" provider-name="Codex">
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.20" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -258,9 +258,10 @@
         <extension point="xbmc.addon.metadata">
             <summary lang="en_gb">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
             <description lang="en_gb">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-            <news>v0.1.19
-    - Repack add-on zip for Android Kodi package installer
-    - Keep playhead-aware helper extraction from v0.1.18</news>
+            <news>v0.1.20
+    - Save finished dual ASS subtitles to the helper cache
+    - Offer saved helper dualsubs first in the subtitle search window
+    - Match saved dualsubs by IMDb, release/title fallback, and TV episode key</news>
             <platform>all</platform>
             <license>MIT</license>
             <assets>
