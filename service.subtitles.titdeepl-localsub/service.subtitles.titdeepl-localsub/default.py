@@ -1188,12 +1188,14 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
     media_url = helper_media_url_for_extraction(helper_url)
     video_info = ensure_video_imdb(get_video_info(), media_url)
     chunk_seconds = get_bounded_setting_int("embedded_helper_chunk_seconds", 300, 60, 1800)
+    first_chunk_seconds = min(60, chunk_seconds)
     first_timeout = get_bounded_setting_int("embedded_helper_first_timeout", 240, 30, 900)
     max_seconds = current_total_seconds() or 7200
     release_name = build_release_name(video_info, media_url)
 
     if progress:
         progress.update(5, "Queueing helper extraction job...")
+    log("Embedded subtitles: queueing helper job (first_chunk=%ss, chunk=%ss)" % (first_chunk_seconds, chunk_seconds))
 
     response = queue_helper_embedded_dual_job(
         helper_url=helper_url,
@@ -1209,6 +1211,7 @@ def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", pr
         title=video_info.get("title", "").strip(),
         year=video_info.get("year", "").strip(),
         chunk_seconds=chunk_seconds,
+        first_chunk_seconds=first_chunk_seconds,
         max_seconds=max_seconds,
         timeout=45,
     )

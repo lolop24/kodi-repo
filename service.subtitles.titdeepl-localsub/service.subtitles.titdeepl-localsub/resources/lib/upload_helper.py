@@ -180,6 +180,7 @@ def queue_helper_embedded_dual_job(
     title="",
     year="",
     chunk_seconds=300,
+    first_chunk_seconds=60,
     max_seconds=7200,
     timeout=30,
 ):
@@ -196,6 +197,7 @@ def queue_helper_embedded_dual_job(
         "title": title or "",
         "year": year or "",
         "chunk_seconds": int(chunk_seconds or 300),
+        "first_chunk_seconds": int(first_chunk_seconds or 60),
         "max_seconds": int(max_seconds or 7200),
     }
     request = Request(
