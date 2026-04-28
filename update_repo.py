@@ -29,12 +29,15 @@ for d in addon_dirs:
 
 addons_content += '</addons>\n'
 
-with open(os.path.join(base, 'addons.xml'), 'w', encoding='utf-8') as f:
-    f.write(addons_content)
+# Write in binary mode with explicit LF line endings so MD5 always matches
+# the bytes on disk (Windows text mode would convert \n to \r\n silently).
+addons_bytes = addons_content.encode('utf-8')
+with open(os.path.join(base, 'addons.xml'), 'wb') as f:
+    f.write(addons_bytes)
 
-md5 = hashlib.md5(addons_content.encode('utf-8')).hexdigest()
-with open(os.path.join(base, 'addons.xml.md5'), 'w', encoding='utf-8') as f:
-    f.write(md5)
+md5 = hashlib.md5(addons_bytes).hexdigest()
+with open(os.path.join(base, 'addons.xml.md5'), 'wb') as f:
+    f.write(md5.encode('ascii'))
 
 print(f'\naddons.xml updated ({len(addon_dirs)} addons)')
 print(f'addons.xml.md5: {md5}')

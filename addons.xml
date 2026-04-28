@@ -197,14 +197,14 @@
             </assets>
         </extension>
     </addon>
-    <addon id="repository.42polol" name="42po.lol Repository" version="1.0.1" provider-name="lolop24">
+    <addon id="repository.42polol" name="42po.lol Repository" version="1.0.2" provider-name="lolop24">
         <requires>
             <import addon="xbmc.addon" version="12.0.0" />
         </requires>
         <extension point="xbmc.addon.repository" name="42po.lol Repository">
             <dir>
                 <info compressed="false">https://42po.lol/addons.xml</info>
-                <checksum>https://42po.lol/addons.xml.md5</checksum>
+                <checksum algo="md5">https://42po.lol/addons.xml.md5</checksum>
                 <datadir zip="true">https://42po.lol/</datadir>
             </dir>
         </extension>
@@ -214,8 +214,8 @@
             <summary lang="en">CS Kodi repository</summary>
             <description lang="sk">CS kodi repo - ČSFD Rebríček a Titulky DualSub</description>
             <description lang="en">CS kodi repo - ČSFD Rankings and Titulky DualSub</description>
-            <news>v1.0.1
-    - Fix repository checksum schema for Kodi Omega/Android installs</news>
+            <news>v1.0.2
+    - Restore explicit checksum algo="md5" attribute required by Kodi 19+ schema</news>
             <platform>all</platform>
             <license>GPL-2.0-only</license>
         </extension>
@@ -241,20 +241,27 @@
             </assets>
         </extension>
     </addon>
-    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.13" provider-name="Codex">
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.14" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
-        <extension point="xbmc.subtitle.module" library="default.py" />
+        <extension point="xbmc.subtitle.module" library="default.py">
+            <provides>
+                <subtitle>
+                    <language>cs</language>
+                    <language>sk</language>
+                    <language>uk</language>
+                </subtitle>
+            </provides>
+        </extension>
         <extension point="xbmc.service" library="service.py" />
         <extension point="xbmc.addon.metadata">
-            <summary lang="en_GB">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
-            <description lang="en_GB">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-            <news>v0.1.13
-    - Move Ukrainian subtitle language metadata to Kodi-compatible metadata field
-    - Keep Kodi-compatible en_GB metadata language tags</news>
+            <summary lang="en_gb">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
+            <description lang="en_gb">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
+            <news>v0.1.14
+    - Restore xbmc.subtitle.module &lt;provides&gt; languages so Kodi shows the addon in the subtitle service list
+    - Lowercase metadata lang attributes (en_gb)</news>
             <platform>all</platform>
-            <language>uk</language>
             <license>MIT</license>
             <assets>
                 <icon>resources/icon.png</icon>
