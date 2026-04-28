@@ -23,6 +23,7 @@ UPLOADER_PATH = APP_ROOT / "uploader.py"
 DATA_DIR = Path(os.getenv("HELPER_DATA_DIR", APP_ROOT / ".data")).expanduser().resolve()
 JOBS_DIR = DATA_DIR / "jobs"
 EMBEDDED_JOBS_DIR = DATA_DIR / "embedded-dual-jobs"
+DEVICE_LOGS_DIR = DATA_DIR / "device-logs"
 BACKUP_SUBTITLES_DIR = DATA_DIR / "saved-subtitles"
 BROWSER_PROFILE_DIR = DATA_DIR / "browser-profile"
 SCREENSHOT_DIR = DATA_DIR / "screenshots"
@@ -43,7 +44,15 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 
 def ensure_dirs() -> None:
-    for path in (DATA_DIR, JOBS_DIR, EMBEDDED_JOBS_DIR, BACKUP_SUBTITLES_DIR, BROWSER_PROFILE_DIR, SCREENSHOT_DIR):
+    for path in (
+        DATA_DIR,
+        JOBS_DIR,
+        EMBEDDED_JOBS_DIR,
+        DEVICE_LOGS_DIR,
+        BACKUP_SUBTITLES_DIR,
+        BROWSER_PROFILE_DIR,
+        SCREENSHOT_DIR,
+    ):
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -1008,6 +1017,126 @@ def healthz():
             "browser": os.getenv("HELPER_BROWSER", "auto"),
         }
     )
+
+
+def device_log_dir(log_id: str) -> Path:
+    return DEVICE_LOGS_DIR / log_id
+
+
+def read_device_log_metadata(log_id: str) -> dict[str, object] | None:
+    path = device_log_dir(log_id) / "metadata.json"
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def safe_log_metadata(payload: dict[str, object], saved_files: list[dict[str, object]], log_id: str) -> dict[str, object]:
+    return {
+        "log_id": log_id,
+        "received_at": now_iso(),
+        "device_name": str(payload.get("device_name") or "").strip(),
+        "device_label": str(payload.get("device_label") or "").strip(),
+        "platform": str(payload.get("platform") or "").strip(),
+        "kodi_version": str(payload.get("kodi_version") or "").strip(),
+        "build_version": str(payload.get("build_version") or "").strip(),
+        "addon_version": str(payload.get("addon_version") or "").strip(),
+        "notes": str(payload.get("notes") or "").strip()[:1000],
+        "saved_files": saved_files,
+    }
+
+
+@app.post("/api/device-logs")
+def receive_device_logs():
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Expected a JSON object."}), 400
+
+    logs = payload.get("logs")
+    if not isinstance(logs, list) or not logs:
+        return jsonify({"error": "logs must be a non-empty list."}), 400
+
+    device_name = str(payload.get("device_name") or payload.get("device_label") or "device").strip()
+    log_id = "%s_%s_%s" % (time.strftime("%Y%m%d-%H%M%S", time.gmtime()), slugify(device_name)[:48], uuid.uuid4().hex[:8])
+    target_dir = device_log_dir(log_id)
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    max_total_bytes = clean_positive_int(os.getenv("HELPER_MAX_DEVICE_LOG_BYTES"), 10 * 1024 * 1024, minimum=1024, maximum=50 * 1024 * 1024)
+    total_bytes = 0
+    saved_files: list[dict[str, object]] = []
+    used_names: set[str] = set()
+
+    for index, entry in enumerate(logs[:12], start=1):
+        if not isinstance(entry, dict):
+            continue
+        filename = sanitize_filename(str(entry.get("filename") or "kodi.log"))
+        if filename in used_names:
+            stem, ext = os.path.splitext(filename)
+            filename = "%s_%02d%s" % (stem, index, ext)
+        used_names.add(filename)
+
+        content_b64 = str(entry.get("content_b64") or "").strip()
+        if not content_b64:
+            continue
+        try:
+            content = base64.b64decode(content_b64.encode("ascii"), validate=True)
+        except Exception:
+            return jsonify({"error": "Invalid base64 content for %s." % filename}), 400
+
+        total_bytes += len(content)
+        if total_bytes > max_total_bytes:
+            return jsonify({"error": "Uploaded logs are too large."}), 413
+
+        output_path = target_dir / filename
+        output_path.write_bytes(content)
+        saved_files.append(
+            {
+                "filename": filename,
+                "bytes": len(content),
+                "truncated": bool(entry.get("truncated", False)),
+                "source_path": str(entry.get("source_path") or "").strip(),
+            }
+        )
+
+    if not saved_files:
+        return jsonify({"error": "No readable log files were included."}), 400
+
+    metadata = safe_log_metadata(payload, saved_files, log_id)
+    (target_dir / "metadata.json").write_text(json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8")
+    return jsonify({"ok": True, "log_id": log_id, "stored_dir": str(target_dir), "saved_files": saved_files}), 201
+
+
+@app.get("/api/device-logs")
+def list_device_logs():
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    items = []
+    for path in sorted(DEVICE_LOGS_DIR.iterdir(), key=lambda item: item.name, reverse=True):
+        if not path.is_dir():
+            continue
+        metadata = read_device_log_metadata(path.name)
+        if metadata:
+            items.append(metadata)
+        if len(items) >= 50:
+            break
+    return jsonify({"items": items})
+
+
+@app.get("/api/device-logs/<log_id>")
+def get_device_log(log_id: str):
+    auth = require_auth()
+    if auth is not None:
+        return auth
+
+    metadata = read_device_log_metadata(log_id)
+    if metadata is None:
+        return jsonify({"error": "Log bundle not found."}), 404
+    return jsonify(metadata)
 
 
 @app.get("/api/stored-subtitles/lookup")

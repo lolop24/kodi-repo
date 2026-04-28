@@ -1,0 +1,34 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: service.lolop-logsender\n"
+"Language: en_GB\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#32000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#32001"
+msgid "Helper URL (empty = use TitDeepL LocalSub)"
+msgstr "Helper URL (empty = use TitDeepL LocalSub)"
+
+msgctxt "#32002"
+msgid "Helper token (empty = use TitDeepL LocalSub)"
+msgstr "Helper token (empty = use TitDeepL LocalSub)"
+
+msgctxt "#32003"
+msgid "Device name"
+msgstr "Device name"
+
+msgctxt "#32004"
+msgid "Max bytes per log file"
+msgstr "Max bytes per log file"
+
+msgctxt "#32005"
+msgid "Include kodi.old.log"
+msgstr "Include kodi.old.log"
+
+msgctxt "#32006"
+msgid "Send logs once on Kodi startup"
+msgstr "Send logs once on Kodi startup"
