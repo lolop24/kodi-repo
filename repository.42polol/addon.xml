@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="repository.42polol"
        name="42po.lol Repository"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="lolop24">
     <requires>
         <import addon="xbmc.addon" version="12.0.0"/>
@@ -9,7 +9,7 @@
     <extension point="xbmc.addon.repository" name="42po.lol Repository">
         <dir>
             <info compressed="false">https://42po.lol/addons.xml</info>
-            <checksum algo="md5">https://42po.lol/addons.xml.md5</checksum>
+            <checksum>https://42po.lol/addons.xml.md5</checksum>
             <datadir zip="true">https://42po.lol/</datadir>
         </dir>
     </extension>
@@ -19,8 +19,8 @@
         <summary lang="en">CS Kodi repository</summary>
         <description lang="sk">CS kodi repo - ČSFD Rebríček a Titulky DualSub</description>
         <description lang="en">CS kodi repo - ČSFD Rankings and Titulky DualSub</description>
-        <news>v1.0.2
-- Restore explicit checksum algo="md5" attribute required by Kodi 19+ schema</news>
+        <news>v1.0.3
+- Use Kodi repository checksum schema without unsupported algo attribute</news>
         <platform>all</platform>
         <license>GPL-2.0-only</license>
     </extension>
