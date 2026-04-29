@@ -129,7 +129,7 @@
           </control>
         </setting>
         <setting id="helper_token" type="string" label="32057" help="">
-          <level>1</level>
+          <level>0</level>
           <default/>
           <constraints>
             <allowempty>true</allowempty>

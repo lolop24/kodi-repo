@@ -45,6 +45,11 @@ def _request_helper_json(request, timeout):
             details = exc.read().decode("utf-8")
         except Exception:
             details = str(exc)
+        if exc.code == 401:
+            raise HelperUploadError(
+                "Helper authorization failed (401). Set the helper token in TitDeepL or Log Sender, "
+                "or enable LAN read/log access on the helper."
+            )
         raise HelperUploadError("Helper returned HTTP %s: %s" % (exc.code, details))
     except URLError as exc:
         raise HelperUploadError("Could not reach helper: %s" % exc)

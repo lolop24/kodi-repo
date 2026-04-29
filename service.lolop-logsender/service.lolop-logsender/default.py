@@ -261,6 +261,11 @@ def post_json(url, helper_token, payload):
             details = exc.read().decode("utf-8", "replace")
         except Exception:
             details = str(exc)
+        if exc.code == 401:
+            raise LogSendError(
+                "Helper authorization failed (401). Set the helper token in Log Sender or TitDeepL, "
+                "or enable LAN read/log access on the helper."
+            )
         raise LogSendError("Helper returned HTTP %s: %s" % (exc.code, details))
     except URLError as exc:
         raise LogSendError("Could not reach helper: %s" % exc)

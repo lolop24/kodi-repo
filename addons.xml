@@ -220,7 +220,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="service.lolop-logsender" name="Lolop Log Sender" version="0.1.2" provider-name="Codex">
+    <addon id="service.lolop-logsender" name="Lolop Log Sender" version="0.1.3" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -229,10 +229,10 @@
         </extension>
         <extension point="xbmc.service" library="service.py" />
         <extension point="xbmc.addon.metadata">
-            <summary lang="en_GB">Send Kodi logs to the TitDeepL helper</summary>
-            <description lang="en_GB">Small diagnostic addon for Android and Xbox Kodi. It sends kodi.log and kodi.old.log to the configured TitDeepL helper so update failures can be inspected remotely.</description>
-            <news>v0.1.2
-    - Publish web-visible icon/fanart paths and rebuild package with Kodi-safe ZIP metadata</news>
+            <summary lang="en_gb">Send Kodi logs to the TitDeepL helper</summary>
+            <description lang="en_gb">Small diagnostic addon for Android and Xbox Kodi. It sends kodi.log and kodi.old.log to the configured TitDeepL helper so update failures can be inspected remotely.</description>
+            <news>v0.1.3
+    - Explain helper 401 authorization errors and mention token/LAN setup</news>
             <platform>all</platform>
             <license>MIT</license>
             <assets>
@@ -241,7 +241,7 @@
             </assets>
         </extension>
     </addon>
-    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.21" provider-name="Codex">
+    <addon id="service.subtitles.titdeepl-localsub" name="TitDeepL LocalSub" version="0.1.22" provider-name="Codex">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
         </requires>
@@ -258,9 +258,10 @@
         <extension point="xbmc.addon.metadata">
             <summary lang="en_gb">Translate CZ/SK subtitles and queue remote OpenSubtitles upload</summary>
             <description lang="en_gb">Finds nearby subtitle files, reuses cached Ukrainian translations from a remote helper when available, otherwise translates them with the DeepL API, produces bilingual ASS subtitles, and can queue the Ukrainian upload on a remote helper such as LibreELEC on Raspberry Pi.</description>
-            <news>v0.1.21
-    - Do not show a warning popup when OpenSubtitles upload is skipped only because IMDb is missing
-    - Keep saved helper dualsubs first in the subtitle search window</news>
+            <news>v0.1.22
+    - Reuse helper URL/token from Lolop Log Sender when TitDeepL settings are empty
+    - Show the helper token setting in the basic settings level for Xbox/Kodi
+    - Explain 401 authorization errors more clearly</news>
             <platform>all</platform>
             <license>MIT</license>
             <assets>

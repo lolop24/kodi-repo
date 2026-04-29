@@ -81,6 +81,7 @@ KNOWN_SUBTITLE_ADDON_TEMP_DIRS = (
 _SOURCE_LANG_MAP = {"0": "auto", "1": "cs", "2": "sk"}
 _RESOLVED_IMDB_CACHE = {}
 _EMBEDDED_SOURCE_LANGS = ("sk", "cs")
+_LOGSENDER_ADDON_ID = "service.lolop-logsender"
 _LANGUAGE_ALIASES = {
     "ces": "cs",
     "cze": "cs",
@@ -166,6 +167,32 @@ def get_setting_bool(name, default=False):
         if value == "":
             return default
         return value.lower() == "true"
+
+
+def get_other_addon_setting(addon_id, setting_id):
+    try:
+        addon = xbmcaddon.Addon(addon_id)
+        try:
+            value = addon.getSettingString(setting_id)
+        except Exception:
+            value = addon.getSetting(setting_id)
+    except Exception:
+        value = ""
+    return value or ""
+
+
+def get_helper_url():
+    return (
+        get_setting("helper_url", "").strip()
+        or get_other_addon_setting(_LOGSENDER_ADDON_ID, "helper_url").strip()
+    )
+
+
+def get_helper_token():
+    return (
+        get_setting("helper_token", "").strip()
+        or get_other_addon_setting(_LOGSENDER_ADDON_ID, "helper_token").strip()
+    )
 
 
 def ensure_workdir(clear=False):
@@ -460,7 +487,7 @@ def current_embedded_subtitles():
 
 
 def helper_url_is_configured():
-    return bool(get_setting("helper_url", "").strip())
+    return bool(get_helper_url())
 
 
 def current_playback_path():
@@ -783,7 +810,7 @@ def sanitize_http_error_text(text):
     for secret in (
         stream_cinema_setting("kraska.token"),
         stream_cinema_setting("system.auth_token"),
-        get_setting("helper_token", ""),
+        get_helper_token(),
     ):
         if secret:
             cleaned = cleaned.replace(secret, "<token>")
@@ -1199,11 +1226,11 @@ def download_latest_embedded_helper_subtitle(helper_url, helper_token, job_id, v
 
 
 def queue_progressive_embedded_dual(source_language, ukrainian_language="uk", progress=None):
-    helper_url = get_setting("helper_url", "").strip()
+    helper_url = get_helper_url()
     if not helper_url:
         raise RuntimeError(__addon__.getLocalizedString(32045) or "Remote helper URL is not set.")
 
-    helper_token = get_setting("helper_token", "").strip()
+    helper_token = get_helper_token()
     media_url = helper_media_url_for_extraction(helper_url)
     video_info = ensure_video_imdb(get_video_info(), media_url)
     chunk_seconds = get_bounded_setting_int("embedded_helper_chunk_seconds", 300, 60, 1800)
@@ -1807,7 +1834,7 @@ def helper_lookup_context(fallback_path="", source_path=""):
 
 
 def upload_dual_subtitle_to_helper(ass_path, source_path="", source_language=""):
-    helper_url = get_setting("helper_url", "").strip()
+    helper_url = get_helper_url()
     if not helper_url:
         log("Dualsub helper cache save skipped: helper URL is empty")
         return
@@ -1834,7 +1861,7 @@ def upload_dual_subtitle_to_helper(ass_path, source_path="", source_language="")
     try:
         response = upload_helper_dual_subtitle(
             helper_url=helper_url,
-            helper_token=get_setting("helper_token", "").strip(),
+            helper_token=get_helper_token(),
             subtitle_path=ass_path,
             imdb_id=context["imdb_id"],
             release_name=context["release_name"],
@@ -1857,7 +1884,7 @@ def upload_dual_subtitle_to_helper(ass_path, source_path="", source_language="")
 
 
 def cached_dualsub_source_items():
-    helper_url = get_setting("helper_url", "").strip()
+    helper_url = get_helper_url()
     if not helper_url:
         return []
 
@@ -1872,7 +1899,7 @@ def cached_dualsub_source_items():
     try:
         cached = download_helper_cached_dualsub(
             helper_url=helper_url,
-            helper_token=get_setting("helper_token", "").strip(),
+            helper_token=get_helper_token(),
             output_dir=__workdir__,
             imdb_id=context["imdb_id"],
             release_name=context["release_name"],
@@ -1933,14 +1960,14 @@ def build_dual_subtitle_from_ukrainian(source_path, ukrainian_path):
 
 
 def check_helper_for_cached_translation(source_path):
-    helper_url = get_setting("helper_url", "").strip()
+    helper_url = get_helper_url()
     if not helper_url:
         log("Helper cache check skipped: helper URL is empty")
         return None
 
     video_info = ensure_video_imdb(get_video_info(), source_path)
     imdb_id = video_info.get("imdb", "").strip()
-    helper_token = get_setting("helper_token", "").strip()
+    helper_token = get_helper_token()
     release_name = build_release_name(video_info, source_path)
     _, source_name = split_kodi_path(source_path)
     title = video_info.get("title", "").strip()
@@ -2037,7 +2064,7 @@ def try_upload_to_opensubtitles(ass_path):
     if not get_setting_bool("auto_upload", False):
         return
 
-    helper_url = get_setting("helper_url", "").strip()
+    helper_url = get_helper_url()
     if not helper_url:
         log("Upload skipped: helper URL is empty", xbmc.LOGWARNING)
         __dialog__.notification(
@@ -2067,7 +2094,7 @@ def try_upload_to_opensubtitles(ass_path):
         )
         return
 
-    helper_token = get_setting("helper_token", "").strip()
+    helper_token = get_helper_token()
     os_user = get_setting("os_username", "")
     os_pass = get_setting("os_password", "")
     auto_submit = get_setting_bool("auto_submit", False)
