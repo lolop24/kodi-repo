@@ -220,7 +220,7 @@
             <license>GPL-2.0-only</license>
         </extension>
     </addon>
-    <addon id="script.streamcinema.credentials" name="Stream Cinema Credentials Transfer" version="1.0.0" provider-name="lolop24">
+    <addon id="script.streamcinema.credentials" name="Stream Cinema Credentials Transfer" version="1.0.1" provider-name="lolop24">
         <requires>
             <import addon="xbmc.python" version="3.0.0" />
             <import addon="xbmc.addon" version="21.0.0" />
