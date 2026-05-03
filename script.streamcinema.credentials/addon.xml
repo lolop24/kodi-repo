@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.streamcinema.credentials"
+       name="Stream Cinema Credentials Transfer"
+       version="1.0.0"
+       provider-name="lolop24">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.addon" version="21.0.0"/>
+    </requires>
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_gb">Transfer Stream Cinema login tokens between Kodi installations</summary>
+        <summary lang="sk_sk">Prenos prihlasovacich tokenov Stream Cinema medzi Kodi instalaciami</summary>
+        <summary lang="cs_cz">Prenos prihlasovacich tokenu Stream Cinema mezi instalacemi Kodi</summary>
+        <description lang="en_gb">Exports, imports, or manually applies Stream Cinema credential settings without bundling any secret values in the add-on package.</description>
+        <description lang="sk_sk">Exportuje, importuje alebo rucne zapisuje prihlasovacie nastavenia Stream Cinema bez ulozenia tajnych hodnot v baliku doplnku.</description>
+        <description lang="cs_cz">Exportuje, importuje nebo rucne zapisuje prihlasovaci nastaveni Stream Cinema bez ulozeni tajnych hodnot v baliku doplnku.</description>
+        <platform>all</platform>
+        <license>MIT</license>
+        <source>https://github.com/lolop24/kodi-repo</source>
+    </extension>
+</addon>

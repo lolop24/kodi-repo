@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: script.streamcinema.credentials\n"
+"Language: cs_CZ\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "#30001"
+msgid "Stream Cinema Credentials Transfer"
+msgstr "Prenos prihlaseni Stream Cinema"
+
+msgctxt "#30002"
+msgid "Apply values from this add-on settings"
+msgstr "Zapsat hodnoty z nastaveni tohoto doplnku"
+
+msgctxt "#30003"
+msgid "Export current Stream Cinema credentials"
+msgstr "Exportovat aktualni prihlaseni Stream Cinema"
+
+msgctxt "#30004"
+msgid "Import exported credentials"
+msgstr "Importovat exportovane prihlaseni"
+
+msgctxt "#30005"
+msgid "Open this add-on settings"
+msgstr "Otevrit nastaveni tohoto doplnku"
+
+msgctxt "#30008"
+msgid "No credential values found."
+msgstr "Nenasly se zadne prihlasovaci hodnoty."
+
+msgctxt "#30009"
+msgid "Export written to:%s"
+msgstr "Export zapsan do:%s"
+
+msgctxt "#30010"
+msgid "Export file not found:%s"
+msgstr "Export soubor se nenasel:%s"
+
+msgctxt "#30011"
+msgid "Applied %d Stream Cinema settings. Restart Kodi or Stream Cinema."
+msgstr "Zapsano %d nastaveni Stream Cinema. Restartuj Kodi nebo Stream Cinema."
+
+msgctxt "#30012"
+msgid "Fill this add-on settings first."
+msgstr "Nejprve vypln nastaveni tohoto doplnku."
+
+msgctxt "#30020"
+msgid "Kra.sk username"
+msgstr "Kra.sk jmeno"
+
+msgctxt "#30021"
+msgid "Kra.sk password"
+msgstr "Kra.sk heslo"
+
+msgctxt "#30022"
+msgid "Kra.sk token"
+msgstr "Kra.sk token"
+
+msgctxt "#30023"
+msgid "Kra.sk checksum"
+msgstr "Kra.sk kontrolni soucet"
+
+msgctxt "#30024"
+msgid "System UUID"
+msgstr "System UUID"
+
+msgctxt "#30025"
+msgid "Stream Cinema auth token"
+msgstr "Stream Cinema auth token"
+
+msgctxt "#30026"
+msgid "Auth token updated version"
+msgstr "Verze aktualizace auth tokenu"
+
+msgctxt "#30030"
+msgid "Extra observed fields"
+msgstr "Dalsi nalezena pole"
+
+msgctxt "#30031"
+msgid "kra_token"
+msgstr "kra_token"
+
+msgctxt "#30032"
+msgid "kra_chsum"
+msgstr "kra_chsum"
+
+msgctxt "#30033"
+msgid "kruser"
+msgstr "kruser"
+
+msgctxt "#30034"
+msgid "krpass"
+msgstr "krpass"
+
+msgctxt "#30035"
+msgid "ws_token"
+msgstr "ws_token"
+
+msgctxt "#30036"
+msgid "wsuser"
+msgstr "wsuser"
+
+msgctxt "#30037"
+msgid "wspass"
+msgstr "wspass"
+
+msgctxt "#30038"
+msgid "Trakt authorization"
+msgstr "Trakt autorizace"
+
+msgctxt "#30039"
+msgid "Trakt token"
+msgstr "Trakt token"
