@@ -112,3 +112,19 @@ msgstr "Trakt autorizacia"
 msgctxt "#30039"
 msgid "Trakt token"
 msgstr "Trakt token"
+
+msgctxt "#30040"
+msgid "Kra.sk username"
+msgstr "Kra.sk meno"
+
+msgctxt "#30041"
+msgid "Kra.sk password"
+msgstr "Kra.sk heslo"
+
+msgctxt "#30042"
+msgid "Incorrect username or password."
+msgstr "Nespravne meno alebo heslo."
+
+msgctxt "#30043"
+msgid "Unlocked and applied %d Stream Cinema settings. Restart Kodi or Stream Cinema."
+msgstr "Odomknutych a zapisanych %d nastaveni Stream Cinema. Restartuj Kodi alebo Stream Cinema."
