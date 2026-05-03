@@ -128,3 +128,7 @@ msgstr "Nespravne meno alebo heslo."
 msgctxt "#30043"
 msgid "Unlocked and applied %d Stream Cinema settings. Restart Kodi or Stream Cinema."
 msgstr "Odomknutych a zapisanych %d nastaveni Stream Cinema. Restartuj Kodi alebo Stream Cinema."
+
+msgctxt "#30044"
+msgid "Unlocked and applied %d settings across %d add-ons. Restart Kodi."
+msgstr "Odomknutych a zapisanych %d nastaveni v %d doplnkoch. Restartuj Kodi."

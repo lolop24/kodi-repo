@@ -15,10 +15,12 @@ import xbmcvfs
 
 
 ADDON = xbmcaddon.Addon()
-TARGET_ADDON_ID = 'plugin.video.stream-cinema'
+STREAM_CINEMA_ADDON_ID = 'plugin.video.stream-cinema'
+TITDEEPL_ADDON_ID = 'service.subtitles.titdeepl-localsub'
+TARGET_ADDON_ID = STREAM_CINEMA_ADDON_ID
 EXPORT_FILE = 'stream_cinema_credentials.json'
 PERSONAL_CREDENTIAL_BLOB = (
-    'eyJjdCI6IjhLdSsrMzBlaGdTSVphWVhuYlhPc1RLcmFvR3pqUWphajIzVFRvK2xySHIwcUx0VjNLb2V3Y3p0MG9CaFVnbWhDbWZ2bEVYS2JERVVtTDhGSWcwdjRPU1hzaHRIQnM2aUhiVDdXMktjQ3l6YU93azRYVmw0UGV1dURsYWszTUtWZjlGVFpaNkU4WkV5a001aHUxZ1Ywbzg4dVYyTW1rTU84dWw0UGhGcmUzSmUyN3lSUUpaVHF1OUdtUld1VExCTzljVlF1ZmN1cjVDeGxienFJems5SkZwdmxXUnhQRXUzdXV2bi9RTTNIZEloUG4ybmZGbkV2SVdwZG53QTlDNjV5bldkWTg4bEgvOTJuckRkMHl0d1ljdnBtUzRob3paNlBMNVhSU0lUVVNwSHBwTSswdEVQQ2gxVzh4blEreUNDSXY0L0dTUi9Pc2l1QmZtbTlnV1JObWIwaExxK010M0NvMU9iNEtCR3d0YTRGQjRWTXNtRkg3dGUiLCJpdGVyYXRpb25zIjoyMDAwMDAsImtkZiI6InBia2RmMi1zaGEyNTYiLCJub25jZSI6ImpXY1B5ck5oRXBwMDhlT2VsV0hVa3c9PSIsInNhbHQiOiJlL3QrZnVBZzhFZURXWC81S3JOTDNBPT0iLCJ0YWciOiJlRVBycGRGaUxTM25tT0pPUm14Vm9qeDFpcC9XRnl0K3owUWZSMnAxMkFFPSIsInYiOjF9'
+    'eyJjdCI6IjVlK2hnUDNESjkxQmpwWmFwK3BDU2tZalk2TzkyanBONVpoYmZRaHlMNVY4bmhOMitlNUV6Ym1wbkROZzBjNnl1QU4yU29HbEpGQytVRXpaaHVnK1FtRE1XbUlqdlp3TzBPbmNzcUd3SDN1ZDRDZDJBa0J6SHVBdFphK0cvdVNTN1ljQktxcVFoYkgzMnVEa3hER1RaYVpKUGV6WFJZWGdSWm8wZ0ZvTEl6VHBHS0tFT0l5Y1VicG9pRkpmbGxXMDN6RUxObGFxd1VCNjBQZXZlNGRtTjZUWGxTNkI0allpNnVLemRkcnAxU2xvbEk3b3Y1QXphVGJVSGU0KzVFdUtmUDRRcnRwcCt6YmM1czhlcXhkVTkxN2hzdWJ0d1Y5djl6anJ0Z0ZINjRqdXVEWjdUb1lpOEh0WU92UEhlb21HdnBrbFlGMGRtb2ZSYm1nVmFyR2ZlemFTUDEvUEdQb21FOTIyZlNLSUZwUDNGS3VZME9hWDlidnYzN1lCdGw4SW0vdmY0MXdRMlY3NzZGOXR4d3dSQVlFU1VRcGFEblBNenltNkhHT1RBM0EzYWxxTlhydnJYRW9JVUF2bC9uUldUcDN1azFZMnZJMXZYK1ZISXUxZ1ZmYURqNUNvdkVRck1MdlNkTEZzWlhmNDRRbFdtSkZFVVpFUGxFTGFKd0RRalpJR0ZLZFdFbHVZR2ZYUkxESERhV2pma1dZckJaV0I2RlBPQ1JNTW9hK1FZWEMwai9aSjJHMUh3ZHN5VGVXMlY4cTF5TDlOMFJJQTBsUGZNYkw5cEZYTEFNQVIxd0JxWVpHK0dHNEh3S1RWY1h0cTAvQkRGZEd2YzdZa2k5UmsyV0NaaGorVkxqcHZLK01ra0hhb2JkMFk1MFcvWm9JdWVoaHZHclBsSTNIOGlIcHNINEhiWHo5eXA5SDV2SnBDZE5LRzl0bXNDb2M5TFVGSmRteTFqeHRnVStLR0VXTVB5N2VnRjVudmZyem9PcFArTGZxZGg0VHkyTS9aelZocW5kU1lrTXdtNE5rbUltem4yeTY2dUdkUzBMeGFDTWhJYSs4b3VGcE9wb0o3UEhZT3JId2FvQ1U1RzZRMFFHV2NUWUN4YW1qZWpzcjRlSjlCMkJEQktmblQ4dmowaStmaG13UVAwKzlQTXNKUzlXRVBwVkVBVDNaZndaczRyTU11UEJGL01Ma29nRFlObXZRNFhsdytaMkRHR1JMazBPZG5iNE1XdHFPM3FidEJjWTVLbkhra200ZXl0aVdSd2R0RFd1Ui9ZVGRDZVRCZWRIVnlpM2I2T2hPK0xiVi9NcUFaTzdXTjB1R0VaOVVla0VrY29FbWNiRGhHSjBSWkhTcmx5Unprc2RxT1lWRWNoM2taRkp0eXA1cmh6RkpUeVRDQ3lpaU9nNklGajEvcDVoUGUvRnhYdnpycVZsQlFDR3dZY0JzNGZjb0JBY2hPZXI5NkM2V3pFSjRSbWFxcjlQZVpzMk5VMi95dXZQQSszSG4zcFJ3emFnR1hETW9Cd2Rvb2NGVCs4bytBdDN2OWY4MERBdUdPVkR5L1E2U0FwSjNsYnplVEh0UnpMVWR0QWczMnprcndCLy9td3hvZnpEVWZBaGYzaWMrU1Evcis5TTlZUFhCUEdzNFF3WUc1a0hGTm45YjhLcFpnU3I3TVFqdHJqQ05qR204YmpTUXcvRXowOVdNK29FOFVwZ3dYMkJJbWNmcGtnaXhtbjZ0R3BGUkpadUZ2a2kxd1RCa1g2K1dta3FUazFlOEZYQkk2Y1IxL0lCQnkzSUdwNkdaL0tjVkMzV2NLRGI5M01ma2RpYVp1MDlwOUVxYm9Jc3p0M0pGeXdzK0pJUHlpdkFDNE0rSFJ4WE5WT1lFMWhUajFNZStPZWRyTjF3MVM2UlZ6RUZNaklLRUF0R2hnSWx1NzRnL3lRdTA3ZWpNK0o0ZzNXVkdrNktKc2JXbzNTNzNkZFY2NEtUa0pmOFlLenVIRVFJYmVmWEFjc3VPejBGQkFoV25TaUhHREVraGY5TUUxMDA3NGFSanlTYXZOWEl4VkRhWnJyZ0xuU2FqaWdSbmkwNnE0WERBNi81TGVvZlFoc3d6cnczbFFiaTBDNmFUTkN1WEdMVGJpa0RvcTAxV3hweVFYODNwc2VIMWRnMXRPNnRLMXY0UUtMamJBYUhpTDUxd1FoNVh3MmFLMERlRGJQM2Y0STY2czN3UGJwVktLV2tCNWo0dGI3ZFFZL2twSzZUR2QrRm0zOHh1NnJzMHlRZXlDKzB0Y1ZrUFo2RnoraTVUUVRaY0F6L2tQV2VUVXBhMUVIeDVnVlgzL0ZqVm8xYTArZFVnWkNBVHpwN01hTVBkcWVUYWVtVXlOVDVlQVdJSTlaMVgwMC9DRHZzNnFJdmRsVEJ5b25WbkliSlRUWE54Wk9vb2g1OG50TVdxZTdFbVFzNXVwYnRZSlZrWjZjZGl1V2hDTjlGNzc1S2FxVFdlaFNPak5ObXEzOEMzOHFIb2dzbFgzRFpwVG55OTlMSG9lOUF0QkFQN3JqdHVDYkRXdmd0Mm9UL3V2UlVMUkZxRVpLY0JPSXdtV3RTZzV3bTk0V25ZZ0F2ek5YWXY3QUk5QWdlaDJpcWFuMkcrQzJvTU0vKzdRK1cxcG82REhQejk2OWVKekN0STh3TVdtZmoyb2E4U1RhMzNBb3NyeGFDeFFqN3hXeTMySE4waEJCY2JYRFoyNm1RSzY3K0NvNWZnZlhpU0FMd2E4ZWdGTFpJRTZTMkFrV0V5V1pIdmxFSDNMZXRuWTVKREZBYTVENjlRZyt5Q01pMnlYejZ1aWRMTEhsU0lpZ3YvVldCbkwzamdmMkRTb1NtQmxsc1BRQkhFZERYRjNHbTF1K1FROHNMcXIrT3FVSUZCbEIrU2pxV0JBZHBSQ2IyRDNSQ2NjaGNuZ2p4QnFZRmFjUGtLMmFUd1BCK2g2T3pLNGFqZ3FnTEJPeGNUc0pyclQxOVBwa0pQUDRVYnNlMUkya0xBT1pmNkpLdHFJN0djZnhsUDlTblVHQmd2Zks2ekpxUmU4SUJDcElGb2cyWmlXajd1SmlFN1RaR2NyVDJML2RlNlEyWlFZZlhabnJtYmRuU1Q2cThqR2VHYzA1MXEzT29JZ1Y4THRYMElESklzWkZBY1pmVG5JUzd3cXB1OEN0V2lnRnhqRjJzM3JrSlVPRW9EdWMxYWhTN3d0RWdzQ1djRWl4Z1lxNWp1WVpkdVFuQTJwU0htT2tqeWZJd3d6OXpjOEx1bGZmU2hldmxaeFJKeXl1UTdqeEZYVUJrSVhjdERxWGdzS0N6WlRzczNyOVQzWHI2YklRZitJb2ppU3I3YkpyT0p0ZG9vWEd3ZU54NXEvS1oxczRDU3J6STByaFVGN0lqOWd0WmFxM1RIdUJTSDZuRjUzR3RLc3Y1NnJsR3FGV1F2Y3YwNldsdHNuNUk4VjR6K01yZkRSVmFwYm1CS0RoeUVKcVlpNTFXSndiaEc5R0UrZnh0eGp5bHRGV1dkbExaY2tOV1laaEJKdVBHYm1TUEtDZDVUcjErOUNQZjJRelIwZjdjV1JqRmZGL3V4cU1KbEsrYVFFQXRDcWU1NXBDdm9NSDRkNlA5djRIV2ZUdFB5QmwwMFRXSWJyZFl1a1BENjJNdz09IiwiaXRlcmF0aW9ucyI6MjAwMDAwLCJrZGYiOiJwYmtkZjItc2hhMjU2Iiwibm9uY2UiOiJVdUNaNmY3YURha2hrMkIxMlE3TU5RPT0iLCJzYWx0IjoieGxKOVJ2VlJsQWptdFZ1eExkTGsxdz09IiwidGFnIjoiNVhhRmRDM21jbll0RXNnaGljS0NNcmtoZXR5WWlmY1FoVzlSbU9xWU1FND0iLCJ2IjoyfQ=='
 )
 
 CORE_FIELDS = [
@@ -44,6 +46,11 @@ EXTRA_FIELDS = [
 ]
 
 ALL_FIELDS = CORE_FIELDS + EXTRA_FIELDS
+STREAM_CINEMA_USERNAME_FIELDS = ['kraska.user', 'kruser', 'wsuser']
+STREAM_CINEMA_PASSWORD_FIELDS = ['kraska.pass', 'krpass', 'wspass']
+STREAM_CINEMA_CHECKSUM_FIELDS = ['kraska.chsum', 'kra_chsum']
+TITDEEPL_USERNAME_FIELDS = ['os_username']
+TITDEEPL_PASSWORD_FIELDS = ['os_password']
 
 
 def _b64decode(value):
@@ -69,8 +76,12 @@ def profile_dir(addon_id):
     return path
 
 
+def settings_path(addon_id):
+    return os.path.join(profile_dir(addon_id), 'settings.xml')
+
+
 def target_settings_path():
-    return os.path.join(profile_dir(TARGET_ADDON_ID), 'settings.xml')
+    return settings_path(TARGET_ADDON_ID)
 
 
 def export_path():
@@ -116,9 +127,9 @@ def write_settings(path, values):
     tree.write(path, encoding='utf-8', xml_declaration=True)
 
 
-def target_addon_version():
+def target_addon_version(addon_id=TARGET_ADDON_ID):
     try:
-        return xbmcaddon.Addon(TARGET_ADDON_ID).getAddonInfo('version')
+        return xbmcaddon.Addon(addon_id).getAddonInfo('version')
     except Exception:
         return ''
 
@@ -159,7 +170,14 @@ def decrypt_personal_blob(username, password):
             return None
         payload = _xor_crypt(ciphertext, key, nonce)
         decoded = json.loads(payload.decode('utf-8'))
-        return decoded.get('settings', {})
+        if decoded.get('addons'):
+            return decoded
+        return {
+            'v': decoded.get('v', 1),
+            'addons': {
+                STREAM_CINEMA_ADDON_ID: decoded.get('settings', {}),
+            },
+        }
     except Exception as exc:
         log('Personal credential blob failed: %s' % exc, xbmc.LOGWARNING)
         return None
@@ -178,36 +196,92 @@ def ask_credentials():
     return username.strip(), password
 
 
+def clean_payload_values(values):
+    if not isinstance(values, dict):
+        return {}
+    return {
+        str(key): str(value)
+        for key, value in values.items()
+        if key and value is not None and str(value) != ''
+    }
+
+
+def add_entered_credentials(values, username, password, username_fields, password_fields):
+    for field in username_fields:
+        values[field] = username
+    for field in password_fields:
+        values[field] = password
+
+
+def prepare_stream_cinema_values(values, username, password):
+    prepared = clean_payload_values(values)
+    add_entered_credentials(
+        prepared,
+        username,
+        password,
+        STREAM_CINEMA_USERNAME_FIELDS,
+        STREAM_CINEMA_PASSWORD_FIELDS,
+    )
+
+    checksum = checksum_credentials(username, password)
+    if checksum:
+        for field in STREAM_CINEMA_CHECKSUM_FIELDS:
+            prepared[field] = checksum
+
+    if prepared.get('system.auth_token') and 'system.auth_token_updated' not in prepared:
+        version = target_addon_version(STREAM_CINEMA_ADDON_ID)
+        if version:
+            prepared['system.auth_token_updated'] = version
+
+    return prepared
+
+
+def prepare_titdeepl_values(values, username, password):
+    prepared = clean_payload_values(values)
+    add_entered_credentials(
+        prepared,
+        username,
+        password,
+        TITDEEPL_USERNAME_FIELDS,
+        TITDEEPL_PASSWORD_FIELDS,
+    )
+    return prepared
+
+
+def prepare_personal_values(addon_id, values, username, password):
+    if addon_id == STREAM_CINEMA_ADDON_ID:
+        return prepare_stream_cinema_values(values, username, password)
+    if addon_id == TITDEEPL_ADDON_ID:
+        return prepare_titdeepl_values(values, username, password)
+    return clean_payload_values(values)
+
+
 def apply_personal_blob():
     username, password = ask_credentials()
     if not username or not password:
         return
 
-    values = decrypt_personal_blob(username, password)
-    if not values:
+    payload = decrypt_personal_blob(username, password)
+    addons = payload.get('addons', {}) if payload else {}
+    if not addons:
         xbmcgui.Dialog().notification(L(30001), L(30042), xbmcgui.NOTIFICATION_ERROR)
         return
 
-    checksum = checksum_credentials(username, password)
-    values = {key: str(value) for key, value in values.items() if key in ALL_FIELDS and value}
-    values.update({
-        'kraska.user': username,
-        'kraska.pass': password,
-        'kraska.chsum': checksum,
-        'kruser': username,
-        'krpass': password,
-        'wsuser': username,
-        'wspass': password,
-        'kra_chsum': checksum,
-    })
+    applied_addons = 0
+    applied_settings = 0
+    for addon_id, values in addons.items():
+        prepared = prepare_personal_values(addon_id, values, username, password)
+        if not prepared:
+            continue
+        write_settings(settings_path(addon_id), prepared)
+        applied_addons += 1
+        applied_settings += len(prepared)
 
-    if values.get('system.auth_token') and 'system.auth_token_updated' not in values:
-        version = target_addon_version()
-        if version:
-            values['system.auth_token_updated'] = version
+    if not applied_addons:
+        xbmcgui.Dialog().notification(L(30001), L(30008), xbmcgui.NOTIFICATION_WARNING)
+        return
 
-    write_settings(target_settings_path(), values)
-    xbmcgui.Dialog().ok(L(30001), L(30043) % len(values))
+    xbmcgui.Dialog().ok(L(30001), L(30044) % (applied_settings, applied_addons))
 
 
 def values_from_helper_settings():

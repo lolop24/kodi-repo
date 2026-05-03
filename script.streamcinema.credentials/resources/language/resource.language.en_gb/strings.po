@@ -128,3 +128,7 @@ msgstr "Incorrect username or password."
 msgctxt "#30043"
 msgid "Unlocked and applied %d Stream Cinema settings. Restart Kodi or Stream Cinema."
 msgstr "Unlocked and applied %d Stream Cinema settings. Restart Kodi or Stream Cinema."
+
+msgctxt "#30044"
+msgid "Unlocked and applied %d settings across %d add-ons. Restart Kodi."
+msgstr "Unlocked and applied %d settings across %d add-ons. Restart Kodi."
